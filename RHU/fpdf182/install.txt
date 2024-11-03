@@ -1,0 +1,64 @@
+Prenatal_Info (prenatalID, patient_id, user_id, date, attending_physician)
+LMP_Info (prenatalID, lmp, ga_by_lmp, edc_by_lmp)
+Sonar_Info (prenatalID, ga_by_sonar, edc_by_utz, gestation)
+Biometric_Info (prenatalID, biparietal_diameter, biparietal_eq, head_circumference, head_circumference_eq, abdominal_circumference, abdominal_circumference_eq, femoral_length, femoral_length_eq, crown_rump_length, crown_rump_length_eq, mean_gest_sac_diameter, mean_gest_sac_diameter_eq, average_fetal_weight)
+Medical_Info (prenatalID, presentation_lie, amniotic_fluid, placenta_location, previa, placenta_grade, fetal_activity, comments, radiologist)
+
+
+CREATE TABLE Prenatal_Info (
+    prenatalID INT PRIMARY KEY,
+    patient_id INT,
+    user_id INT,
+    date DATE,
+    attending_physician VARCHAR(255),
+    FOREIGN KEY (patient_id) REFERENCES Patients(patient_id),
+    FOREIGN KEY (user_id) REFERENCES Users(user_id)
+);
+
+CREATE TABLE LMP_Info (
+    prenatalID INT PRIMARY KEY,
+    lmp DATE,
+    ga_by_lmp INT,
+    edc_by_lmp DATE,
+    FOREIGN KEY (prenatalID) REFERENCES Prenatal_Info(prenatalID)
+);
+
+
+CREATE TABLE Sonar_Info (
+    prenatalID INT PRIMARY KEY,
+    ga_by_sonar INT,
+    edc_by_utz DATE,
+    gestation INT,
+    FOREIGN KEY (prenatalID) REFERENCES Prenatal_Info(prenatalID)
+);
+
+CREATE TABLE Biometric_Info (
+    prenatalID INT PRIMARY KEY,
+    biparietal_diameter FLOAT,
+    biparietal_eq FLOAT,
+    head_circumference FLOAT,
+    head_circumference_eq FLOAT,
+    abdominal_circumference FLOAT,
+    abdominal_circumference_eq FLOAT,
+    femoral_length FLOAT,
+    femoral_length_eq FLOAT,
+    crown_rump_length FLOAT,
+    crown_rump_length_eq FLOAT,
+    mean_gest_sac_diameter FLOAT,
+    mean_gest_sac_diameter_eq FLOAT,
+    average_fetal_weight FLOAT,
+    FOREIGN KEY (prenatalID) REFERENCES Prenatal_Info(prenatalID)
+);
+
+CREATE TABLE Medical_Info (
+    prenatalID INT PRIMARY KEY,
+    presentation_lie VARCHAR(255),
+    amniotic_fluid VARCHAR(255),
+    placenta_location VARCHAR(255),
+    previa VARCHAR(255),
+    placenta_grade VARCHAR(255),
+    fetal_activity VARCHAR(255),
+    comments TEXT,
+    radiologist VARCHAR(255),
+    FOREIGN KEY (prenatalID) REFERENCES Prenatal_Info(prenatalID)
+);

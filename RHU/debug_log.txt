@@ -1,0 +1,47 @@
+Array
+(
+    [search_patient] => 4
+    [visit_date] => 05/14/2024
+    [next_visit_date] => 05/15/2024
+    [disease] => 1
+    [doctor] => 9
+    [packing] => 
+    [mg] => 
+    [quantity] => 
+    [dosage] => 
+    [Duration] => 
+    [medicineDetailIds] => Array
+        (
+            [0] => 19
+        )
+
+    [quantities] => Array
+        (
+            [0] => 1
+        )
+
+    [dosages] => Array
+        (
+            [0] => 1
+        )
+
+    [mg_ml] => Array
+        (
+            [0] => 1
+        )
+
+    [duration] => Array
+        (
+            [0] => 1
+        )
+
+    [advice] => Array
+        (
+            [0] => 1
+        )
+
+    [submit] => 
+)
+Patient ID: 4, Doctor ID: 9, Visit Date: 2024-05-14, Next Visit Date: 2024-05-15, Disease: 1
+Last Inserted ID: 5
+Medicine Detail: 19, Quantity: 1, Dosage: 1, Mg: 1, Duration: 1, Advice: 1

@@ -1,0 +1,86 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    padding: 20px;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.patient-info {
+    display: flex;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.patient-photo img {
+    border-radius: 50%;
+    width: 100px;
+    height: 100px;
+    margin-right: 20px;
+}
+
+.patient-details {
+    font-size: 1.2rem;
+}
+
+.patient-details p {
+    margin: 5px 0;
+}
+
+.records-section {
+    text-align: center;
+}
+
+.records-section h1 {
+    font-size: 2rem;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+.records-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-gap: 20px;
+}
+
+.record {
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    padding: 20px;
+    text-align: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.record h3 {
+    font-size: 1.4rem;
+    margin-bottom: 10px;
+}
+
+.record button {
+    background-color: #5cb85c;
+    color: #fff;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 50px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.record button:hover {
+    background-color: #4cae4c;
+}
