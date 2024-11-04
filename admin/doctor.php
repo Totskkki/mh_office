@@ -110,6 +110,25 @@ if (isset($_POST['save_doctor'])) {
             $stmtUsers = $con->prepare("INSERT INTO `tbl_users` (`user_name`, `password`, `status`, `profile_picture`, `personnel_id`, `position_id`, `UserType`) VALUES (?, ?, ?, ?, ?, ?, ?)");
             $stmtUsers->execute([$uname, $bcrypt_password, $status, $finalimage, $personnelId, $positionId, $role]);
 
+
+
+
+
+            
+
+            $record_id = $con->lastInsertId();
+
+ 
+            $affectedRecordName = getAffectedRecordName('tbl_users', $record_id, $con);
+    
+         
+            $userId = $_SESSION['admin_id']; 
+            $action = "Add Health Professional";
+            $description = "Added Health Professional,  $affectedRecordName";
+    
+            logAuditTrail($userId, $action, $description, 'tbl_users', $record_id, $con);
+
+
             $con->commit();
             $_SESSION['status'] = "User successfully added.";
             $_SESSION['status_code'] = "success";
@@ -193,6 +212,19 @@ if (isset($_POST['update_doctor'])) {
 
             $stmtUsers = $con->prepare($updateUserQuery);
             $stmtUsers->execute($params);
+
+
+
+            
+            $affectedRecordName = getAffectedRecordName('tbl_users', $user_id, $con);
+    
+         
+            $userId = $_SESSION['admin_id']; 
+            $action = "Updated Health Professional";
+            $description = "Updated Health Professional,  $affectedRecordName";
+    
+            logAuditTrail($userId, $action, $description, 'tbl_users', $user_id, $con);
+
 
             $con->commit();
             $_SESSION['status'] = "Doctor information successfully updated.";

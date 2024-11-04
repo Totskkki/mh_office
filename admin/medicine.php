@@ -89,7 +89,18 @@ if (isset($_POST['save_meds'])) {
 
             ];
 
-            $result = insert('tbl_medicines', $data, $con);
+                  $result = insert('tbl_medicines', $data, $con);
+
+                  $record_id = $con->lastInsertId();
+
+                 $affectedRecordName = getAffectedRecordName('tbl_medicines', $record_id, $con);
+
+     
+                $userId = $_SESSION['admin_id']; 
+                $action = "Added Medicine,";
+                $description = "Added Medicine  $affectedRecordName";
+
+                logAuditTrail($userId, $action, $description, 'tbl_medicines', $record_id, $con);
 
             if ($result) {
                 $_SESSION['status'] = "Medicine successfully added.";

@@ -730,7 +730,7 @@ function getAffectedRecordName($table, $recordId, $con)
 			} else {
 				return 'Unknown'; // If no record is found
 			}
-			case 'tbl_announcements':
+		case 'tbl_announcements':
 			$stmt = $con->prepare("SELECT `date`, `title`, `details`, `created_at`, `updated_at` FROM `tbl_announcements` WHERE announceID  = ?");
 
 
@@ -739,8 +739,54 @@ function getAffectedRecordName($table, $recordId, $con)
 			if ($result) {
 				return trim(($result['title'] ?? '') . ' ' . ($result['details'] ?? ''));
 			} else {
-				return 'Unknown'; 
+				return 'Unknown';
 			}
+		case 'tbl_medicine_details':
+			$stmt = $con->prepare("SELECT m.*, md.*
+								FROM `tbl_medicines` AS m
+								JOIN `tbl_medicine_details` AS md ON m.medicineID = md.medicine_id
+								WHERE
+								md.med_detailsID=?");
+
+
+			$stmt->execute([$recordId]);
+			$result = $stmt->fetch();
+			if ($result) {
+				return trim(($result['medicine_name'] ?? '') . ' ' . ($result['packing'] ?? '')  . ' ' . ($result['qt'] ?? ''));
+			} else {
+				return 'Unknown';
+			}
+
+		case 'tbl_medicines':
+			$stmt = $con->prepare("SELECT `medicineID`, `medicine_name`, `description`, `supplier`, `category`, `manuf_date`, `ex_date`, `manufacturer`, `brand`, `status`, `date_added` FROM `tbl_medicines`
+                                                    WHERE medicineID = ?");
+
+
+			$stmt->execute([$recordId]);
+			$result = $stmt->fetch();
+			if ($result) {
+				return trim(($result['medicine_name'] ?? ''));
+			} else {
+				return 'Unknown';
+			}
+			case 'tbl_users':
+			$stmt = $con->prepare("SELECT user.*,personnel.*, position.*
+								FROM `tbl_users` AS user
+								LEFT JOIN `tbl_personnel` AS personnel ON user.personnel_id = personnel.personnel_id
+								LEFT JOIN `tbl_position` AS position ON user.position_id = position.position_id
+								WHERE user.userID= ? ");
+
+
+			$stmt->execute([$recordId]);
+			$result = $stmt->fetch();
+			if ($result) {
+				return trim(($result['first_name'] ?? '') . ' ' . ($result['middlename'] ?? '')  . ' ' . ($result['lastname'] ?? ''));
+			} else {
+				return 'Unknown';
+			}
+
+
+
 
 
 

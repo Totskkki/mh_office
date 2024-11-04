@@ -68,6 +68,22 @@ if (isset($_POST['save_user'])) {
             $stmtUsers = $con->prepare("INSERT INTO tbl_users (user_name, password, status, profile_picture, personnel_id, position_id, UserType) VALUES (?, ?, ?, ?, ?, ?, ?)");
             $stmtUsers->execute([$uname, $bcrypt_password, $status, $finalimage, $personnelId, $positionId, $Role]);
 
+
+
+            $record_id = $con->lastInsertId();
+
+ 
+            $affectedRecordName = getAffectedRecordName('tbl_users', $record_id, $con);
+    
+         
+            $userId = $_SESSION['admin_id']; 
+            $action = "Add Users";
+            $description = "Added User,  $affectedRecordName";
+    
+            logAuditTrail($userId, $action, $description, 'tbl_users', $record_id, $con);
+
+
+
             $con->commit();
             $_SESSION['status'] = "User successfully added.";
             $_SESSION['status_code'] = "success";

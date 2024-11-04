@@ -265,7 +265,7 @@
                 <form id="update_schedule_form" method="POST" novalidate>
                     <input type="hidden" id="doc_scheduleID" name="doc_scheduleID">
                     <div class="mb-3 row">
-                        <label for="doctor_update" class="col-sm-3 col-form-label text-center">Select Doctor</label>
+                        <label for="doctor_update" class="col-sm-3 col-form-label text-center">Select Doctor <span class="text-danger">*</span></label>
                         <div class="col-sm-8">
                             <select name="doctor" id="doctor" class="form-select" required>
                                 <?php echo $doctors; ?>

@@ -49,6 +49,16 @@ if(isset($_POST['update_meds'])){
         // Update the medicine
         $result = update('tbl_medicines', 'medicineID', $medid, $updateData, $con);
 
+
+        $affectedRecordName = getAffectedRecordName('tbl_medicines', $medid, $con);
+
+     
+        $userId = $_SESSION['admin_id']; 
+        $action = "Updated Medicine,";
+        $description = "Updated Medicine,  $affectedRecordName";
+
+        logAuditTrail($userId, $action, $description, 'tbl_medicines', $medid, $con);
+
         // Check if update was successful
         if ($result) {
             $_SESSION['status'] = "Medicine successfully updated.";

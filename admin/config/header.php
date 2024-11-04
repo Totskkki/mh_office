@@ -128,7 +128,7 @@ if (isset($_POST['update_admin'])) {
 					$queryTotal = "
                     SELECT COUNT(*) AS total 
                     FROM `tbl_doctor_schedule` 
-                    WHERE `is_available` = 0 
+                    WHERE `is_available` = 2
                     AND `date_schedule` >= :today
                 ";
 					$stmtTotal = $con->prepare($queryTotal);
@@ -157,7 +157,7 @@ if (isset($_POST['update_admin'])) {
                                         LEFT JOIN tbl_users AS user ON user.userID = s.userID
                                         LEFT JOIN tbl_personnel AS personnel ON user.personnel_id = personnel.personnel_id
                                         LEFT JOIN tbl_position AS position ON user.position_id = position.position_id
-										WHERE s.`is_available` = 0
+										WHERE s.`is_available` = 2
 										AND s.`date_schedule` >= :today
 										ORDER BY s.`date_schedule` ASC
 										LIMIT 10

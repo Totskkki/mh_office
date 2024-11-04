@@ -182,6 +182,20 @@ if (isset($_POST['update_user'])) {
 
             $stmtUsers = $con->prepare($updateUserQuery);
             $stmtUsers->execute($params);
+
+
+
+            $affectedRecordName = getAffectedRecordName('tbl_users', $user_id, $con);
+    
+         
+            $userId = $_SESSION['admin_id']; 
+            $action = "Updated Users";
+            $description = "Updated User,  $affectedRecordName";
+    
+            logAuditTrail($userId, $action, $description, 'tbl_users', $user_id, $con);
+
+
+
             $con->commit();
             $_SESSION['status'] = "User successfully updated.";
             $_SESSION['status_code'] = "success";

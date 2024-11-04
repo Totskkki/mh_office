@@ -608,6 +608,9 @@ $doctors = getDoctorSchedule($con);
                                                                     case 3:
                                                                         echo '<span class="badge bg-warning">Approved</span>';
                                                                         break;
+                                                                        case 4:
+                                                                        echo '<span class="badge bg-danger">Rejected</span>';
+                                                                        break;
                                                                 }
                                                                 ?>
                                                             </td>
@@ -629,6 +632,8 @@ $doctors = getDoctorSchedule($con);
                                                                         <i class="icon-close">x</i>
                                                                     </button>
                                                                 <?php elseif ($scheduleData['is_available'] == 3) : ?>
+                                                                    <!-- Only show Approve and Reject actions for Pending status -->
+                                                                    <?php elseif ($scheduleData['is_available'] == 4) : ?>
                                                                     <!-- Only show Approve and Reject actions for Pending status -->
 
                                                                 <?php endif; ?>
@@ -691,85 +696,85 @@ $doctors = getDoctorSchedule($con);
 
                                         $calendarEvents = [];
 
-                                      
-// Loop through each schedule entry
-foreach ($results as $event) {
-    $schedulesArray = json_decode($event['schedules'], true);
-    $doctorName = htmlspecialchars($event['doctorsname']);
-    $color = $doctorColors[$doctorName] ?? '#0073e6';
 
-    // If is_available is set to 3, add "No Duty" event on the specified date
-    if ($event['is_available'] == 3 && !empty($event['date_schedule'])) {
-        $noDutyDate = new DateTime($event['date_schedule']);
-        $calendarEvents[] = [
-            'title' => 'No Duty: ' . $doctorName,
-            'start' => $noDutyDate->format('Y-m-d') . 'T00:00:00',
-            'end'   => $noDutyDate->format('Y-m-d') . 'T23:59:59',
-            'color' => '#FF0000', // Red color for no duty
-            'status' => 'No Duty',
-        ];
-    } else {
-        $statusText = $event['is_available'] == 1 ? 'Available' : 'Not Available';
+                                     
+                                        foreach ($results as $event) {
+                                            $schedulesArray = json_decode($event['schedules'], true);
+                                            $doctorName = htmlspecialchars($event['doctorsname']);
+                                            $color = $doctorColors[$doctorName] ?? '#0073e6';
 
-        // Process regular schedule entries
-        foreach ($schedulesArray as $day => $slots) {
-            $dayNumber = date('N', strtotime($day));
+                                          
+                                            if ($event['is_available'] == 3 && !empty($event['date_schedule'])) {
+                                                $noDutyDate = new DateTime($event['date_schedule']);
+                                                $calendarEvents[] = [
+                                                    'title' => 'No Duty: ' . $doctorName,
+                                                    'start' => $noDutyDate->format('Y-m-d') . 'T00:00:00',
+                                                    'end'   => $noDutyDate->format('Y-m-d') . 'T23:59:59',
+                                                    'color' => '#FF0000',
+                                                    'status' => 'No Duty',
+                                                ];
+                                            } else {
+                                                $statusText = $event['is_available'] == 1 ? 'Available' : 'Not Available';
 
-            foreach ($slots as $slot) {
-                $startTime = htmlspecialchars($slot['fromtime']);
-                $endTime = htmlspecialchars($slot['totime']);
-                $baseDate = new DateTime();
-                $baseDate->setTime(0, 0, 0);
+                                              
+                                                foreach ($schedulesArray as $day => $slots) {
+                                                    $dayNumber = date('N', strtotime($day));
 
-                $eventDate = clone $baseDate;
-                $eventDate->modify("next $day");
+                                                    foreach ($slots as $slot) {
+                                                        $startTime = htmlspecialchars($slot['fromtime']);
+                                                        $endTime = htmlspecialchars($slot['totime']);
+                                                        $baseDate = new DateTime();
+                                                        $baseDate->setTime(0, 0, 0);
 
-                $repeatType = $event['reapet'];
-                if ($repeatType === 'Weekly') {
-                    for ($i = 0; $i < 4; $i++) {
-                        $weeklyEventDate = clone $eventDate;
-                        $weeklyEventDate->modify("+$i week");
-                        $calendarEvents[] = [
-                            'title' => 'Dr.: ' . $doctorName,
-                            'start' => $weeklyEventDate->format('Y-m-d') . 'T' . $startTime,
-                            'end'   => $weeklyEventDate->format('Y-m-d') . 'T' . $endTime,
-                            'color' => $color,
-                            'status' => $statusText,
-                        ];
-                    }
-                } elseif ($repeatType === 'Monthly') {
-                                                        for ($i = 0; $i < 4; $i++) {
-                                                            $eventDate = clone $baseDate;
-                                                            $eventDate->modify("first day of next month");
-                                                            $eventDate->modify("+$i month");
-                                                            $eventDate->modify("next $day");
-                                                            $calendarEvents[] = [
-                                                                'title' => 'Dr.: ' . $doctorName,
-                                                                'start' => $eventDate->format('Y-m-d') . 'T' . $startTime,
-                                                                'end'   => $eventDate->format('Y-m-d') . 'T' . $endTime,
-                                                                'color' => $color,
-                                                                'status' => $statusText,
-                                                            ];
-                                                        }
-                                                    } elseif ($repeatType === 'Yearly') {
-                                                        for ($i = 0; $i < 4; $i++) {
-                                                            $eventDate = clone $baseDate;
-                                                            $eventDate->modify("first day of January");
-                                                            $eventDate->modify("+$i year");
-                                                            $eventDate->modify("next $day");
-                                                            $calendarEvents[] = [
-                                                                'title' => 'Dr.: ' . $doctorName,
-                                                                'start' => $eventDate->format('Y-m-d') . 'T' . $startTime,
-                                                                'end'   => $eventDate->format('Y-m-d') . 'T' . $endTime,
-                                                                'color' => $color,
-                                                                'status' => $statusText,
-                                                            ];
+                                                        $eventDate = clone $baseDate;
+                                                        $eventDate->modify("next $day");
+
+                                                        $repeatType = $event['reapet'];
+                                                        if ($repeatType === 'Weekly') {
+                                                            for ($i = 0; $i < 4; $i++) {
+                                                                $weeklyEventDate = clone $eventDate;
+                                                                $weeklyEventDate->modify("+$i week");
+                                                                $calendarEvents[] = [
+                                                                    'title' => 'Dr.: ' . $doctorName,
+                                                                    'start' => $weeklyEventDate->format('Y-m-d') . 'T' . $startTime,
+                                                                    'end'   => $weeklyEventDate->format('Y-m-d') . 'T' . $endTime,
+                                                                    'color' => $color,
+                                                                    'status' => $statusText,
+                                                                ];
+                                                            }
+                                                        } elseif ($repeatType === 'Monthly') {
+                                                            for ($i = 0; $i < 4; $i++) {
+                                                                $eventDate = clone $baseDate;
+                                                                $eventDate->modify("first day of next month");
+                                                                $eventDate->modify("+$i month");
+                                                                $eventDate->modify("next $day");
+                                                                $calendarEvents[] = [
+                                                                    'title' => 'Dr.: ' . $doctorName,
+                                                                    'start' => $eventDate->format('Y-m-d') . 'T' . $startTime,
+                                                                    'end'   => $eventDate->format('Y-m-d') . 'T' . $endTime,
+                                                                    'color' => $color,
+                                                                    'status' => $statusText,
+                                                                ];
+                                                            }
+                                                        } elseif ($repeatType === 'Yearly') {
+                                                            for ($i = 0; $i < 4; $i++) {
+                                                                $eventDate = clone $baseDate;
+                                                                $eventDate->modify("first day of January");
+                                                                $eventDate->modify("+$i year");
+                                                                $eventDate->modify("next $day");
+                                                                $calendarEvents[] = [
+                                                                    'title' => 'Dr.: ' . $doctorName,
+                                                                    'start' => $eventDate->format('Y-m-d') . 'T' . $startTime,
+                                                                    'end'   => $eventDate->format('Y-m-d') . 'T' . $endTime,
+                                                                    'color' => $color,
+                                                                    'status' => $statusText,
+                                                                ];
+                                                            }
                                                         }
                                                     }
                                                 }
                                             }
                                         }
-                                    }
                                         $calendarEventsJson = json_encode($calendarEvents);
 
                                         ?>
@@ -1225,7 +1230,7 @@ foreach ($results as $event) {
                     const docScheduleID = this.getAttribute("data-id");
                     const confirmation = confirm("Are you sure you want to reject this schedule?");
                     if (confirmation) {
-                        updateAvailability(docScheduleID, 1, "rejected");
+                        updateAvailability(docScheduleID, 4, "rejected");
                     }
                 });
             });

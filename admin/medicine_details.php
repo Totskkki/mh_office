@@ -21,60 +21,9 @@ if (isset($_POST['med_detailsID'])) {
 
 
 
-// if (isset($_POST['submit'])) {
-
-//     $medicineId = $_POST['medicine'];
-//     $packing = $_POST['packing'];
-//     // $packing = ucwords(strtolower($packing));
-//     $qt = $_POST['qt'];
-
-
-//     $existingQuery = "SELECT * FROM `tbl_medicine_details` WHERE `medicine_id` = $medicineId AND `packing` = '$packing';";
-//     $stmtExisting = $con->prepare($existingQuery);
-//     $stmtExisting->execute();
-//     $existingDetails = $stmtExisting->fetch(PDO::FETCH_ASSOC);
-
-//     if ($existingDetails) {
-
-//         $query = "UPDATE `tbl_medicine_details` SET `qt` = `qt` + $qt WHERE `medicine_id` = $medicineId AND `packing` = '$packing';";
-//         $action = 'updated';
-//     } else {
-
-//         $query = "INSERT INTO `tbl_medicine_details` (`medicine_id`, `packing`, `qt`) VALUES ($medicineId, '$packing', $qt);";
-//         $action = 'added';
-//     }
-    
-
-//     try {
-
-//         $con->beginTransaction();
-
-
-//         $stmtDetails = $con->prepare($query);
-//         $stmtDetails->execute();
-
-
-//         $con->commit();
-
-
-
-//         $_SESSION['status'] = " Medicine stock successfully $action ";
-//         $_SESSION['status_code'] = "success";
-//     } catch (PDOException $ex) {
-
-//         $con->rollback();
-//         $_SESSION['status'] = ". $ex . Something went wrong";
-//         $_SESSION['status_code'] = "error";
-//     }
-
-
-//     header("location:medicine_details.php");
-//     exit;
-// }
-
 if (isset($_POST['submit'])) {
-    
-    $user_id = $_SESSION['admin_id'];
+
+  
     $medicineId = $_POST['medicine'];
     $packing = $_POST['packing'];
     $qt = $_POST['qt'];
@@ -102,12 +51,20 @@ if (isset($_POST['submit'])) {
         $stmtDetails = $con->prepare($query);
         $stmtDetails->execute([':medicineId' => $medicineId, ':packing' => $packing, ':qt' => $qt]);
 
-        // Insert into audit log
-        $record_id = $action === 'added' ? $con->lastInsertId() : $existingDetails['med_detailsID'];
-        $auditQuery = "INSERT INTO tbl_audit_log (user_id, action, table_name, record_id, new_value) VALUES (?, ?, 'tbl_medicine_details', ?, ?)";
-        $auditStmt = $con->prepare($auditQuery);
-        $new_value = json_encode(['medicine_id' => $medicineId, 'packing' => $packing, 'qt' => $qt]);
-        $auditStmt->execute([$user_id, $action, $record_id, $new_value]);
+   
+
+        $record_id = $con->lastInsertId();
+
+ 
+        $affectedRecordName = getAffectedRecordName('tbl_medicine_details', $record_id, $con);
+
+     
+        $userId = $_SESSION['admin_id']; 
+        $action = "Add Medicine Stock";
+        $description = "Added Medicine Stock  $affectedRecordName";
+        logAuditTrail($userId, $action, $description, 'tbl_medicine_details', $record_id, $con);
+
+
 
         $con->commit();
 
@@ -122,6 +79,8 @@ if (isset($_POST['submit'])) {
     header("location:medicine_details.php");
     exit;
 }
+
+
 
 
 if (isset($_POST['updateStock'])) {
@@ -156,6 +115,15 @@ if (isset($_POST['updateStock'])) {
         $stmt = $con->prepare($query);
         $stmt->execute(array(':packing' => $packing, ':quantity' => $quantity, ':med_detailsID' => $med_detailsID));
 
+
+        $affectedRecordName = getAffectedRecordName('tbl_medicine_details', $med_detailsID, $con);
+
+        // Log the action in the audit trail
+        $userId = $_SESSION['admin_id'];
+        $action = "Update Medicine Stock";
+        $description = "Updated Medicine Stock $affectedRecordName";
+        logAuditTrail($userId, $action, $description, 'tbl_medicine_details', $med_detailsID, $con);
+
         $con->commit();
         $_SESSION['status'] = "Medicine stock updated successfully.";
         $_SESSION['status_code'] = "success";
@@ -177,18 +145,6 @@ if (isset($_POST['updateStock'])) {
 
 $medicines = getMedicines($con);
 
-$query = "SELECT m.*, md.*
-FROM `tbl_medicines` AS m
-JOIN `tbl_medicine_details` AS md ON m.medicineID = md.medicine_id
-ORDER BY m.medicineID ASC, md.med_detailsID DESC;";
-try {
-
-    $stmtDetails = $con->prepare($query);
-    $stmtDetails->execute();
-} catch (PDOException $ex) {
-
-    $message = 'Error: ' . $ex->getMessage();
-}
 ?>
 
 
@@ -222,7 +178,7 @@ try {
 
                 <!-- App brand starts -->
                 <div class="app-brand px-3 py-2 d-flex align-items-center">
-                    
+
                 </div>
                 <!-- App brand ends -->
 
@@ -295,119 +251,7 @@ try {
 
                                         </div>
                                     </div>
-                                    <!-- 
-                                    <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-                                        <div class="modal-dialog">
-                                            <div class="modal-content">
-                                                <div class="modal-header">
-                                                    <h5 class="modal-title" id="staticBackdropLabel">
-                                                        Add Medicine Stock
-                                                    </h5>
-                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                                </div>
-                                                <div class="modal-body">
 
-                                                    <form method="POST" id="addStock" novalidate>
-
-                                                        <div class="mb-3 row">
-                                                            <label for="text" class="col-sm-3 col-form-label text-center">Select Medicine</label>
-                                                            <div class="col-sm-8">
-                                                                <select id="medicine" name="medicine" class="form-select" id="select_box" style="width: 100%;">
-
-                                                                    <?php echo $medicines; ?>
-                                                                </select>
-                                                                <div class="invalid-feedback">
-                                                                    Please select a Medicine.
-                                                                </div>
-                                                            </div>
-
-                                                        </div>
-                                                        <div class="mb-3 row">
-                                                            <label for="text" class="col-sm-3 col-form-label text-center">Packing</label>
-                                                            <div class="col-sm-8">
-                                                                <input type="text" name="packing" class="form-control" required>
-                                                            </div>
-                                                            <div class="invalid-feedback">
-                                                                Packing is required.
-                                                            </div>
-                                                        </div>
-                                                        <div class="mb-3 row">
-                                                            <label for="text" class="col-sm-3 col-form-label text-center">Quantity </label>
-                                                            <div class="col-sm-8">
-                                                                <input type="number" min="0" name="qt" class="form-control" required>
-                                                            </div>
-                                                            <div class="invalid-feedback">
-                                                                Please input number only.
-                                                            </div>
-                                                        </div>
-
-
-                                                </div>
-                                                <div class="modal-footer">
-                                                    <button type="button" class="btn " data-bs-dismiss="modal">
-                                                        Close
-                                                    </button>
-                                                    <button type="submit" id="submit" name="submit" class="btn btn-info">
-                                                        Save
-                                                    </button>
-
-                                                </div>
-                                            </div>
-
-                                            </form>
-                                        </div>
-                                    </div>
-
-
-                                    <div class="modal fade" id="editStock" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
-                                        <div class="modal-dialog">
-                                            <div class="modal-content">
-                                                <div class="modal-header">
-                                                    <h5 class="modal-title">UUpdate Medicine Stoc</h5>
-                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                                </div>
-                                                <div class="modal-body">
-                                                    <form method="POST" id="UpdatedStock" novalidate>
-                                                        <div class="mb-3 row">
-                                                            <label for="medicine" class="col-sm-3 col-form-label text-center">Select Medicine</label>
-                                                            <div class="col-sm-8">
-                                                                <select id="editmedicine" name="medicine" class="form-select" style="width: 100%;">
-
-                                                                    <?php echo $medicines; ?>
-                                                                </select>
-                                                                <div class="invalid-feedback">
-                                                                    Please select a Medicine.
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                        <div class="mb-3 row">
-                                                            <label for="packing" class="col-sm-3 col-form-label text-center">Packing</label>
-                                                            <div class="col-sm-8">
-                                                                <input type="text" id="packing" name="packing" class="form-control" required>
-                                                            </div>
-                                                            <div class="invalid-feedback">
-                                                                Packing is required.
-                                                            </div>
-                                                        </div>
-                                                        <div class="mb-3 row">
-                                                            <label for="qt" class="col-sm-3 col-form-label text-center">Quantity</label>
-                                                            <div class="col-sm-8">
-                                                                <input type="number" min="0" id="qt" name="qt" class="form-control" required>
-                                                            </div>
-                                                            <div class="invalid-feedback">
-                                                                Please input number only.
-                                                            </div>
-                                                        </div>
-                                                        <input type="hidden" name="medicineStock" id="medicineStock">
-                                                        <div class="modal-footer">
-                                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                                            <button type="submit" id="updateStock" name="updateStock" class="btn btn-info">Save</button>
-                                                        </div>
-                                                    </form>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div> -->
 
 
                                     <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
@@ -420,7 +264,7 @@ try {
                                                 <div class="modal-body">
                                                     <form method="POST" id="addStock" novalidate>
                                                         <div class="mb-3 row">
-                                                            <label for="medicine" class="col-sm-3 col-form-label text-center">Select Medicine</label>
+                                                            <label for="medicine" class="col-sm-3 col-form-label text-center">Select Medicine <span class="text-danger">*</span></label>
                                                             <div class="col-sm-8">
                                                                 <select id="medicine" name="medicine" class="form-select" required>
                                                                     <?php echo $medicines; ?>
@@ -431,7 +275,7 @@ try {
                                                             </div>
                                                         </div>
                                                         <div class="mb-3 row">
-                                                            <label for="packing" class="col-sm-3 col-form-label text-center">Packing</label>
+                                                            <label for="packing" class="col-sm-3 col-form-label text-center">Packing <span class="text-danger">*</span></label>
                                                             <div class="col-sm-8">
                                                                 <input type="text" name="packing" class="form-control" required>
                                                                 <div class="invalid-feedback">
@@ -440,7 +284,7 @@ try {
                                                             </div>
                                                         </div>
                                                         <div class="mb-3 row">
-                                                            <label for="qt" class="col-sm-3 col-form-label text-center">Quantity</label>
+                                                            <label for="qt" class="col-sm-3 col-form-label text-center">Quantity <span class="text-danger">*</span></label>
                                                             <div class="col-sm-8">
                                                                 <input type="number" min="0" name="qt" class="form-control" required>
                                                                 <div class="invalid-feedback">
@@ -450,7 +294,7 @@ try {
                                                         </div>
                                                         <div class="modal-footer">
                                                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                                            <button type="submit"name="submit" class="btn btn-info">Save</button>
+                                                            <button type="submit" name="submit" class="btn btn-info">Save</button>
                                                         </div>
                                                     </form>
                                                 </div>
@@ -468,7 +312,7 @@ try {
                                                 <div class="modal-body">
                                                     <form method="POST" id="UpdatedStock" novalidate>
                                                         <div class="mb-3 row">
-                                                            <label for="editmedicine" class="col-sm-3 col-form-label text-center">Select Medicine</label>
+                                                            <label for="editmedicine" class="col-sm-3 col-form-label text-center">Select Medicine <span class="text-danger">*</span></label>
                                                             <div class="col-sm-8">
                                                                 <select id="editmedicine" name="medicine" class="form-select" required>
                                                                     <?php echo $medicines; ?>
@@ -479,7 +323,7 @@ try {
                                                             </div>
                                                         </div>
                                                         <div class="mb-3 row">
-                                                            <label for="packing" class="col-sm-3 col-form-label text-center">Packing</label>
+                                                            <label for="packing" class="col-sm-3 col-form-label text-center">Packing <span class="text-danger">*</span></label>
                                                             <div class="col-sm-8">
                                                                 <input type="text" id="packing" name="packing" class="form-control" required>
                                                                 <div class="invalid-feedback">
@@ -488,7 +332,7 @@ try {
                                                             </div>
                                                         </div>
                                                         <div class="mb-3 row">
-                                                            <label for="qt" class="col-sm-3 col-form-label text-center">Quantity</label>
+                                                            <label for="qt" class="col-sm-3 col-form-label text-center">Quantity <span class="text-danger">*</span></label>
                                                             <div class="col-sm-8">
                                                                 <input type="number" id="qt" name="qt" min="0" class="form-control" required>
                                                                 <div class="invalid-feedback">
@@ -499,7 +343,7 @@ try {
                                                         <input type="hidden" name="medicineStock" id="medicineStock">
                                                         <div class="modal-footer">
                                                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                                            <button type="submit"name="updateStock" class="btn btn-info">Update</button>
+                                                            <button type="submit" name="updateStock" class="btn btn-info">Update</button>
                                                         </div>
                                                     </form>
                                                 </div>
@@ -508,7 +352,7 @@ try {
                                     </div>
 
                                     <!-- delete start -->
-                                    <div class="modal fade" id="delete_medStock" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
+                                    <!-- <div class="modal fade" id="delete_medStock" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
                                         <div class="modal-dialog">
                                             <div class="modal-content">
                                                 <div class="modal-header">
@@ -531,7 +375,7 @@ try {
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
+                                    </div> -->
                                     <!-- delete end -->
 
 
@@ -548,6 +392,21 @@ try {
                                                         <th>Stock</th>
                                                         <th class="text-center">Action</th>
                                                     </tr>
+                                                    <?php
+                                                    $query = "SELECT m.*, md.*
+                                                    FROM `tbl_medicines` AS m
+                                                    JOIN `tbl_medicine_details` AS md ON m.medicineID = md.medicine_id
+                                                    WHERE m.status = 1
+                                                    ORDER BY m.medicineID ASC, md.med_detailsID DESC;";
+                                                    try {
+
+                                                        $stmtDetails = $con->prepare($query);
+                                                        $stmtDetails->execute();
+                                                    } catch (PDOException $ex) {
+
+                                                        $message = 'Error: ' . $ex->getMessage();
+                                                    }
+                                                    ?>
                                                 </thead>
                                                 <tbody> <?php
                                                         $serial = 0;
@@ -565,23 +424,20 @@ try {
                                                                 <button class="btn btn-outline-info btn-sm edit" data-id="<?php echo $row['med_detailsID']; ?>" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-custom-class="custom-tooltip-primary" data-bs-title="Edit">
                                                                     <i class="icon-edit"></i>
                                                                 </button>
-                                                                <button class="btn btn-outline-danger btn-sm delete" data-id="<?php echo $row['med_detailsID']; ?>" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-custom-class="custom-tooltip-danger" data-bs-title="Delete">
+                                                                <!-- <button class="btn btn-outline-danger btn-sm delete" data-id="<?php echo $row['med_detailsID']; ?>" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-custom-class="custom-tooltip-danger" data-bs-title="Delete">
                                                                     <i class="icon-trash"></i>
-                                                                </button>
+                                                                </button> -->
 
 
                                                             </td>
 
 
-
-
-
-
-
                                                         </tr>
                                                     <?php
                                                         }
+
                                                     ?>
+
 
 
                                                 </tbody>
@@ -640,66 +496,21 @@ try {
         });
     </script>
 
-    <!-- 
+
     <script>
-        $(function() {
-            $('.edit').click(function(e) {
-                e.preventDefault();
-                $('#editStock').modal('show');
-                var id = $(this).data('id');
-                getRow(id);
+        $(document).ready(function() {
+            $("#medicine_details").DataTable({
+                "responsive": true,
+                "lengthChange": true,
+                "autoWidth": false,
+                "dom": '<"row"<"col-md-6 text-left"l><"col-md-6 text-right"f>>rt<"bottom"ip><"clear">',
+                "lengthMenu": [10, 20, 50, 100],
             });
-
-            $('.delete').click(function(e) {
-                e.preventDefault();
-                $('#deleteStock').modal('show');
-                var id = $(this).data('id');
-                $('#deleteid').val(id);
-            });
-
-            function getRow(id) {
-            $.ajax({
-                type: 'POST',
-                url: 'medicine_details.php',
-                data: { medicineID: id },
-                dataType: 'json',
-                success: function(response) {
-                    console.log("Response from server:", response);
-                    $('#medicineStock').val(response.med_detailsID);
-                    $('#editmedicine').val(response.medicine_id).change(); // Set the medicine ID
-                    $('#packing').val(response.packing);
-                    $('#qt').val(response.qt);
-                },
-                error: function(xhr, status, error) {
-                    console.error("AJAX Error: ", status, error);
-                }
-            });
-        }
         });
-    </script> -->
+    </script>
 
 
     <script>
-        // document.addEventListener('DOMContentLoaded', function() {
-        //     var form = document.getElementById('addStock');
-        //     var updateForm = document.getElementById('UpdatedStock');
-        //     form.addEventListener('submit', function(event) {
-        //         if (!form.checkValidity()) {
-        //             event.preventDefault();
-        //             event.stopPropagation();
-        //         }
-        //         form.classList.add('was-validated');
-        //     }, false);
-        //     updateForm.addEventListener('submit', function(event) {
-        //         if (!updateForm.checkValidity()) {
-        //             event.preventDefault();
-        //             event.stopPropagation();
-        //         }
-        //         updateForm.classList.add('was-validated');
-        //     }, false);
-
-
-        // });
         document.addEventListener('DOMContentLoaded', function() {
             var forms = document.querySelectorAll('form[novalidate]');
 
@@ -759,20 +570,6 @@ try {
 
 
 
-
-
-
-    <script>
-        $(document).ready(function() {
-            $("#medicine_details").DataTable({
-                "responsive": true,
-                "lengthChange": true,
-                "autoWidth": false,
-                "dom": '<"row"<"col-md-6 text-left"l><"col-md-6 text-right"f>>rt<"bottom"ip><"clear">',
-                "lengthMenu": [10, 20, 50, 100],
-            });
-        });
-    </script>
 
 
 
