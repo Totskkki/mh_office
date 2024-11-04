@@ -242,6 +242,18 @@ if (isset($_POST['submit_update'])) {
             ':patientID' => $editpatientID
         ]);
 
+ 
+        $affectedRecordName = getAffectedRecordName('tbl_patients', $editpatientID, $con);
+
+    
+        $userId = $_SESSION['admin_id']; 
+        $action = "Update";
+        $description = "Updated Patient Information,  $affectedRecordName";
+
+        logAuditTrail($userId, $action, $description, 'tbl_patients', $editpatientID, $con);
+
+
+
         $con->commit();
 
         $_SESSION['status'] = "Patient updated successfully.";

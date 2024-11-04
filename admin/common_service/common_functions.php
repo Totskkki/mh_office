@@ -786,6 +786,19 @@ function getAffectedRecordName($table, $recordId, $con)
 			}
 
 
+			case 'tbl_patients':
+			$stmt = $con->prepare("SELECT patient_name, last_name FROM tbl_patients WHERE patientID  = ?");
+	
+			$stmt->execute([$recordId]);
+			$result = $stmt->fetch();
+			if ($result) {
+				return trim(($result['patient_name'] ?? '') . ' ' . ($result['last_name'] ?? ''));
+			} else {
+				return 'Unknown'; // If no record is found
+			}
+	
+			
+		
 
 
 
