@@ -118,18 +118,21 @@ if (isset($_POST['update_admin'])) {
 	<!-- App header actions start -->
 	<div class="header-actions">
 		<div class="d-md-flex d-none gap-2">
-
 			<br><br>
 			<div class="dropdown ms-3 mt-2">
 
-
 				<?php
-
 				try {
-					// Fetch total number of pending complaints
-					$queryTotal = "SELECT COUNT(*) AS total FROM `tbl_doctor_schedule` WHERE  `date_schedule`  ORDER BY `date_schedule` DESC LIMIT 5";
+					// Fetch the total number of upcoming non-duty schedules
+					$today = date('Y-m-d'); // Get today's date
+					$queryTotal = "
+                    SELECT COUNT(*) AS total 
+                    FROM `tbl_doctor_schedule` 
+                    WHERE `is_available` = 0 
+                    AND `date_schedule` >= :today
+                ";
 					$stmtTotal = $con->prepare($queryTotal);
-					$stmtTotal->execute();
+					$stmtTotal->execute(['today' => $today]);
 					$docscheds = $stmtTotal->fetch(PDO::FETCH_ASSOC)['total'];
 				} catch (PDOException $ex) {
 					echo "An error occurred: " . $ex->getMessage();
@@ -137,31 +140,57 @@ if (isset($_POST['update_admin'])) {
 				}
 				?>
 				<a class="dropdown-toggle position-relative action-icon" href="#!" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-
 					<i class="icon-bell fs-5 lh-1"></i>
 					<span class="count rounded-circle bg-danger"><?php echo $docscheds; ?></span>
 				</a>
 				<br>
 
-
-
-
 				<div class="dropdown-menu dropdown-menu-end dropdown-menu-md shadow-sm">
 					<h5 class="fw-semibold px-3 py-2 m-0">Notifications</h5>
-					
 
-					
-						<a href="" class="dropdown-item">
-							<div class="d-flex align-items-start py-2">
-								<img src="../user_images/notifications/" class="img-fluid me-3 rounded-3" alt="" style="width: 40px; height: 40px;">
-								<div class="m-0">
-									<h6 class="mb-1 fw-semibold"></h6>
-									<p class="mb-1"></p>
-									<p class="small m-0 opacity-50"><b> </b></p>
+					<?php
+					try {
+						// Fetch the details for each non-duty schedule
+						$queryDetails = "SELECT s.*, position.*, personnel.*,user.*,
+                                        CONCAT(personnel.first_name, ' ', personnel.middlename, ' ', personnel.lastname) AS doctorsname
+                                        FROM tbl_doctor_schedule AS s
+                                        LEFT JOIN tbl_users AS user ON user.userID = s.userID
+                                        LEFT JOIN tbl_personnel AS personnel ON user.personnel_id = personnel.personnel_id
+                                        LEFT JOIN tbl_position AS position ON user.position_id = position.position_id
+										WHERE s.`is_available` = 0
+										AND s.`date_schedule` >= :today
+										ORDER BY s.`date_schedule` ASC
+										LIMIT 10
+                    ";
+						$stmtDetails = $con->prepare($queryDetails);
+						$stmtDetails->execute(['today' => $today]);
+
+						while ($row = $stmtDetails->fetch(PDO::FETCH_ASSOC)) :
+							$link = 'doctor_schedule.php?date=' . $row['date_schedule'];
+							$formattedDate = date('F j, Y', strtotime($row['date_schedule']));
+							$doctorsname = $row['doctorsname'];
+							$profilePicture = !empty($row['profile_picture']) ? '../user_images/' . $row['profile_picture'] : '../user_images/doctor.jpg';
+
+					?>
+							<a href="<?php echo $link; ?>" class="dropdown-item">
+								<div class="d-flex align-items-start py-2">
+									<img src="<?php echo $profilePicture; ?>" class="img-fluid me-3 rounded-3" alt="Notification" style="width: 40px; height: 40px;">
+									<div class="m-0">
+										<h6 class="mb-1 fw-semibold"><?php echo $doctorsname; ?></h6>
+
+										<p class="mb-1 fw-semibold"> <?php echo $formattedDate; ?></p>
+
+										<p class="small m-0 opacity-50"><b><?php echo $row['message']; ?></b></p>
+									</div>
 								</div>
-							</div>
-						</a>
-					
+							</a>
+						<?php endwhile; ?>
+
+					<?php
+					} catch (PDOException $ex) {
+						echo "An error occurred: " . $ex->getMessage();
+					}
+					?>
 				</div>
 
 			</div>
@@ -247,8 +276,8 @@ if (isset($_POST['update_admin'])) {
 				<button type="button" class="btn " data-bs-dismiss="modal">
 					Close
 				</button>
-				<button type="submit" id="update_admin" name="update_admin" class="btn btn-primary">
-					Save
+				<button type="submit" id="update_admin" name="update_admin" class="btn btn-info">
+					Update
 				</button>
 
 			</div>

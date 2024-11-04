@@ -32,6 +32,7 @@
 <script src="../assets/daterangepicker/daterangepicker.js"></script>
 <script src="../assets/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js"></script>
 <script src="../assets/inputmask/jquery.inputmask.min.js"></script>
+<script src="../assets/jquery-ui.js"></script>
 
 
 

@@ -10,7 +10,7 @@
                 <form id="scheduleForm" method="POST" enctype="multipart/form-data" onsubmit="checkFormData(event)" novalidate>
 
                     <div class="mb-3 row">
-                        <label for="text" class="col-sm-3 col-form-label text-center">Select Doctor</label>
+                        <label for="text" class="col-sm-3 col-form-label text-center">Select Doctor <span class="text-danger">*</span></label>
                         <div class="col-sm-8">
                             <select name="doctor" id="doctor_add" class="form-select" required>
                                 <?php echo $doctors; ?>
@@ -36,7 +36,7 @@
                             foreach ($days as $day) { ?>
                                 <li class="list-group-item">
                                     <div class="d-flex align-items-center">
-                                        <input class="form-check-input me-2 day-checkbox" type="checkbox" name="day[]" value="<?php echo $day; ?>" onchange="toggleAvailability(this)">
+                                        <input class="form-check-input me-2 day-checkbox" type="checkbox" name="day[]" value="<?php echo $day; ?>" onchange="toggleAvailability(this)" >
                                         <label class="form-check-label me-3"><?php echo substr($day, 0, 3); ?></label>
                                         <div class="time-rows"></div>
                                     </div>

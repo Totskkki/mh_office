@@ -79,8 +79,27 @@ if (isset($_POST['add_schedule'])) {
     $stmt->bindParam(':is_available', $isAvailable);
     $stmt->bindParam(':repeat', $repeat);
 
+
+
+
     try {
         $stmt->execute();
+
+
+
+        $scheduleId = $con->lastInsertId();
+
+
+        $affectedRecordName = getAffectedRecordName('tbl_doctor_schedule', $scheduleId, $con);
+
+
+        $userId = $_SESSION['admin_id'];
+        $action = "Add Schedule";
+        $description = "Added a schedule for Doctor  $affectedRecordName";
+
+        logAuditTrail($userId, $action, $description, 'tbl_doctor_schedule', $scheduleId, $con);
+
+
         $_SESSION['status'] = "Schedule added successfully for selected days!";
         $_SESSION['status_code'] = "success";
         header('location: doctor_schedule.php');
@@ -354,6 +373,16 @@ if (isset($_POST['update_schedule'])) {
 
         try {
             if ($stmt->execute()) {
+
+
+                $affectedRecordName = getAffectedRecordName('tbl_doctor_schedule', $scheduleId, $con);
+
+
+                $userId = $_SESSION['admin_id'];
+                $action = "Update Schedule";
+                $description = "Updated the schedule for Doctor $affectedRecordName";
+                logAuditTrail($userId, $action, $description, 'tbl_doctor_schedule', $scheduleId, $con);
+
                 $_SESSION['status'] = "Schedule updated successfully!";
                 $_SESSION['status_code'] = "success";
             } else {
@@ -372,6 +401,9 @@ if (isset($_POST['update_schedule'])) {
     header('location: Doctor_schedule.php');
     exit();
 }
+
+
+
 
 
 
@@ -490,14 +522,14 @@ $doctors = getDoctorSchedule($con);
                                                         <th>#</th>
                                                         <th>Doctor Name</th>
                                                         <th>Work Days</th>
-
+                                                        <th>Date Override</th>
                                                         <th>Status</th>
                                                         <th class="text-center">Actions</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
                                                     <?php
-                                                    $query = "SELECT ds.*, user.*, personnel.*, position.* 
+                                                    $query = "SELECT ds.*, user.*, personnel.*, position.*, ds.is_available 
                                                         FROM tbl_doctor_schedule as ds 
                                                         LEFT JOIN tbl_users as user ON ds.userID = user.userID  
                                                         LEFT JOIN tbl_personnel AS personnel ON user.personnel_id = personnel.personnel_id
@@ -510,25 +542,22 @@ $doctors = getDoctorSchedule($con);
                                                     $serial = 0;
                                                     $schedulesGrouped = [];
 
-                                                    // First, fetch all schedules and group them by doc_scheduleID
                                                     while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
                                                         $doc_scheduleID = $row['doc_scheduleID'];
                                                         $serial++;
 
-                                                        // Initialize an entry for the schedule if not already set
                                                         if (!isset($schedulesGrouped[$doc_scheduleID])) {
                                                             $schedulesGrouped[$doc_scheduleID] = [
                                                                 'doctor_name' => htmlspecialchars($row['first_name'] . ' ' . ucwords($row['middlename']) . ' ' . ucwords($row['lastname'])),
                                                                 'schedules' => [],
                                                                 'is_available' => $row['is_available'],
+                                                                'date_schedule' => $row['date_schedule'],
                                                             ];
                                                         }
 
-                                                        // Decode schedules
                                                         if (!empty($row['schedules'])) {
                                                             $decodedschedules = json_decode($row['schedules'], true);
 
-                                                            // Append schedules to the corresponding doctor
                                                             if (is_array($decodedschedules)) {
                                                                 foreach ($decodedschedules as $day => $slots) {
                                                                     foreach ($slots as $slot) {
@@ -543,8 +572,6 @@ $doctors = getDoctorSchedule($con);
                                                         }
                                                     }
 
-                                                    // Now display the grouped schedules
-                                                    // Now display the grouped schedules
                                                     foreach ($schedulesGrouped as $doc_scheduleID => $scheduleData) {
                                                     ?>
                                                         <tr>
@@ -552,50 +579,67 @@ $doctors = getDoctorSchedule($con);
                                                             <td><?php echo $scheduleData['doctor_name']; ?></td>
                                                             <td>
                                                                 <?php
-                                                                // Display work days and times
                                                                 if (!empty($scheduleData['schedules'])) {
                                                                     foreach ($scheduleData['schedules'] as $index => $schedule) {
-                                                                        // Convert fromtime and totime to 12-hour format with AM/PM
                                                                         $fromtime = DateTime::createFromFormat('H:i', $schedule['fromtime']);
                                                                         $totime = DateTime::createFromFormat('H:i', $schedule['totime']);
-
                                                                         echo $schedule['day'] . ' (' . ($fromtime ? $fromtime->format('g:i A') : '') . ' - ' . ($totime ? $totime->format('g:i A') : '') . ')';
-
-                                                                        if ($index < count($scheduleData['schedules']) - 1) {
-                                                                            echo ', '; // Comma for separation
-                                                                        }
+                                                                        if ($index < count($scheduleData['schedules']) - 1) echo ', ';
                                                                     }
                                                                 } else {
                                                                     echo 'No schedules available';
                                                                 }
                                                                 ?>
                                                             </td>
+                                                            <td><?php echo $scheduleData['date_schedule']; ?> </td>
                                                             <td>
                                                                 <?php
-                                                                // Display the availability status
-                                                                if ($scheduleData['is_available'] == 1) {
-                                                                    echo '<span class="badge bg-success">Available</span>';
-                                                                } else {
-                                                                    echo '<span class="badge bg-warning">Not Available</span>';
+                                                                // Display the status based on `is_available` value
+                                                                switch ($scheduleData['is_available']) {
+                                                                    case 0:
+                                                                        echo '<span class="badge bg-secondary">Not Available</span>';
+                                                                        break;
+                                                                    case 1:
+                                                                        echo '<span class="badge bg-success">Available</span>';
+                                                                        break;
+                                                                    case 2:
+                                                                        echo '<span class="badge bg-warning">Pending</span>';
+                                                                        break;
+                                                                    case 3:
+                                                                        echo '<span class="badge bg-warning">Approved</span>';
+                                                                        break;
                                                                 }
                                                                 ?>
                                                             </td>
-                                                            <td>
-                                                                <button class="btn btn-outline-info btn-sm edit" data-id="<?php echo $doc_scheduleID; ?>" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit">
-                                                                    <i class="icon-edit"></i>
-                                                                </button>
-                                                                <button class="btn btn-outline-danger btn-sm delete" data-id="<?php echo $doc_scheduleID; ?>" data-bs-toggle="tooltip" data-bs-placement="top" title="Delete">
-                                                                    <i class="icon-trash"></i>
-                                                                </button>
+                                                            <td class="text-center">
+                                                                <?php if ($scheduleData['is_available'] == 1) : ?>
+                                                                    <!-- Show Edit and Delete actions for Approved status -->
+                                                                    <button class="btn btn-outline-info btn-sm edit" data-id="<?php echo $doc_scheduleID; ?>" data-bs-toggle="tooltip" title="Edit">
+                                                                        <i class="icon-edit"></i>
+                                                                    </button>
+                                                                    <button class="btn btn-outline-danger btn-sm delete" data-id="<?php echo $doc_scheduleID; ?>" data-bs-toggle="tooltip" title="Delete">
+                                                                        <i class="icon-trash"></i>
+                                                                    </button>
+                                                                <?php elseif ($scheduleData['is_available'] == 2) : ?>
+                                                                    <!-- Only show Approve and Reject actions for Pending status -->
+                                                                    <button class="btn btn-outline-info btn-sm approve" data-id="<?php echo $doc_scheduleID; ?>" data-bs-toggle="tooltip" title="Approve">
+                                                                        <i class="icon-check"></i>
+                                                                    </button>
+                                                                    <button class="btn btn-outline-danger btn-sm reject" data-id="<?php echo $doc_scheduleID; ?>" data-bs-toggle="tooltip" title="Reject">
+                                                                        <i class="icon-close">x</i>
+                                                                    </button>
+                                                                <?php elseif ($scheduleData['is_available'] == 3) : ?>
+                                                                    <!-- Only show Approve and Reject actions for Pending status -->
+
+                                                                <?php endif; ?>
+
                                                             </td>
                                                         </tr>
-                                                    <?php
-                                                    }
-
-
-                                                    ?>
+                                                    <?php } ?>
                                                 </tbody>
                                             </table>
+
+
 
                                         </div>
                                     </div>
@@ -647,47 +691,53 @@ $doctors = getDoctorSchedule($con);
 
                                         $calendarEvents = [];
 
-                                        // Loop through each result
-                                        foreach ($results as $event) {
-                                            // Decode the JSON schedule data
-                                            $schedulesArray = json_decode($event['schedules'], true);
-                                            $doctorName = htmlspecialchars($event['doctorsname']);
-                                            $color = $doctorColors[$doctorName] ?? '#0073e6';
-                                            $statusText = $event['is_available'] == 1 ? 'Available' : 'Not Available';
+                                      
+// Loop through each schedule entry
+foreach ($results as $event) {
+    $schedulesArray = json_decode($event['schedules'], true);
+    $doctorName = htmlspecialchars($event['doctorsname']);
+    $color = $doctorColors[$doctorName] ?? '#0073e6';
 
-                                            // Prepare the base date
-                                            $baseDate = new DateTime();
-                                            $baseDate->setTime(0, 0, 0);
+    // If is_available is set to 3, add "No Duty" event on the specified date
+    if ($event['is_available'] == 3 && !empty($event['date_schedule'])) {
+        $noDutyDate = new DateTime($event['date_schedule']);
+        $calendarEvents[] = [
+            'title' => 'No Duty: ' . $doctorName,
+            'start' => $noDutyDate->format('Y-m-d') . 'T00:00:00',
+            'end'   => $noDutyDate->format('Y-m-d') . 'T23:59:59',
+            'color' => '#FF0000', // Red color for no duty
+            'status' => 'No Duty',
+        ];
+    } else {
+        $statusText = $event['is_available'] == 1 ? 'Available' : 'Not Available';
 
-                                            // Loop through the decoded schedules
-                                            foreach ($schedulesArray as $day => $slots) {
-                                                // Convert day names to numbers (1 = Monday, ..., 7 = Sunday)
-                                                $dayNumber = date('N', strtotime($day));
+        // Process regular schedule entries
+        foreach ($schedulesArray as $day => $slots) {
+            $dayNumber = date('N', strtotime($day));
 
-                                                foreach ($slots as $slot) {
-                                                    // Extract start and end times from the slot
-                                                    $startTime = htmlspecialchars($slot['fromtime']);
-                                                    $endTime = htmlspecialchars($slot['totime']);
+            foreach ($slots as $slot) {
+                $startTime = htmlspecialchars($slot['fromtime']);
+                $endTime = htmlspecialchars($slot['totime']);
+                $baseDate = new DateTime();
+                $baseDate->setTime(0, 0, 0);
 
-                                                    // Determine the event date
-                                                    $eventDate = clone $baseDate;
-                                                    $eventDate->modify("next $day"); // Move to the next occurrence of the specified day
+                $eventDate = clone $baseDate;
+                $eventDate->modify("next $day");
 
-                                                    // Generate events based on repeat type
-                                                    $repeatType = $event['reapet'];
-                                                    if ($repeatType === 'Weekly') {
-                                                        for ($i = 0; $i < 4; $i++) {
-                                                            $weeklyEventDate = clone $eventDate;
-                                                            $weeklyEventDate->modify("+$i week");
-                                                            $calendarEvents[] = [
-                                                                'title' => 'Dr.: ' . $doctorName,
-                                                                'start' => $weeklyEventDate->format('Y-m-d') . 'T' . $startTime,
-                                                                'end'   => $weeklyEventDate->format('Y-m-d') . 'T' . $endTime,
-                                                                'color' => $color,
-                                                                'status' => $statusText,
-                                                            ];
-                                                        }
-                                                    } elseif ($repeatType === 'Monthly') {
+                $repeatType = $event['reapet'];
+                if ($repeatType === 'Weekly') {
+                    for ($i = 0; $i < 4; $i++) {
+                        $weeklyEventDate = clone $eventDate;
+                        $weeklyEventDate->modify("+$i week");
+                        $calendarEvents[] = [
+                            'title' => 'Dr.: ' . $doctorName,
+                            'start' => $weeklyEventDate->format('Y-m-d') . 'T' . $startTime,
+                            'end'   => $weeklyEventDate->format('Y-m-d') . 'T' . $endTime,
+                            'color' => $color,
+                            'status' => $statusText,
+                        ];
+                    }
+                } elseif ($repeatType === 'Monthly') {
                                                         for ($i = 0; $i < 4; $i++) {
                                                             $eventDate = clone $baseDate;
                                                             $eventDate->modify("first day of next month");
@@ -719,7 +769,7 @@ $doctors = getDoctorSchedule($con);
                                                 }
                                             }
                                         }
-
+                                    }
                                         $calendarEventsJson = json_encode($calendarEvents);
 
                                         ?>
@@ -1155,6 +1205,103 @@ $doctors = getDoctorSchedule($con);
         });
     </script>
 
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            // Approve button click event
+            document.querySelectorAll(".approve").forEach(button => {
+                button.addEventListener("click", function() {
+                    const docScheduleID = this.getAttribute("data-id");
+                    const confirmation = confirm("Are you sure you want to approve this schedule?");
+                    if (confirmation) {
+                        updateAvailability(docScheduleID, 3, "approved");
+                    }
+                });
+            });
+
+            // Reject button click event
+            document.querySelectorAll(".reject").forEach(button => {
+                button.addEventListener("click", function() {
+                    const docScheduleID = this.getAttribute("data-id");
+                    const confirmation = confirm("Are you sure you want to reject this schedule?");
+                    if (confirmation) {
+                        updateAvailability(docScheduleID, 1, "rejected");
+                    }
+                });
+            });
+
+            // Function to update is_available
+            function updateAvailability(docScheduleID, newStatus, action) {
+                fetch("ajax/update_schedule_status.php", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({
+                            doc_scheduleID: docScheduleID,
+                            is_available: newStatus
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            alert(`Schedule successfully ${action}.`);
+                            location.reload();
+                        } else {
+                            alert(`Failed to ${action} the schedule.`);
+                        }
+                    })
+                    .catch(error => {
+                        console.error("Error:", error);
+                        alert("An error occurred while updating the status.");
+                    });
+            }
+        });
+    </script>
+
+    <!-- <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            // Approve button click event
+            document.querySelectorAll(".approve").forEach(button => {
+                button.addEventListener("click", function() {
+                    const docScheduleID = this.getAttribute("data-id");
+                    updateAvailability(docScheduleID, 3);
+                });
+            });
+
+            // Reject button click event
+            document.querySelectorAll(".reject").forEach(button => {
+                button.addEventListener("click", function() {
+                    const docScheduleID = this.getAttribute("data-id");
+                    updateAvailability(docScheduleID, 0);
+                });
+            });
+
+            // Function to update is_available
+            function updateAvailability(docScheduleID, newStatus) {
+                fetch("ajax/update_schedule_status.php", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({
+                            doc_scheduleID: docScheduleID,
+                            is_available: newStatus
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            alert("Status updated successfully");
+                            location.reload();
+                        } else {
+                            alert("Failed to update status");
+                        }
+                    })
+                    .catch(error => console.error("Error:", error));
+            }
+        });
+    </script> -->
 
 
 

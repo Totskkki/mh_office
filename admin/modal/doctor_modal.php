@@ -157,7 +157,7 @@
 
                     <div class="mb-3 text-center">
                         <label for="Profile" style="cursor: pointer;">
-                            <img src="profile.jpg" id="doctorprofile" class="doctorprofile" alt="Click to change the picture">
+                            <img src="../user_images/profile.jpg" id="doctorprofile" class="doctorprofile" alt="Click to change the picture">
                         </label>
                         <input class="form-control" id="Profile" name="Profile" type="file" style="display: none;" onchange="previewImage();">
                     </div>
@@ -283,7 +283,7 @@
             </div>
             <div class="modal-body">
                 <div class="text-center mb-3">
-                    <img src="profile.jpg" id="view_profile_img" class="img-thumbnail rounded-circle p-0 border " alt="User Image" style="width: 200px;height:200px;">
+                    <img src="../user_images/profile.jpg" id="view_profile_img" class="img-thumbnail rounded-circle p-0 border " alt="User Image" style="width: 200px;height:200px;">
                 </div>
                 <ul class="list-unstyled">
                     <li><strong>Name:</strong> <span id="view_name"></span></li>

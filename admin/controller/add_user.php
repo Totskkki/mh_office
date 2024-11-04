@@ -19,7 +19,7 @@ if (isset($_POST['save_user'])) {
     $contact = trim($_POST['contact']);
     $email = trim($_POST['email']);
     $Role = trim($_POST['Role']);
-    $status = 'active';
+    $status = 'Active';
     $finalimage = $_FILES['profile']['name'];
     if (!empty($finalimage)) {
         move_uploaded_file($_FILES['profile']['tmp_name'], '../user_images/' . $finalimage);

@@ -8,23 +8,23 @@ include './common_service/common_functions.php';
 if (isset($_POST['userID'])) {
     $id = $_POST['userID'];
 
-    // Prepare the query with the correct table joins and selected fields
+   
     $queryUsers = "
         SELECT user.*, personnel.*, position.*, user.userID, personnel.personnel_id, position.position_id
         FROM tbl_users AS user
         LEFT JOIN tbl_personnel AS personnel ON user.personnel_id = personnel.personnel_id
         LEFT JOIN tbl_position AS position ON user.position_id = position.position_id
-        WHERE user.userID = :id
+        WHERE user.userID = :id  and user.UserType !='admin'
     ";
 
-    // Prepare and execute the statement
+
     $stmtUsers = $con->prepare($queryUsers);
     $stmtUsers->execute([':id' => $id]);
 
-    // Fetch the row
+
     $row = $stmtUsers->fetch(PDO::FETCH_ASSOC);
 
-    // Check and set profile picture path
+  
     if ($row) {
         if (!empty($row['profile_picture'])) {
             $row['profile_picture'] = '../user_images/' . $row['profile_picture'];
@@ -32,10 +32,10 @@ if (isset($_POST['userID'])) {
             $row['profile_picture'] = '../user_images/doctor.jpg';
         }
 
-        // Output JSON-encoded data
+       
         echo json_encode($row);
     } else {
-        // Handle case where no data is found
+     
         echo json_encode(['error' => 'No data found']);
     }
     exit;
@@ -59,7 +59,7 @@ if (isset($_POST['save_doctor'])) {
     $uname = ucwords(strtolower($uname));
     $contact = trim($_POST['contact']);
     $email = trim($_POST['email']);
-    $status = 'active';
+    $status = 'Active';
     $finalimage = $_FILES['profile']['name'];
 
     // Move uploaded file if it exists
@@ -135,94 +135,6 @@ if (isset($_POST['save_doctor'])) {
 }
 
 
-// if (isset($_POST['update_doctor'])) {
-//     // Retrieve user data from the form
-//     var_dump($_POST);
-
-//     $user_id = trim($_POST['userid']);
-//     $persid = trim($_POST['persid']);
-//     $fname = trim($_POST['fname']);
-//     $fname = ucwords(strtolower($fname));
-
-//     $mname = trim($_POST['mname']);
-//     $mname = ucwords(strtolower($mname));
-//     $uname = trim($_POST['uname']);
-
-//     $lname = trim($_POST['lname']);
-//     $lname = ucwords(strtolower($lname));
-
-//     $Address = trim($_POST['Address']);
-//     $pass = trim($_POST['pass']);
-//     $contact = trim($_POST['contact']);
-//     $email = trim($_POST['email']);
-//     $Position = trim($_POST['Position']);
-//     $Specialty = trim($_POST['Specialty']);
-//     $Professional = trim($_POST['Professional']);
-//     $LicenseNo = trim($_POST['LicenseNo']);
-
-//     $status = trim($_POST['status']);
-//     $finalimage = $_FILES['Profile']['name'];
-//     $passwordChanged = !empty($pass);
-
-
-
-
-//     if ($fname != '' && $uname != '' && $contact != '' && $email != '' ) {
-
-
-
-//         $con->beginTransaction();
-//         try {
-
-//             $stmtPersonnel = $con->prepare("
-//                 UPDATE tbl_personnel SET first_name = ?, middlename = ?, lastname = ?, address = ?, contact = ?, email = ?
-//                 WHERE personnel_id = (SELECT personnel_id FROM tbl_users WHERE userID = ?)
-//             ");
-//             $stmtPersonnel->execute([$fname, $mname, $lname, $Address, $contact, $email, $user_id]);
-
-//             $stmtPosition = $con->prepare("
-//             UPDATE tbl_position SET personnel_id=?, PositionName=?, Specialty=?, ProfessionalType=?, LicenseNo=?
-//             WHERE position_id = (SELECT position_id FROM tbl_users WHERE userID = ?)
-//         ");
-//         $stmtPosition->execute([$persid, $Position, $Specialty, $Professional, $LicenseNo, $user_id]);
-
-
-//             // Update user data
-//             $updateUserQuery = "UPDATE tbl_users SET user_name = ?, status = ?, profile_picture = ?";
-//             $params = [$uname, $status, $finalimage];
-
-
-//             if ($passwordChanged) {
-//                 $argon_password = password_hash($pass, PASSWORD_ARGON2ID);
-//                 $updateUserQuery .= ", password = ?";
-//                 $params[] = $argon_password;
-//             }
-
-//             $updateUserQuery .= " WHERE userID = ?";
-//             $params[] = $user_id;
-
-//             $stmtUsers = $con->prepare($updateUserQuery);
-//             $stmtUsers->execute($params);
-
-//             $con->commit();
-//             $_SESSION['status'] = "User successfully updated.";
-//             $_SESSION['status_code'] = "success";
-//             header('location: doctor.php');
-//             exit();
-//         } catch (Exception $e) {
-//             $con->rollBack();
-//             $_SESSION['status'] = "Something went wrong: " . $e->getMessage();
-//             $_SESSION['status_code'] = "danger";
-//             header('location: doctor.php');
-//             exit();
-//         }
-//     } else {
-//         $_SESSION['status'] = "Please fill all the required fields.";
-//         $_SESSION['status_code'] = "error";
-//         header('location: doctor.php');
-//         exit();
-//     }
-// }
 
 if (isset($_POST['update_doctor'])) {
     // Retrieve user data from the form
@@ -456,10 +368,10 @@ if (isset($_POST['update_doctor'])) {
                                                         <td>
                                                             <?php
 
-                                                            if ($row['status'] == 'active') {
-                                                                echo '<span class="badge bg-success">active</span>';
+                                                            if ($row['status'] == 'Active') {
+                                                                echo '<span class="badge bg-success">Active</span>';
                                                             } else {
-                                                                echo '<span class="badge bg-warning">inactive</span>';
+                                                                echo '<span class="badge bg-warning">Inactive</span>';
                                                             }
                                                             ?>
                                                         </td>
@@ -534,9 +446,8 @@ if (isset($_POST['update_doctor'])) {
     <?php include './modal/doctor_modal.php'; ?>
 
 
-
-
-    <!-- <script>
+<!-- 
+    <script>
         document.addEventListener('DOMContentLoaded', function() {
             // Elements for adding professionals
             const roleSelect = document.getElementById('role');
@@ -545,63 +456,87 @@ if (isset($_POST['update_doctor'])) {
             const LicenseNo = document.getElementById('LicenseNo');
             const LicenseNoField = document.getElementById('LicenseNo-field');
 
-            // Elements for updating professionals
-            const editPasswordField = document.getElementById('editpass-field');
-            const editPasswordInput = document.getElementById('editpass');
-            const editLicenseNo = document.getElementById('editLicenseNo');
-            const editLicenseNoField = document.getElementById('editLicenseNo-field');
-            const editButtons = document.querySelectorAll('.edit');
-
-            // Toggle fields for adding professionals
+            // Function to toggle password field
             function togglePasswordField() {
-                if (roleSelect.value === 'Doctor') {
-                    passwordField.style.display = 'flex'; // Show the password field
-                    passwordInput.required = true;
-                    LicenseNoField.style.display = 'flex'; // Show the license field
-                    LicenseNo.required = true;
+                console.log("Toggling password field...");
+
+                // Check if elements are present
+                if (roleSelect && passwordField && passwordInput && LicenseNo && LicenseNoField) {
+                    console.log("Role Selected: ", roleSelect.value); // Log selected role
+
+                    if (roleSelect.value === 'Doctor') {
+                        passwordField.style.display = 'flex'; // Show password field
+                        passwordInput.required = true; // Make password required
+                        LicenseNoField.style.display = 'flex'; // Show license number field
+                        LicenseNo.required = true; // Make license number required
+                    } else {
+                        passwordField.style.display = 'none'; // Hide password field
+                        passwordInput.required = false; // Remove password requirement
+                        LicenseNoField.style.display = 'none'; // Hide license number field
+                        LicenseNo.required = false; // Remove license number requirement
+                    }
                 } else {
-                    passwordField.style.display = 'none'; // Hide the password field
-                    passwordInput.required = false;
-                    LicenseNoField.style.display = 'none'; // Hide the license field
-                    LicenseNo.required = false;
+                    console.error("One or more elements for adding professionals are missing!");
                 }
             }
 
-            // Initial call to set the correct state for adding professionals
+            // Set initial state
             togglePasswordField();
 
-            // Event listener for changes in the role select dropdown
-            roleSelect.addEventListener('change', togglePasswordField);
+            // Event listener for changes in role
+            if (roleSelect) {
+                roleSelect.addEventListener('change', togglePasswordField);
+            } else {
+                console.error("Role select element is missing!");
+            }
 
-            // Toggle fields for editing professionals
+            // Handling editing professionals...
+            // This section can follow similar logic as the adding professionals section
             editButtons.forEach(button => {
                 button.addEventListener('click', function() {
                     const role = this.getAttribute('data-role');
 
-                    // Toggle visibility based on the role
-                    if (role === 'Doctor') {
-                        editPasswordField.style.display = 'flex'; // Show the password field
-                        editPasswordInput.required = true;
-                        editLicenseNoField.style.display = 'flex'; // Show the license field
-                        editLicenseNo.required = true;
+                    if (editPasswordField && editPasswordInput && editLicenseNoField && editLicenseNo) {
+                        // Toggle visibility based on the role
+                        if (role === 'Doctor') {
+                            editPasswordField.style.display = 'flex'; // Show the password field
+                            editPasswordInput.required = true;
+                            editLicenseNoField.style.display = 'flex'; // Show the license field
+                            editLicenseNo.required = true;
+                        } else {
+                            editPasswordField.style.display = 'none'; // Hide the password field
+                            editPasswordInput.required = false;
+                            editLicenseNoField.style.display = 'none'; // Hide the license field
+                            editLicenseNo.required = false;
+                        }
                     } else {
-                        editPasswordField.style.display = 'none'; // Hide the password field
-                        editPasswordInput.required = false;
-                        editLicenseNoField.style.display = 'none'; // Hide the license field
-                        editLicenseNo.required = false;
+                        console.error("One or more elements for editing professionals are missing!"); // Debugging line
                     }
 
                     // Set other necessary data like user ID
                     const userId = this.getAttribute('data-id');
-                    document.getElementById('userid').value = userId;
+                    const userIdInput = document.getElementById('userid');
+                    if (userIdInput) {
+                        userIdInput.value = userId;
+                    } else {
+                        console.error("User ID input element is missing!"); // Debugging line
+                    }
 
                     // Open the modal
-                    new bootstrap.Modal(document.getElementById('update_doctor')).show();
+                    const modal = document.getElementById('update_doctor');
+                    if (modal) {
+                        new bootstrap.Modal(modal).show();
+                    } else {
+                        console.error("Update doctor modal is missing!"); // Debugging line
+                    }
                 });
             });
         });
+
+       
     </script> -->
 
+    
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // Elements for adding professionals

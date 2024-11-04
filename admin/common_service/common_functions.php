@@ -183,7 +183,7 @@ function getstatus($stat = '')
 {
 	$data = '<option value="">Select Status</option>';
 
-	$arr = array("active", "inactive");
+	$arr = array("Active", "inactive");
 
 	$i = 0;
 	$size = sizeof($arr);

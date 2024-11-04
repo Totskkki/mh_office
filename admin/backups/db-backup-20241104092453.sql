@@ -1,24 +1,3 @@
-DROP TABLE IF EXISTS audit_trail;
-
-CREATE TABLE `audit_trail` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `user_id` int(11) NOT NULL,
-  `action` varchar(255) DEFAULT NULL,
-  `description` text DEFAULT NULL,
-  `affected_table` varchar(255) DEFAULT NULL,
-  `affected_record_id` int(11) DEFAULT NULL,
-  `action_timestamp` timestamp NOT NULL DEFAULT current_timestamp(),
-  `ip_address` varchar(50) DEFAULT NULL,
-  `affected_record_name` varchar(255) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
-INSERT INTO audit_trail VALUES("1","7","INSERT","Added a new patient","patients","3","2024-09-13 08:08:05","::1","");
-INSERT INTO audit_trail VALUES("2","7","INSERT","Added a new patient","patients","5","2024-09-13 11:31:32","::1","");
-INSERT INTO audit_trail VALUES("3","37","INSERT","Added a new patient","patients","6","2024-09-14 13:18:45","::1","");
-
-
-
 DROP TABLE IF EXISTS cache;
 
 CREATE TABLE `cache` (
@@ -112,8 +91,10 @@ CREATE TABLE `tbl_animal_bite_care` (
   `vac_date` date DEFAULT NULL,
   `vaccine` varchar(255) DEFAULT NULL,
   `category_exposure` varchar(255) DEFAULT NULL,
-  `Remarks` varchar(255) DEFAULT NULL,
+  `a` varchar(255) DEFAULT NULL,
+  `p` varchar(255) NOT NULL,
   `userID` int(11) DEFAULT NULL,
+  `bite_status` enum('ongoing','done') NOT NULL DEFAULT 'ongoing',
   PRIMARY KEY (`animal_biteID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -130,6 +111,9 @@ CREATE TABLE `tbl_animal_bite_vaccination` (
   `dose_number` varchar(100) NOT NULL,
   `remarks` varchar(255) DEFAULT NULL,
   `patient_id` int(11) NOT NULL,
+  `stat` int(11) NOT NULL DEFAULT 0 COMMENT '0=pending, 1=completed',
+  `dose_status` tinyint(4) NOT NULL,
+  `bite_status` int(11) NOT NULL,
   PRIMARY KEY (`animal_bite_vacID`),
   KEY `patient_id` (`patient_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -147,11 +131,8 @@ CREATE TABLE `tbl_announcements` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   PRIMARY KEY (`announceID`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
-INSERT INTO tbl_announcements VALUES("2","2024-09-20","covid","test","2024-09-14 07:46:19","2024-09-14 07:46:19");
-INSERT INTO tbl_announcements VALUES("3","2024-09-20","test","test","2024-09-14 07:47:28","2024-09-14 07:47:28");
-INSERT INTO tbl_announcements VALUES("4","2024-09-26","fdsafa","fdsafsda","2024-09-14 08:10:45","2024-09-14 08:10:45");
 
 
 
@@ -185,17 +166,32 @@ CREATE TABLE `tbl_audit_log` (
   `new_value` text DEFAULT NULL,
   `timestamp` datetime DEFAULT current_timestamp(),
   PRIMARY KEY (`auditID`),
-  KEY `user_id` (`user_id`),
-  CONSTRAINT `tbl_audit_log_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `tbl_users` (`userID`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  KEY `user_id` (`user_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
-INSERT INTO tbl_audit_log VALUES("1","1","INSERT","tbl_announcements","1","","{\"date\":\"2024-09-25\",\"title\":\"covid vaccination\",\"details\":\"covid vaccination\"}","2024-09-11 10:46:30");
-INSERT INTO tbl_audit_log VALUES("2","1","UPDATE","tbl_announcements","1","{\"date\":\"2024-09-25\",\"title\":\"covid vaccination\",\"details\":\"covid vaccination\"}","{\"date\":\"2024-10-02\",\"title\":\"covid\",\"details\":\"covid \"}","2024-09-13 11:17:51");
-INSERT INTO tbl_audit_log VALUES("3","1","DELETE","tbl_announcements","1","{\"announceID\":1,\"date\":\"2024-10-02\",\"title\":\"covid\",\"details\":\"covid \",\"created_at\":\"2024-09-11 10:46:30\",\"updated_at\":\"2024-09-13 11:17:51\"}","","2024-09-13 12:58:57");
-INSERT INTO tbl_audit_log VALUES("4","1","added","tbl_medicine_details","1","","{\"medicine_id\":\"2\",\"packing\":\"mg\",\"qt\":\"500\"}","2024-09-13 15:31:42");
-INSERT INTO tbl_audit_log VALUES("5","1","INSERT","tbl_announcements","2","","{\"date\":\"2024-09-20\",\"title\":\"covid\",\"details\":\"test\"}","2024-09-14 07:46:19");
-INSERT INTO tbl_audit_log VALUES("6","1","INSERT","tbl_announcements","3","","{\"date\":\"2024-09-20\",\"title\":\"test\",\"details\":\"test\"}","2024-09-14 07:47:28");
-INSERT INTO tbl_audit_log VALUES("7","1","INSERT","tbl_announcements","4","","{\"date\":\"2024-09-26\",\"title\":\"fdsafa\",\"details\":\"fdsafsda\"}","2024-09-14 08:10:45");
+INSERT INTO tbl_audit_log VALUES("1","1","added","tbl_medicine_details","1","","{\"medicine_id\":\"1\",\"packing\":\"tablet\",\"qt\":\"50\"}","2024-11-03 15:37:48");
+INSERT INTO tbl_audit_log VALUES("2","1","UPDATE","tbl_medicine_details","1","{\"medicine_id\":1,\"packing\":\"tablet\",\"qt\":\"50\"}","{\"medicine_id\":\"1\",\"packing\":\"mg\",\"qt\":\"50\"}","2024-11-03 15:37:58");
+INSERT INTO tbl_audit_log VALUES("3","1","DELETE","tbl_medicine_details","1","{\"med_detailsID\":1,\"medicine_id\":1,\"packing\":\"mg\",\"qt\":\"50\"}","","2024-11-03 16:13:02");
+
+
+
+DROP TABLE IF EXISTS tbl_audit_trail;
+
+CREATE TABLE `tbl_audit_trail` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) NOT NULL,
+  `action` varchar(255) DEFAULT NULL,
+  `description` text DEFAULT NULL,
+  `affected_table` varchar(255) DEFAULT NULL,
+  `affected_record_id` int(11) DEFAULT NULL,
+  `action_timestamp` timestamp NOT NULL DEFAULT current_timestamp(),
+  `ip_address` varchar(50) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+INSERT INTO tbl_audit_trail VALUES("1","1","Add Events","Added Events  Health Campaign Health CampaignHealth Campaign","tbl_announcements","1","2024-11-03 13:42:37","::1");
+INSERT INTO tbl_audit_trail VALUES("2","1","Update Events","Updated Events Health Campaign Health CampaignHealth Campaign","tbl_announcements","1","2024-11-03 13:58:42","::1");
+INSERT INTO tbl_audit_trail VALUES("3","1","Delete Events","Deleted Events for Health Campaign Health CampaignHealth Campaign","tbl_announcements","1","2024-11-03 14:01:43","::1");
 
 
 
@@ -224,11 +220,11 @@ CREATE TABLE `tbl_birth_info` (
   `systemReviewID` int(11) NOT NULL,
   `physicalExamID` int(11) NOT NULL,
   `midwife_nurse` varchar(100) NOT NULL,
+  `birthing_status` enum('ongoing','done') DEFAULT 'ongoing',
   `created_at` date NOT NULL DEFAULT current_timestamp(),
   PRIMARY KEY (`birth_info_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
-INSERT INTO tbl_birth_info VALUES("1","5","20240913001","2024-09-13","12","","123","{\"g\":\"11\",\"p\":\"1\",\"term\":\"1\",\"preterm\":\"11\",\"abortion\":\"1\",\"living\":\"1\"}","fsdafsada","[\"Heart Disease\",\"Hepatitis\",\"\"]","","","","[\"Hypertension\",\"\"]","{\"alcohol\":\"no\"}","{\"menarche\":\"\",\"regular\":\"Yes\",\"duration\":\"fds\",\"days\":\"fds\",\"remarks\":\"afds\",\"dysmenorrhea\":\"no\",\"first_sexual_contact\":\"12\"}","{\"antepartal_care\":\"OPD\",\"start_visit\":\"fsd\",\"aog\":\"afsd\",\"tt\":\"asdf\",\"ogct\":\"afdsa\",\"illness\":\"fsd\",\"tot_visit\":\"\",\"others\":\"\"}","[{\"year\":\"1231\",\"place_of_confinement\":\"213\",\"aog\":\"sdaa\",\"bw\":\"dsa\",\"manner_of_delivery\":\"dsa\",\"complication_remarks\":\"dsa\"},{\"year\":\"21321\",\"place_of_confinement\":\"dsa\",\"aog\":\"dsa\",\"bw\":\"dsa\",\"manner_of_delivery\":\"dsa\",\"complication_remarks\":\"dsa\"}]","1","1","1","31","2024-09-13");
 
 
 
@@ -243,6 +239,7 @@ CREATE TABLE `tbl_birth_ivfluids` (
   `bottleno` varchar(100) NOT NULL,
   `solution` varchar(100) NOT NULL,
   `signature_remarks` varchar(100) NOT NULL,
+  `birth_info_id` int(11) NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   PRIMARY KEY (`fluidsID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -264,6 +261,8 @@ CREATE TABLE `tbl_birthing_medication` (
   `signature` varchar(50) NOT NULL,
   `medProcedure` varchar(150) NOT NULL,
   `Specimen` varchar(150) NOT NULL,
+  `birth_info_id` int(11) NOT NULL,
+  `created_at` datetime NOT NULL DEFAULT current_timestamp(),
   PRIMARY KEY (`medicationID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -274,6 +273,7 @@ DROP TABLE IF EXISTS tbl_birthing_monitoring;
 
 CREATE TABLE `tbl_birthing_monitoring` (
   `birthMonitorID` int(11) NOT NULL AUTO_INCREMENT,
+  `birth_info_id` int(11) NOT NULL,
   `case_no` varchar(100) NOT NULL,
   `patient_id` int(11) NOT NULL,
   `parity` varchar(100) DEFAULT NULL,
@@ -312,9 +312,8 @@ CREATE TABLE `tbl_birthing_monitoring` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   PRIMARY KEY (`birthMonitorID`),
   KEY `patientID` (`patient_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
-INSERT INTO tbl_birthing_monitoring VALUES("1","20240913001","5","fdsadfs","2024-09-13","11:41:00","11:41:00","11:41:00","11:41:00","11:41:00","11:41","","dsa","11:41:00","Livebirth","Yes","dsa","Yes","dsa","dsa","NOT IN ACTIVE LABOUR","[]","[]","[]","[]","[]","[]","[]","[]","[]","[]","dsa","dsa","dsa","dsa","dsa","2024-09-13 11:42:09");
 
 
 
@@ -346,6 +345,7 @@ CREATE TABLE `tbl_birthroom` (
   `Handled_by` varchar(30) NOT NULL,
   `assisted_by` varchar(30) NOT NULL,
   `physician` int(11) NOT NULL,
+  `birth_info_id` int(11) NOT NULL,
   `created_at` datetime NOT NULL DEFAULT current_timestamp(),
   PRIMARY KEY (`roomID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -363,10 +363,8 @@ CREATE TABLE `tbl_certificate_log` (
   `file_path` varchar(255) NOT NULL,
   PRIMARY KEY (`log_id`),
   KEY `patient_id` (`patient_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
-INSERT INTO tbl_certificate_log VALUES("1","6","2024-09-14 16:46:31","done","D:\\xampp\\htdocs\\MH_Office_final\\RHU/certificates/6_2024-09-14.pdf");
-INSERT INTO tbl_certificate_log VALUES("2","3","2024-09-14 17:24:34","done","D:\\xampp\\htdocs\\MH_Office_final\\RHU/certificates/3_2024-09-14.pdf");
 
 
 
@@ -394,9 +392,8 @@ CREATE TABLE `tbl_checkup` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   PRIMARY KEY (`checkupID`),
   KEY `patient_id` (`patient_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
-INSERT INTO tbl_checkup VALUES("1","2024-09-14 11:52:00","","","[\"\"]","","[\"\"]","[\"\"]","[\"\"]","[\"\"]","[\"\"]","[\"\"]","[\"\"]","no","","able to work","1","1","2024-09-14 11:52:45");
 
 
 
@@ -406,17 +403,21 @@ CREATE TABLE `tbl_clinicalrecords` (
   `recordID` int(11) NOT NULL AUTO_INCREMENT,
   `patient_id` int(11) NOT NULL,
   `employer` varchar(50) DEFAULT NULL,
-  `address` varchar(255) DEFAULT NULL,
+  `empaddress` varchar(255) DEFAULT NULL,
+  `tel_cell-no` varchar(50) NOT NULL,
   `admission_date` date DEFAULT NULL,
   `admission_time` time DEFAULT NULL,
   `dischargeDate` date DEFAULT NULL,
   `dischargeTime` time NOT NULL,
   `type_of_admission` varchar(100) DEFAULT NULL,
   `admitting_midwife` varchar(100) DEFAULT NULL,
+  `datafurnished` varchar(255) NOT NULL,
+  `datafurnishedaddress` varchar(255) NOT NULL,
   `admitting_diagnosis` text DEFAULT NULL,
   `final_diagnosis` text DEFAULT NULL,
   `procedure_done` text DEFAULT NULL,
   `disposition` text DEFAULT NULL,
+  `birth_info_id` int(11) NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   PRIMARY KEY (`recordID`),
   KEY `patient_id` (`patient_id`)
@@ -442,21 +443,15 @@ CREATE TABLE `tbl_complaints` (
   `consultation_purpose` varchar(100) NOT NULL,
   `refferred` varchar(100) NOT NULL,
   `reason_ref` varchar(255) NOT NULL,
-  `status` varchar(20) NOT NULL,
+  `status` varchar(100) NOT NULL,
   `pr` varchar(50) NOT NULL,
   `O2SAT` varchar(50) NOT NULL,
   `transferred` varchar(50) NOT NULL,
-  `date` timestamp NOT NULL DEFAULT current_timestamp(),
+  `created_at` date NOT NULL DEFAULT current_timestamp(),
   PRIMARY KEY (`complaintID`),
   KEY `patient_id` (`patient_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
-INSERT INTO tbl_complaints VALUES("1","1","head ache","test","110 / 120","12","60kg","12","35°C","123cm","Follow-up visit","Checkup","sally","checkup","Done","2","","referred","2024-09-11 00:00:00");
-INSERT INTO tbl_complaints VALUES("2","1","fd","asda","110 / 120","12","2kg","12","35°C","2cm","Follow-up visit","Vaccination and Immunization","sally","vaccination","Done","2","","referred","2024-09-12 15:12:27");
-INSERT INTO tbl_complaints VALUES("3","4","fds","fdsa","122 / 80_","16","11kg","111","11°C","1cm","New consultation/case","Vaccination and Immunization","fdsa","fdsadf","Done","1","1","referred","2024-09-13 11:20:02");
-INSERT INTO tbl_complaints VALUES("4","5","fsa","fsda","110 / 120","112","122kg","1122","122°C","1","New consultation/case","Birthing","fdsa","fdsafd","Pending\n","12","","","2024-09-13 11:31:51");
-INSERT INTO tbl_complaints VALUES("5","5","fsa","fsda","110 / 120","112","122kg","1122","122°C","1","New consultation/case","Birthing","fdsa","fdsafd","Under Monitoring","12","","","2024-09-13 11:31:51");
-INSERT INTO tbl_complaints VALUES("6","6","","","122 / 80_","16","11kg","111","11°C","1cm","New consultation/case","Birthing","fads","fdsadf","Pending","1","1","referred","2024-09-14 13:19:01");
 
 
 
@@ -465,6 +460,7 @@ DROP TABLE IF EXISTS tbl_discharged;
 CREATE TABLE `tbl_discharged` (
   `dischargedid` int(11) NOT NULL AUTO_INCREMENT,
   `patientid` int(11) NOT NULL,
+  `birth_info_id` int(11) NOT NULL,
   `diagnosis` text DEFAULT NULL,
   `date_discharged` date DEFAULT NULL,
   `home_medications` text DEFAULT NULL,
@@ -482,16 +478,20 @@ DROP TABLE IF EXISTS tbl_doctor_schedule;
 
 CREATE TABLE `tbl_doctor_schedule` (
   `doc_scheduleID` int(11) NOT NULL AUTO_INCREMENT,
-  `userID` int(11) NOT NULL,
+  `userID` varchar(50) NOT NULL,
+  `date_schedule` date DEFAULT NULL,
   `day_of_week` varchar(255) NOT NULL,
-  `start_time` time NOT NULL,
-  `end_time` time NOT NULL,
-  `is_available` tinyint(1) NOT NULL DEFAULT 1,
-  PRIMARY KEY (`doc_scheduleID`),
-  KEY `doctor_id` (`userID`)
+  `start_time` varchar(100) NOT NULL,
+  `end_time` varchar(100) NOT NULL,
+  `is_available` tinyint(1) DEFAULT 1 COMMENT '0=not availble,1=available',
+  `work_length` varchar(50) DEFAULT NULL,
+  `reapet` varchar(20) NOT NULL,
+  `schedules` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL CHECK (json_valid(`schedules`)),
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`doc_scheduleID`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
-INSERT INTO tbl_doctor_schedule VALUES("1","29","Tuesday,Wednesday,Friday","07:00:00","17:26:00","0");
+INSERT INTO tbl_doctor_schedule VALUES("1","5","","","","","1","","Weekly","{\"SUNDAY\":[{\"fromtime\":\"15:10\",\"totime\":\"18:10\",\"worklength\":\"3h 0m\"}]}","2024-11-03 15:10:54");
 
 
 
@@ -507,16 +507,8 @@ CREATE TABLE `tbl_family_members` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   PRIMARY KEY (`member_id`),
   KEY `address_id` (`address`)
-) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
-INSERT INTO tbl_family_members VALUES("1","pablito","Father","koronadal city , south cotabato","09677819501","1","2024-09-09 10:02:11");
-INSERT INTO tbl_family_members VALUES("2","alexa","Mother","koronadal city , south cotabato","09677819501","1","2024-09-09 10:02:11");
-INSERT INTO tbl_family_members VALUES("6","pablito","Father","LAMBA,BANGA, SOUTH COTABATO","09103253465","3","2024-09-13 08:08:05");
-INSERT INTO tbl_family_members VALUES("7","eleonora","Mother","LAMBA,BANGA, SOUTH COTABATO","09103253465","3","2024-09-13 08:08:05");
-INSERT INTO tbl_family_members VALUES("8","pablito","Father","LACIA RESIDENCE","09677819501","5","2024-09-13 11:31:32");
-INSERT INTO tbl_family_members VALUES("9","alexa","Mother","LACIA RESIDENCE","09677819501","5","2024-09-13 11:31:32");
-INSERT INTO tbl_family_members VALUES("10","pedro","Father","sisiman","09531167141","6","2024-09-14 13:18:45");
-INSERT INTO tbl_family_members VALUES("11","danna","Mother","sisiman","09531167141","6","2024-09-14 13:18:45");
 
 
 
@@ -532,13 +524,8 @@ CREATE TABLE `tbl_familyaddress` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NULL DEFAULT NULL ON UPDATE current_timestamp(),
   PRIMARY KEY (`famID`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
-INSERT INTO tbl_familyaddress VALUES("1","Sampao","Magsaysay","Lutayan","Sultan Kudarat","sultan kudarat","2024-09-09 10:02:11","");
-INSERT INTO tbl_familyaddress VALUES("3","Santo Niño (bo. 2)","Riverside","City Of Koronadal (Capital)","South Cotabato","LAMBA, BANGA","2024-09-13 08:08:05","");
-INSERT INTO tbl_familyaddress VALUES("4","Blingkong","Fsddaf","","South Cotabato","fdsafd","2024-09-13 11:19:29","");
-INSERT INTO tbl_familyaddress VALUES("5","Punol","Lacia Residence","Lutayan","Sultan Kudarat","LAMBA","2024-09-13 11:31:32","");
-INSERT INTO tbl_familyaddress VALUES("6","Sampao","","Lutayan","Sultan Kudarat","hfggh","2024-09-14 13:18:45","");
 
 
 
@@ -552,6 +539,8 @@ CREATE TABLE `tbl_healthnotes` (
   `time` time NOT NULL,
   `doctorNotes` varchar(255) NOT NULL,
   `nureNotes` varchar(255) NOT NULL,
+  `birth_info_id` int(11) NOT NULL,
+  `created_at` datetime NOT NULL DEFAULT current_timestamp(),
   PRIMARY KEY (`notedsID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -568,12 +557,11 @@ CREATE TABLE `tbl_immunization_records` (
   `immunization_next_date` date DEFAULT NULL,
   `remarks` varchar(255) DEFAULT NULL,
   `userID` int(11) NOT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `created_at` date NOT NULL DEFAULT current_timestamp(),
   PRIMARY KEY (`immunID`),
   KEY `patient_id` (`patient_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
-INSERT INTO tbl_immunization_records VALUES("1","1","Polio","2024-09-12","2024-10-16","test","7","2024-09-12 15:16:07");
 
 
 
@@ -585,13 +573,11 @@ CREATE TABLE `tbl_laboratory` (
   `date_test` date DEFAULT NULL,
   `test_result` varchar(255) NOT NULL,
   `patient_id` int(11) NOT NULL,
+  `image` text NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   PRIMARY KEY (`labid`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
-INSERT INTO tbl_laboratory VALUES("1","Complete Blood Count (CBC)","2024-09-09","fsa","1","2024-09-09 10:59:08");
-INSERT INTO tbl_laboratory VALUES("2","Urinalysis","2024-09-13","hardware.PNG","3","2024-09-13 11:16:13");
-INSERT INTO tbl_laboratory VALUES("3","Sputum Examination","2024-09-13","","3","2024-09-13 11:16:32");
 
 
 
@@ -606,7 +592,6 @@ CREATE TABLE `tbl_medicine_details` (
   KEY `medicine_id` (`medicine_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
-INSERT INTO tbl_medicine_details VALUES("1","2","mg","474");
 
 
 
@@ -622,12 +607,12 @@ CREATE TABLE `tbl_medicines` (
   `ex_date` date DEFAULT NULL,
   `manufacturer` varchar(100) NOT NULL,
   `brand` varchar(100) NOT NULL,
+  `status` tinyint(4) NOT NULL DEFAULT 1 COMMENT '1=active,0=inactive',
   `date_added` datetime NOT NULL DEFAULT current_timestamp(),
   PRIMARY KEY (`medicineID`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
-INSERT INTO tbl_medicines VALUES("1","Polio","Poliomyelitis, Commonly Shortened To Polio, Is An Infectious Disease Caused By The Poliovirus. Approximately 75% Of Cases Are Asymptomatic","Test","Vaccines","2024-09-12","2027-03-05","test","branded","2024-09-12 15:14:39");
-INSERT INTO tbl_medicines VALUES("2","Bio-flu","Test","Cefdinir","Antibiotics","2024-09-13","2027-04-30","cefdinir","cefdinir","2024-09-13 15:31:31");
+INSERT INTO tbl_medicines VALUES("1","Bio-flu","Bio-flu","Bio-flu","Anticoagulants","2023-11-03","2029-01-16","Bio-flu","Bio-flu","0","2024-11-03 15:31:54");
 
 
 
@@ -642,13 +627,8 @@ CREATE TABLE `tbl_membership_info` (
   `created_at` timestamp NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NULL DEFAULT NULL ON UPDATE current_timestamp(),
   PRIMARY KEY (`membershipID`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
-INSERT INTO tbl_membership_info VALUES("1","Yes","062469896512","Member","NHTS","2024-09-11 00:00:00","");
-INSERT INTO tbl_membership_info VALUES("3","Yes","123123123123","Member","4PS","2024-09-13 08:08:05","");
-INSERT INTO tbl_membership_info VALUES("4","No","","","[\"NHTS\"]","2024-09-13 11:19:29","");
-INSERT INTO tbl_membership_info VALUES("5","Yes","123112312312","Dependent","4PS","2024-09-13 11:31:32","");
-INSERT INTO tbl_membership_info VALUES("6","Yes","123123121222","Dependent","4PS","2024-09-14 13:18:45","");
 
 
 
@@ -669,13 +649,8 @@ CREATE TABLE `tbl_patient_medication_history` (
   PRIMARY KEY (`patient_med_historyID`),
   KEY `patient_visit_id` (`patient_visit_id`),
   KEY `medicine_details_id` (`medicine_details_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
-INSERT INTO tbl_patient_medication_history VALUES("1","1","2","Oral(p/o)","3","as needed","","500 mg","Every 4 hours","3 (Day)","test");
-INSERT INTO tbl_patient_medication_history VALUES("2","2","2","Oral(p/o)","1","schedule dose","After Meal","11 mg","Daily","2 (Day)","test");
-INSERT INTO tbl_patient_medication_history VALUES("4","4","2","Oral(p/o)","2","as needed","","100 mg","Daily","1 (Day)","fdsa");
-INSERT INTO tbl_patient_medication_history VALUES("5","5","2","Oral(p/o)","10","as needed","","1-00 mg","Every 3 hours","3 (Day)","test");
-INSERT INTO tbl_patient_medication_history VALUES("6","6","2","Oral(p/o)","10","as needed","","500 MG","Every 4 hours","2 (Day)","FDSA");
 
 
 
@@ -692,13 +667,8 @@ CREATE TABLE `tbl_patient_visits` (
   PRIMARY KEY (`patient_visitID`),
   KEY `patient_id` (`patient_id`),
   KEY `doctor_id` (`doctor_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
-INSERT INTO tbl_patient_visits VALUES("1","2024-09-13","2024-09-18","cough","test","3","29");
-INSERT INTO tbl_patient_visits VALUES("2","2024-09-13","2024-09-25","none","able to work","3","31");
-INSERT INTO tbl_patient_visits VALUES("4","2024-09-14","2024-09-18","cough","fdsa","4","29");
-INSERT INTO tbl_patient_visits VALUES("5","2024-09-14","2024-09-17","fever","test","4","29");
-INSERT INTO tbl_patient_visits VALUES("6","2024-09-14","2024-09-24","cough","FDSA","6","29");
 
 
 
@@ -732,13 +702,8 @@ CREATE TABLE `tbl_patients` (
   PRIMARY KEY (`patientID`),
   KEY `Membership_Info` (`Membership_Info`),
   KEY `family_no` (`family_address`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
-INSERT INTO tbl_patients VALUES("1","1","1","1399077","Ronaldo","","teere","","alexa","pablito","0000000001","2024-09-02","0 months","+63096778195","Male","Married","A+","No Formal Education","Patient","Islam","Filipino","2024-09-09 10:02:11","7","");
-INSERT INTO tbl_patients VALUES("3","3","3","1399078","Joven Rey","","Flores","","eleonora","pablito","0000000002","1993-01-26","31 years","+630967781950","Male","Married","A+","College Level","radio operator","Baptists","Filipino","2024-09-13 08:08:05","7","");
-INSERT INTO tbl_patients VALUES("4","4","4","1399079","Fsdaf","b","fdsadf","","fdsa","fdsafd","0000000004","2024-09-04","0 months","9999999999","Other","Married","A-","No Formal Education","fdsaf","Islam","Filipino","2024-09-13 11:19:29","8","");
-INSERT INTO tbl_patients VALUES("5","5","5","1399080","Lorena","ALCANTARA","LACIA","","alexa","pablito","0000000005","1999-04-20","25 years","+639677819501","Female","Single","A-","Elementary","none","Roman Catholic","Filipino","2024-09-13 11:31:32","7","");
-INSERT INTO tbl_patients VALUES("6","6","6","1399081","Josh","b","garcia","","danna","pedro","0000000006","1993-02-04","31 years","+639999999999","Female","Single","B+","College Level","test","","Filipino","2024-09-14 13:18:45","37","");
 
 
 
@@ -753,16 +718,11 @@ CREATE TABLE `tbl_personnel` (
   `email` varchar(150) NOT NULL,
   `address` varchar(255) NOT NULL,
   PRIMARY KEY (`personnel_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=44 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
-INSERT INTO tbl_personnel VALUES("1","admin","M.","admin","Koronadal City","admin@gmail.com","+639645563132");
-INSERT INTO tbl_personnel VALUES("7","Rhu","R","Rhu","+639623564556","RHU@gmail.com","+631232131321");
-INSERT INTO tbl_personnel VALUES("8","Elleen","","Tunguia","+634744477477","elleen@gmail.com","Koronadal City , South Cotabato");
-INSERT INTO tbl_personnel VALUES("34","Ben","Test","Manatad","+639665123213","test@gmail.com","Blk. 4 Andres Bonifacio St, Poblacion, Koronadal City, South Cotabato");
-INSERT INTO tbl_personnel VALUES("36","Angel","","Lobrido","+639665123213","angel@GMAIL.COM","koronadal city , south cotabato");
-INSERT INTO tbl_personnel VALUES("41","Joven Rey","","Flores","+630967781950","floresjovenrey26@gmail.com","Koronadal City , South Cotabato");
-INSERT INTO tbl_personnel VALUES("42","Test","V","Test","+630967781950","test26@gmail.com","Koronadal City , South Cotabato");
-INSERT INTO tbl_personnel VALUES("43","carlo","","basco","+639123123123","carlo@gmail.com","koronadal city , south cotabato");
+INSERT INTO tbl_personnel VALUES("1","admin","","admin","09562331","admin@gmail.com","");
+INSERT INTO tbl_personnel VALUES("4","Test","","Test","+639665123213","test26@gmail.com","Purok Riverside,brgy.santo Nino(bo.2)koronadal City South Cotabato");
+INSERT INTO tbl_personnel VALUES("5","Gerald","","Anderson","+639665123213","Gerald@gmail.com","PUROK RIVERSIDE,BRGY.SANTO NINO(BO.2)KORONADAL CITY SOUTH COTABATO");
 
 
 
@@ -775,17 +735,17 @@ CREATE TABLE `tbl_physicalexam` (
   `dilation` varchar(50) DEFAULT NULL,
   `effacement` varchar(50) DEFAULT NULL,
   `bow` varchar(50) DEFAULT NULL,
-  `skin` text DEFAULT NULL,
+  `maneuver` varchar(255) NOT NULL,
+  `SKIN` text DEFAULT NULL,
   `heent` text DEFAULT NULL,
   `chest_lungs` text DEFAULT NULL,
-  `cardiovascular` text DEFAULT NULL,
+  `CARDIOVASCULAR` text DEFAULT NULL,
   `abdomen` text DEFAULT NULL,
   `extremities` text DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   PRIMARY KEY (`physical_exam_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
-INSERT INTO tbl_physicalexam VALUES("1","12","12","12","1212","12","[\"Pallor\",\"\"]","[\"\"]","[\"\"]","[\"\"]","[\"\"]","[\"\"]","2024-09-13 11:38:19");
 
 
 
@@ -799,16 +759,11 @@ CREATE TABLE `tbl_position` (
   `ProfessionalType` varchar(100) NOT NULL,
   `LicenseNo` varchar(255) NOT NULL,
   PRIMARY KEY (`position_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=44 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
-INSERT INTO tbl_position VALUES("1","1","","","","");
-INSERT INTO tbl_position VALUES("7","7","","","","");
-INSERT INTO tbl_position VALUES("8","8","","","","");
-INSERT INTO tbl_position VALUES("34","34","doctor","doctor","doctor","09523215");
-INSERT INTO tbl_position VALUES("36","36","midwife","birhting","midwife","");
-INSERT INTO tbl_position VALUES("41","41","","","","");
-INSERT INTO tbl_position VALUES("42","42","","","","");
-INSERT INTO tbl_position VALUES("43","43","Physician","Physician","Physician","");
+INSERT INTO tbl_position VALUES("1","1","admin","","","");
+INSERT INTO tbl_position VALUES("4","4","","","","");
+INSERT INTO tbl_position VALUES("5","5","Doctor","Family doctor","M.D","195632323232");
 
 
 
@@ -829,11 +784,11 @@ CREATE TABLE `tbl_postpartum` (
   `bowel_movement` varchar(255) NOT NULL,
   `vaginal_discharge` varchar(255) NOT NULL,
   `key_messages` text NOT NULL,
+  `birth_info_id` int(11) NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   PRIMARY KEY (`postpartumID`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
-INSERT INTO tbl_postpartum VALUES("1","5","1970-01-01","{\"date\":\"\",\"time\":\"\",\"monitoring\":{\"every5_15\":{\"times\":[\"\",\"\",\"\",\"\"]},\"2HR\":\"\",\"3HR\":\"\",\"4HR\":\"\",\"8HR\":\"\",\"12HR\":\"\",\"date2\":\"\",\"16HR\":\"\",\"20HR\":\"\",\"24HR\":\"\",\"discharge\":\"\"}}","","","","","","","","","","","2024-09-14 10:42:18");
 
 
 
@@ -891,10 +846,8 @@ CREATE TABLE `tbl_referrals_log` (
   `status` varchar(20) NOT NULL,
   PRIMARY KEY (`referral_id`),
   KEY `patient_id` (`patient_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
-INSERT INTO tbl_referrals_log VALUES("10","6","2024-09-14","37","");
-INSERT INTO tbl_referrals_log VALUES("11","3","2024-09-14","7","");
 
 
 
@@ -915,6 +868,7 @@ CREATE TABLE `tbl_systemreview` (
   `cardiovascular` text DEFAULT NULL,
   `gastrointestinal` text DEFAULT NULL,
   `urinary` text DEFAULT NULL,
+  `genitalia` text NOT NULL,
   `vascular` text DEFAULT NULL,
   `musculoskeletal` text DEFAULT NULL,
   `neurologic1` text DEFAULT NULL,
@@ -923,9 +877,8 @@ CREATE TABLE `tbl_systemreview` (
   `neurologic2` text DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   PRIMARY KEY (`system_review_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
-INSERT INTO tbl_systemreview VALUES("1","[]","[]","[]","[]","[]","[\"Nosebleed\"]","[\"Sore Tongue\"]","[\"Swollen Glands\"]","[]","[]","[]","[]","[]","[]","[]","[]","[]","[]","[]","2024-09-13 11:38:19");
 
 
 
@@ -941,36 +894,37 @@ CREATE TABLE `tbl_user_log` (
   `status` int(11) NOT NULL,
   PRIMARY KEY (`logID`),
   KEY `tbl_user_log_ibfk_1` (`userID`)
-) ENGINE=InnoDB AUTO_INCREMENT=29 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=30 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
-INSERT INTO tbl_user_log VALUES("1","7","RHU","::1\0\0\0\0\0\0\0\0\0\0\0\0\0","2024-09-12 15:11:50","","1");
-INSERT INTO tbl_user_log VALUES("2","1","admin","::1\0\0\0\0\0\0\0\0\0\0\0\0\0","2024-09-12 15:13:19","","1");
-INSERT INTO tbl_user_log VALUES("3","7","RHU","::1\0\0\0\0\0\0\0\0\0\0\0\0\0","2024-09-13 08:04:45","","1");
-INSERT INTO tbl_user_log VALUES("4","1","admin","::1\0\0\0\0\0\0\0\0\0\0\0\0\0","2024-09-13 08:08:58","","1");
-INSERT INTO tbl_user_log VALUES("5","8","Elleen","::1\0\0\0\0\0\0\0\0\0\0\0\0\0","2024-09-13 11:07:29","13-09-2024 11:07:35 AM","1");
-INSERT INTO tbl_user_log VALUES("6","","Elleen","::1\0\0\0\0\0\0\0\0\0\0\0\0\0","2024-09-13 11:07:43","","0");
-INSERT INTO tbl_user_log VALUES("7","8","Elleen","::1\0\0\0\0\0\0\0\0\0\0\0\0\0","2024-09-13 11:08:06","13-09-2024 11:52:30 AM","1");
-INSERT INTO tbl_user_log VALUES("8","7","RHU","::1\0\0\0\0\0\0\0\0\0\0\0\0\0","2024-09-13 11:10:31","","1");
-INSERT INTO tbl_user_log VALUES("9","1","admin","::1\0\0\0\0\0\0\0\0\0\0\0\0\0","2024-09-13 11:17:34","13-09-2024 11:39:52 AM","1");
-INSERT INTO tbl_user_log VALUES("10","1","admin","::1\0\0\0\0\0\0\0\0\0\0\0\0\0","2024-09-13 11:39:57","13-09-2024 11:40:01 AM","1");
-INSERT INTO tbl_user_log VALUES("11","7","RHU","::1\0\0\0\0\0\0\0\0\0\0\0\0\0","2024-09-13 11:40:06","13-09-2024 11:59:20 AM","1");
-INSERT INTO tbl_user_log VALUES("12","","Elleen","::1\0\0\0\0\0\0\0\0\0\0\0\0\0","2024-09-13 11:52:35","","0");
-INSERT INTO tbl_user_log VALUES("13","8","Elleen","::1\0\0\0\0\0\0\0\0\0\0\0\0\0","2024-09-13 11:52:40","13-09-2024 11:52:43 AM","1");
-INSERT INTO tbl_user_log VALUES("14","8","Elleen","::1\0\0\0\0\0\0\0\0\0\0\0\0\0","2024-09-13 11:53:14","13-09-2024 11:58:59 AM","1");
-INSERT INTO tbl_user_log VALUES("15","7","RHU","::1\0\0\0\0\0\0\0\0\0\0\0\0\0","2024-09-13 11:59:29","13-09-2024 12:29:25 PM","1");
-INSERT INTO tbl_user_log VALUES("16","1","admin","::1\0\0\0\0\0\0\0\0\0\0\0\0\0","2024-09-13 12:03:39","","1");
-INSERT INTO tbl_user_log VALUES("17","7","RHU","::1\0\0\0\0\0\0\0\0\0\0\0\0\0","2024-09-13 12:29:29","","1");
-INSERT INTO tbl_user_log VALUES("18","1","admin","::1\0\0\0\0\0\0\0\0\0\0\0\0\0","2024-09-13 12:58:34","","1");
-INSERT INTO tbl_user_log VALUES("19","7","RHU","::1\0\0\0\0\0\0\0\0\0\0\0\0\0","2024-09-13 15:09:57","","1");
-INSERT INTO tbl_user_log VALUES("20","1","admin","::1\0\0\0\0\0\0\0\0\0\0\0\0\0","2024-09-13 15:31:07","","1");
-INSERT INTO tbl_user_log VALUES("21","7","RHU","::1\0\0\0\0\0\0\0\0\0\0\0\0\0","2024-09-14 07:26:33","14-09-2024 09:22:40 AM","1");
-INSERT INTO tbl_user_log VALUES("22","1","admin","::1\0\0\0\0\0\0\0\0\0\0\0\0\0","2024-09-14 07:46:10","","1");
-INSERT INTO tbl_user_log VALUES("23","7","RHU","::1\0\0\0\0\0\0\0\0\0\0\0\0\0","2024-09-14 09:22:49","","1");
-INSERT INTO tbl_user_log VALUES("24","37","test","::1\0\0\0\0\0\0\0\0\0\0\0\0\0","2024-09-14 12:41:40","","1");
-INSERT INTO tbl_user_log VALUES("25","37","test","::1\0\0\0\0\0\0\0\0\0\0\0\0\0","2024-09-14 15:25:52","14-09-2024 05:26:50 PM","1");
-INSERT INTO tbl_user_log VALUES("26","7","RHU","::1\0\0\0\0\0\0\0\0\0\0\0\0\0","2024-09-14 15:58:07","14-09-2024 04:54:17 PM","1");
-INSERT INTO tbl_user_log VALUES("27","7","RHU","::1\0\0\0\0\0\0\0\0\0\0\0\0\0","2024-09-14 17:24:17","14-09-2024 05:28:30 PM","1");
-INSERT INTO tbl_user_log VALUES("28","1","admin","::1\0\0\0\0\0\0\0\0\0\0\0\0\0","2024-09-16 07:48:26","","1");
+INSERT INTO tbl_user_log VALUES("1","","admin","::1\0\0\0\0\0\0\0\0\0\0\0\0\0","2024-11-03 13:39:19","","0");
+INSERT INTO tbl_user_log VALUES("2","1","admin","::1\0\0\0\0\0\0\0\0\0\0\0\0\0","2024-11-03 13:39:53","","1");
+INSERT INTO tbl_user_log VALUES("3","2","Test","::1\0\0\0\0\0\0\0\0\0\0\0\0\0","2024-11-03 13:53:29","","1");
+INSERT INTO tbl_user_log VALUES("4","4","Test","::1\0\0\0\0\0\0\0\0\0\0\0\0\0","2024-11-03 15:54:51","03-11-2024 04:08:53 PM","1");
+INSERT INTO tbl_user_log VALUES("5","4","Test","::1\0\0\0\0\0\0\0\0\0\0\0\0\0","2024-11-03 16:08:56","03-11-2024 04:26:09 PM","1");
+INSERT INTO tbl_user_log VALUES("6","4","Test","::1\0\0\0\0\0\0\0\0\0\0\0\0\0","2024-11-03 16:26:21","","1");
+INSERT INTO tbl_user_log VALUES("7","5","1","1\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0","2024-11-03 16:42:48","","1");
+INSERT INTO tbl_user_log VALUES("8","5","1","1\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0","2024-11-03 16:44:16","","1");
+INSERT INTO tbl_user_log VALUES("9","5","1","1\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0","2024-11-03 16:46:35","","1");
+INSERT INTO tbl_user_log VALUES("10","5","1","1\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0","2024-11-03 17:15:18","","1");
+INSERT INTO tbl_user_log VALUES("11","5","1","1\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0","2024-11-03 17:25:51","","1");
+INSERT INTO tbl_user_log VALUES("12","5","1","1\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0","2024-11-03 17:27:50","","1");
+INSERT INTO tbl_user_log VALUES("13","5","1","1\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0","2024-11-03 17:31:08","","1");
+INSERT INTO tbl_user_log VALUES("14","5","1","1\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0","2024-11-03 17:39:42","","1");
+INSERT INTO tbl_user_log VALUES("15","5","1","1\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0","2024-11-03 17:41:01","","1");
+INSERT INTO tbl_user_log VALUES("16","5","1","1\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0","2024-11-03 17:41:33","","1");
+INSERT INTO tbl_user_log VALUES("17","5","1","1\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0","2024-11-03 17:43:10","","1");
+INSERT INTO tbl_user_log VALUES("18","5","1","1\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0","2024-11-03 17:47:08","","1");
+INSERT INTO tbl_user_log VALUES("19","5","1","1\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0","2024-11-03 17:51:57","","1");
+INSERT INTO tbl_user_log VALUES("20","5","1","1\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0","2024-11-03 17:54:21","","1");
+INSERT INTO tbl_user_log VALUES("21","5","1","1\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0","2024-11-03 20:10:15","","1");
+INSERT INTO tbl_user_log VALUES("22","5","1","1\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0","2024-11-03 20:21:18","","1");
+INSERT INTO tbl_user_log VALUES("23","5","1","1\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0","2024-11-03 20:28:05","","1");
+INSERT INTO tbl_user_log VALUES("24","5","1","1\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0","2024-11-03 20:33:00","","1");
+INSERT INTO tbl_user_log VALUES("25","5","1","1\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0","2024-11-03 20:34:21","","1");
+INSERT INTO tbl_user_log VALUES("26","5","1","1\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0","2024-11-03 20:39:49","","1");
+INSERT INTO tbl_user_log VALUES("27","5","1","1\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0","2024-11-03 20:45:56","","1");
+INSERT INTO tbl_user_log VALUES("28","1","admin","::1\0\0\0\0\0\0\0\0\0\0\0\0\0","2024-11-04 09:22:19","","1");
+INSERT INTO tbl_user_log VALUES("29","5","1","1\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0","2024-11-04 09:24:10","","1");
 
 
 
@@ -984,7 +938,7 @@ CREATE TABLE `tbl_user_page` (
   PRIMARY KEY (`userpageID`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
-INSERT INTO tbl_user_page VALUES("1","CALENDAR.PNG","BRGY. AVACEÑA","37");
+INSERT INTO tbl_user_page VALUES("1","451500468_781580517387534_204021789157193093_n (1).jpg","BRGY. AVACEÑA","2");
 
 
 
@@ -996,7 +950,7 @@ CREATE TABLE `tbl_users` (
   `UserType` varchar(100) NOT NULL,
   `password` varchar(100) DEFAULT NULL,
   `status` varchar(20) NOT NULL,
-  `profile_picture` varchar(40) NOT NULL,
+  `profile_picture` varchar(255) NOT NULL,
   `personnel_id` int(11) NOT NULL,
   `position_id` int(11) NOT NULL,
   `userpageID` int(11) DEFAULT NULL,
@@ -1005,19 +959,12 @@ CREATE TABLE `tbl_users` (
   `last_attempt_time` datetime DEFAULT NULL,
   PRIMARY KEY (`userID`),
   KEY `personnel_id` (`personnel_id`),
-  KEY `position_id` (`position_id`),
-  CONSTRAINT `tbl_users_ibfk_1` FOREIGN KEY (`personnel_id`) REFERENCES `tbl_personnel` (`personnel_id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `tbl_users_ibfk_2` FOREIGN KEY (`position_id`) REFERENCES `tbl_position` (`position_id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=39 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  KEY `position_id` (`position_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
-INSERT INTO tbl_users VALUES("1","admin","admin","$2y$10$UU5F8l0cJB5e1F8jof5RQuGzVE5gObQ8z3ZSojriezvZ9JOKBvZKK","active","user.jpg","1","1","0","2024-04-24 16:39:15","0","");
-INSERT INTO tbl_users VALUES("7","RHU","RHU","$2y$10$C7Ii6iYoA4hfiICc/ML3.eb.1FoKh3dM2HxJ2HFuESp7F3v7vtjBu","active","photo1718592536 (3).jpeg","7","7","0","2024-05-02 10:55:03","0","");
-INSERT INTO tbl_users VALUES("8","Elleen","BHW","$2y$10$K3X5eArj9SJzJ7S.hu1l.ePlQSK2uIhJaY2IGT8l1A1LF7Vmex2DK","active","girl.png","8","8","2","2024-05-02 13:15:38","0","");
-INSERT INTO tbl_users VALUES("29","Ben","Doctor","$2y$10$yG0OWd2U/qcjNkFD0MiRA.l2jJTMIosae.F3nD0//SgF6o99qvRCO","active","","34","34","0","2024-08-04 09:46:14","0","2024-08-11 15:48:29");
-INSERT INTO tbl_users VALUES("31","angel","Midwife","","active","commentor-item3.jpg","36","36","0","2024-08-04 09:47:01","0","2024-08-11 15:48:29");
-INSERT INTO tbl_users VALUES("36","joven","BHW","$2y$10$m7q5alOPF40NAzJBbfa8buhGxCrRsF6pMtBjkZLXLoj62ZkoPT5uG","active","1656551981avatar.png","41","41","6","2024-08-07 17:23:41","0","");
-INSERT INTO tbl_users VALUES("37","test","BHW","$2y$10$vR3.xMkzF2dXSX3JcWG9Juk49HlM6OCovIkxO3vCtkCNWyW2WXqtm","active","OIP.jpg","42","42","1","2024-08-17 18:21:00","0","");
-INSERT INTO tbl_users VALUES("38","Carlo","Physician","","active","Capture3.PNG","43","43","","2024-08-27 16:54:40","0","");
+INSERT INTO tbl_users VALUES("1","admin","admin","$2a$12$gqy2DIumZzQHQgHTcDSK4.bY/0zoIaJR4rF0O4VNqAoc19GFAUVZ.","Active","profile.jpg","1","1","","2024-11-03 13:39:09","0","");
+INSERT INTO tbl_users VALUES("4","Test","BHW","$2y$10$Panx0p49OgwVsup.15s7LOudI/vHVKCCLvOSZlMeD0CK8LaySYMeK","active","","4","4","","2024-11-03 14:31:47","0","");
+INSERT INTO tbl_users VALUES("5","1","Doctor","$2y$10$AnBtHPFvIrdJCX5254c1vul4GRVUg5qeVZ.jvQhoMyoMJ1knfMeeG","active","photo1718592536 (3).jpeg","5","5","","2024-11-03 14:57:20","0","");
 
 
 
@@ -1038,12 +985,11 @@ CREATE TABLE `tbl_vitalsigns_monitoring` (
   `intensity` varchar(20) NOT NULL,
   `nurse_midwife` int(11) NOT NULL,
   `patient_id` int(11) NOT NULL,
+  `birth_info_id` int(11) NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   PRIMARY KEY (`vitalSignsID`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
-INSERT INTO tbl_vitalsigns_monitoring VALUES("1","10","2024-09-03","07:36:00","120/80","140","23","35","22","2","2","2","31","8","2024-09-03 00:00:00");
-INSERT INTO tbl_vitalsigns_monitoring VALUES("2","203","2024-09-13","11:42:00","212","123","13","213","21","321","321","12","31","5","2024-09-13 11:42:41");
 
 
 

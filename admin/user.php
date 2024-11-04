@@ -357,10 +357,10 @@ if (isset($_POST['update_user'])) {
                                                             <td>
                                                                 <?php
 
-                                                                if ($row['status'] == 'active') {
-                                                                    echo '<span class="badge bg-success">active</span>';
+                                                                if ($row['status'] == 'Active') {
+                                                                    echo '<span class="badge bg-success">Active</span>';
                                                                 } else {
-                                                                    echo '<span class="badge bg-warning">inactive</span>';
+                                                                    echo '<span class="badge bg-warning">Inactive</span>';
                                                                 }
                                                                 ?>
                                                             </td>
