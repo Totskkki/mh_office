@@ -152,9 +152,7 @@ if (isset($_POST['saveNextvaccine'])) {
 
         <!-- App brand starts -->
         <div class="app-brand px-3 py-2 d-flex align-items-center">
-          <a href="index.html">
-            <img src="assets/images/logo.svg" class="logo" alt="Bootstrap Gallery" />
-          </a>
+
         </div>
         <!-- App brand ends -->
 
@@ -623,7 +621,7 @@ if (isset($_POST['saveNextvaccine'])) {
   <script>
     document.addEventListener('DOMContentLoaded', function() {
       var form = document.getElementById('formVaccine');
-
+      
 
       // Add validation on form submission
       form.addEventListener('submit', function(event) {
@@ -639,8 +637,13 @@ if (isset($_POST['saveNextvaccine'])) {
           form.classList.remove('was-validated');
         }
       }, false);
+
+
+    
     });
   </script>
+
+
 
 
 </body>

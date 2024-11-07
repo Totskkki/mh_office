@@ -51,7 +51,7 @@ if (isset($_POST['complaintID'])) {
 
 if (isset($_POST['save_vaccination'])) {
 
- $user = $_SESSION['user_id'];
+  $user = $_SESSION['user_id'];
   $patient_id = trim($_POST['patient_id']);
 
   $hidden_id1 = trim($_POST['hidden1']);
@@ -69,20 +69,18 @@ if (isset($_POST['save_vaccination'])) {
   $stmt = $con->prepare("INSERT INTO tbl_immunization_records (`patient_id`, `vaccine`, `immunization_date`, `immunization_next_date`, `remarks`,`userID`) 
             VALUES (?,?,?,?,?,?)");
 
-  $stmt->execute([$patient_id, $medicine, $date_ad, $next_due, $notes,$user]);
+  $stmt->execute([$patient_id, $medicine, $date_ad, $next_due, $notes, $user]);
 
 
 
   $con->commit();
 
   $stmtUpdate1 = $con->prepare("UPDATE tbl_complaints SET status = 'Done' WHERE patient_id = ? AND  consultation_purpose ='Vaccination and Immunization' and  complaintID = ?");
-  $stmtUpdate1->execute([$patient_id,$hidden_id1]);
+  $stmtUpdate1->execute([$patient_id, $hidden_id1]);
   $_SESSION['status'] = "Patient Vaccination Submitted succefully.";
   $_SESSION['status_code'] = "success";
   header('location: records_vaccination.php');
   exit();
-
- 
 }
 $medicines = getvacimmunize($con);
 
@@ -114,9 +112,7 @@ $medicines = getvacimmunize($con);
 
         <!-- App brand starts -->
         <div class="app-brand px-3 py-2 d-flex align-items-center">
-          <a href="index.html">
-            <img src="assets/images/logo.svg" class="logo" alt="Bootstrap Gallery" />
-          </a>
+
         </div>
         <!-- App brand ends -->
 
@@ -183,7 +179,7 @@ $medicines = getvacimmunize($con);
                     <h5 class="card-title">Vaccination and Immunization</h5>
                   </div>
                   <div class="card-body">
-                    <div <div class="col-12">
+                    <div class="col-12">
                       <div class="d-flex gap-2 justify-content-end mb-2">
 
                         <a href="records_vaccination.php" type="button" class="btn btn-info">
@@ -319,7 +315,7 @@ $medicines = getvacimmunize($con);
   <?php include './config/site_js_links.php'; ?>
   <?php include './config/data_tables_js.php'; ?>
 
- 
+
 
 
 
@@ -344,25 +340,22 @@ $('.select2bs4').select2({
   </script>
 
 
-<script>
-    
-
+  <script>
     $(document).ready(function() {
-        $('.js-example-basic-multiple').select2({
-            placeholder: 'Select options',
-            allowClear: true
-        });
+      $('.js-example-basic-multiple').select2({
+        placeholder: 'Select options',
+        allowClear: true
+      });
     });
-    
+
     // If you're using a modal, reinitialize after the modal is shown
     $('#add_user').on('shown.bs.modal', function() {
-        $('.js-example-basic-multiple').select2({
-            placeholder: 'Select options',
-            allowClear: true
-        });
+      $('.js-example-basic-multiple').select2({
+        placeholder: 'Select options',
+        allowClear: true
+      });
     });
-    
-        </script>
+  </script>
 
   <script>
     $(document).ready(function() {
@@ -446,7 +439,7 @@ $('.select2bs4').select2({
         },
         dataType: 'json',
         success: function(response) {
-          console.log(response);
+       
 
           let dateOfBirth = new Date(response.date_of_birth);
 
@@ -458,7 +451,7 @@ $('.select2bs4').select2({
           let formattedDate = dateOfBirth.toLocaleDateString('en-US', options);
           $('#user').val(response.patientID);
           $('#complainid').val(response.complaintID);
-         
+
           $('#consultModalTitle').text(
             response.patient_name + ' ' +
             response.middle_name + ' ' +
@@ -471,6 +464,28 @@ $('.select2bs4').select2({
         }
       });
     }
+  </script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      var form = document.getElementById('vaccinations');
+
+
+      form.addEventListener('submit', function(event) {
+        var isValid = true;
+
+
+        // Check built-in HTML5 form validation
+        if (!form.checkValidity() || !isValid) {
+          event.preventDefault();
+          event.stopPropagation();
+          form.classList.add('was-validated');
+        } else {
+          form.classList.remove('was-validated');
+        }
+      }, false);
+
+    });
   </script>
 
 

@@ -44,10 +44,15 @@ function getAffectedRecordName($table, $recordId, $con)
 {
     switch ($table) {
         case 'tbl_patients':
-            $stmt = $con->prepare("SELECT patient_name FROM tbl_patients WHERE patient_id = ?");
+            $stmt = $con->prepare("SELECT patient_name, last_name FROM tbl_patients WHERE patientID  = ?");
+
             $stmt->execute([$recordId]);
             $result = $stmt->fetch();
-            return $result['patient_name'] ?? 'Unknown';
+            if ($result) {
+                return trim(($result['patient_name'] ?? '') . ' ' . ($result['last_name'] ?? ''));
+            } else {
+                return 'Unknown'; // If no record is found
+            }
 
             // case 'tbl_doctors':
             //     $stmt = $con->prepare("SELECT doctor_name FROM tbl_doctors WHERE doctor_id = ?");
@@ -66,9 +71,10 @@ function logAuditTrail($userId, $action, $description, $table, $recordId, $con)
     $ipAddress = $_SERVER['REMOTE_ADDR'];
 
     // Insert into audit trail
-    $stmt = $con->prepare("INSERT INTO audit_trail (user_id, action, description, affected_table, affected_record_id, ip_address) VALUES (?, ?, ?, ?, ?, ?)");
+    $stmt = $con->prepare("INSERT INTO tbl_audit_trail (user_id, action, description, affected_table, affected_record_id, ip_address) VALUES (?, ?, ?, ?, ?, ?)");
     $stmt->execute([$userId, $action, $description, $table, $recordId, $ipAddress]);
 }
+
 
 
 if (isset($_POST['save_Patient'])) {
@@ -142,8 +148,8 @@ if (isset($_POST['save_Patient'])) {
 
     $m_name = trim($_POST['m_name']);
     $f_gname = trim($_POST['f_gname']);
-    $memberContact = trim($_POST['memberAddress']);
-    $memberAddress = trim($_POST['memberContact']);
+    $memberContact = trim($_POST['memberContact']);
+    $memberAddress = trim($_POST['memberAddress']);
 
 
 
@@ -243,7 +249,15 @@ if (isset($_POST['save_Patient'])) {
             ':patient_id' => $lastInsertId,
         ]);
 
-        logAuditTrail($user, 'INSERT', 'Added a new patient', 'patients', $lastInsertId, $con);
+
+
+
+
+
+        $affectedName = getAffectedRecordName('tbl_patients', $lastInsertId, $con);
+
+        logAuditTrail($user, 'Insert', 'Added patient: ' . $affectedName, 'tbl_patients', $lastInsertId, $con);
+
 
         $con->commit();
 
@@ -512,6 +526,7 @@ if (isset($_POST['save_Patient'])) {
                                                         </div>
 
                                                     </div>
+                                                    
 
                                                     <div class="col-lg-3 col-sm-4 col-12">
                                                         <div class="mb-3">
@@ -574,23 +589,24 @@ if (isset($_POST['save_Patient'])) {
 
                                                     </div>
                                                     <div class="col-lg-3 col-sm-4 col-12">
-                                                    <div class="mb-1">
-                                                        <label class="form-label" for="abc6">Sex: <span class="text-danger">*</span></label>
-                                                        <div class="form-group">
-                                                            <div class="form-check">
-                                                                <?php echo getGender(); ?>
-                                                                <div class="invalid-feedback">
+                                                        <div class="mb-1">
+                                                            <label class="form-label" for="abc6">Sex: <span class="text-danger">*</span></label>
+                                                            <div class="form-group">
+                                                                <div class="form-check">
+                                                                    <?php echo getGender(); ?>
+                                                                    <div class="invalid-feedback">
                                                                     Sex is required.
                                                                 </div>
+                                                                </div>
+                                                                
                                                             </div>
                                                         </div>
                                                     </div>
-                                                </div>
 
                                                     <div class="col-lg-3 col-sm-4 col-12">
                                                         <div class="mb-1">
                                                             <label class="form-label" for="abc6">Contact number: <span class="text-danger">*</span></label>
-                                                            <input type="text" inputmode="text" class="form-control " id="phone_number" name="phone_number" value="+639" required />
+                                                            <input type="text" inputmode="text" class="form-control " id="phone_number" name="phone_number" required />
                                                             <div class="invalid-feedback">
                                                                 Contact number is required.
                                                             </div>
@@ -636,10 +652,10 @@ if (isset($_POST['save_Patient'])) {
                                                                 ?>
                                                             </select>
                                                             <div class="invalid-feedback">
-                                                            Nationality Type is required.
+                                                                Nationality Type is required.
+                                                            </div>
                                                         </div>
-                                                        </div>
-                                                        
+
                                                     </div>
                                                     <div class="col-lg-3 col-sm-4 col-12">
                                                         <div class="mb-3">
@@ -685,11 +701,11 @@ if (isset($_POST['save_Patient'])) {
                                                     <div class="col-lg-3 col-sm-4 col-12">
                                                         <div class="mb-3">
                                                             <label class="form-label" for="abc6">Mothers Name : <span class="text-danger">*</span></label>
-                                                            <input type="text" class="form-control " id="m_name" name="m_name"  placeholder="First Name   Middle Name   Last Name" style="width: 100%; padding: 8px;"
-                                                                pattern="^[A-Za-z\s]{2,}$"
-                                                                title="Mothers Name  is required and contain only letters." required pattern="[a-zA-Z\s]+" />
+                                                            <input type="text" class="form-control " id="m_name" name="m_name" placeholder="First Name   Middle Name   Last Name" style="width: 100%; padding: 8px;"
+
+                                                                title="Mothers Name  is required and contain only letters." required pattern="[a-zA-Z\s\.]+" />
                                                             <div class="invalid-feedback">
-                                                            Mothers Name  is required and contain only letters."
+                                                                Mothers Name is required "
                                                             </div>
                                                         </div>
                                                     </div>
@@ -697,10 +713,10 @@ if (isset($_POST['save_Patient'])) {
                                                         <div class="mb-3">
                                                             <label class="form-label" for="abc6">Fathers Name/Guardian: <span class="text-danger">*</span></label>
                                                             <input type="text" class="form-control " id="f_gname" name="f_gname" placeholder="First Name   Middle Name   Last Name" style="width: 100%; padding: 8px;"
-                                                                pattern="^[A-Za-z\s]{2,}$"
-                                                                title= "Fathers Name  is required and contain only letters." required pattern="[a-zA-Z\s]+" />
+
+                                                                title="Fathers Name  is required and contain only letters." required pattern="[a-zA-Z\s\.]+" />
                                                             <div class="invalid-feedback">
-                                                            Fathers Name  is required and contain only letters."
+                                                                Fathers Name is required "
                                                             </div>
                                                         </div>
                                                     </div>
@@ -708,7 +724,7 @@ if (isset($_POST['save_Patient'])) {
                                                         <div class="mb-3">
                                                             <label class="form-label" for="abc6">Address: <span class="text-danger">*</span></label>
                                                             <textarea name="memberAddress" class="form-control" required></textarea>
-                                                         
+
                                                             <div class="invalid-feedback">
                                                                 Address is required.
                                                             </div>
@@ -717,9 +733,9 @@ if (isset($_POST['save_Patient'])) {
                                                     <div class="col-lg-3 col-sm-4 col-12">
                                                         <div class="mb-3">
                                                             <label class="form-label" for="abc6">Contact number: <span class="text-danger">*</span></label>
-                                                            <input type="number" class="form-control " name="memberContact"  required/>
+                                                            <input type="text" class="form-control " id="memberContact" name="memberContact" required />
                                                             <div class="invalid-feedback">
-                                                            Contact number is required.
+                                                                Contact number is required.
                                                             </div>
                                                         </div>
                                                     </div>
@@ -848,87 +864,90 @@ if (isset($_POST['save_Patient'])) {
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            var form = document.getElementById('patient_form');
-         
+    var form = document.getElementById('patient_form');
 
+    form.addEventListener('submit', function(event) {
+        // Prevent default submission if the form is invalid
+        if (!form.checkValidity()) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
 
-            form.addEventListener('submit', function(event) {
-                if (!form.checkValidity()) {
-                    event.preventDefault();
-                    event.stopPropagation();
-                }
-                form.classList.add('was-validated');
-            }, false);
-          
+        const genderRadios = document.querySelectorAll('input[name="gender"]');
+        const invalidFeedback = document.querySelector('.invalid-feedback');
 
-            // var form = document.getElementById('patient_form');
-            // var nameInputs = [{
-            //         id: 'patient_name',
-            //         errorMessage: 'Invalid first name.'
-            //     },
-            //     {
-            //         id: 'last_name',
-            //         errorMessage: 'Invalid last name.'
-            //     },
-            //     {
-            //         id: 'm_name',
-            //         errorMessage: 'Invalid Mothers Name.'
-            //     },
-            //     {
-            //         id: 'f_gname',
-            //         errorMessage: 'Invalid Fathers Name/Guardian.'
-            //     }
-            // ];
-            // var namePattern = /^[A-Za-z\s]{2,}$/; // Pattern for valid names (no numbers, at least 2 characters)
+        // Check if any radio button is checked
+        const isChecked = Array.from(genderRadios).some(radio => radio.checked);
 
-            // Loop through each name input and add real-time validation
-            for (var i = 0; i < nameInputs.length; i++) {
-                (function(input) {
-                    var inputElement = document.getElementById(input.id);
+        if (!isChecked) {
+            invalidFeedback.style.display = 'block'; // Show error message
+            event.preventDefault(); // Prevent form submission
+        } else {
+            invalidFeedback.style.display = 'none'; // Hide error message if checked
+        }
 
-                    inputElement.addEventListener('input', function() {
-                        if (!namePattern.test(inputElement.value)) {
-                            inputElement.setCustomValidity(input.errorMessage);
-                            inputElement.classList.add('is-invalid');
-                        } else {
-                            inputElement.setCustomValidity("");
-                            inputElement.classList.remove('is-invalid');
-                        }
-                    });
-                })(nameInputs[i]);
-            }
-            var region = document.getElementById('region');
-            var province = document.getElementById('province');
-            var city = document.getElementById('city');
-            var barangay = document.getElementById('barangay');
+        form.classList.add('was-validated');
+    }, false);
 
-            function validateDropdown(dropdown, hiddenInput, errorMessage) {
-                if (dropdown.value === '' || dropdown.value === 'Choose...') {
-                    hiddenInput.setCustomValidity(errorMessage);
-                    dropdown.classList.add('is-invalid');
-                } else {
-                    hiddenInput.setCustomValidity("");
-                    dropdown.classList.remove('is-invalid');
-                }
-            }
-            // Add validation on form submission
-            form.addEventListener('submit', function(event) {
-                var isValid = true; // Assume the form is valid
+    // Additional input validation
+    // var nameInputs = [
+    //     { id: 'm_name', errorMessage: 'Mother\'s name is required and can only contain letters.' },
+    //     { id: 'f_gname', errorMessage: 'Father\'s name is required and can only contain letters.' }
+    // ];
 
-                validateDropdown(region, document.getElementById('region-text'), 'Region is required.');
-                validateDropdown(province, document.getElementById('province-text'), 'Province is required.');
-                validateDropdown(city, document.getElementById('city-text'), 'City / Municipality is required.');
-                validateDropdown(barangay, document.getElementById('barangay-text'), 'Barangay is required.');
-                // Check built-in HTML5 form validation
-                if (!form.checkValidity() || !isValid) {
-                    event.preventDefault();
-                    event.stopPropagation();
-                    form.classList.add('was-validated');
-                } else {
-                    form.classList.remove('was-validated');
-                }
-            }, false);
-        });
+    // for (var i = 0; i < nameInputs.length; i++) {
+    //     (function(input) {
+    //         var inputElement = document.getElementById(input.id);
+
+    //         inputElement.addEventListener('input', function() {
+    //             const namePattern = /^[a-zA-Z\s\.]+$/; // Allow letters, spaces, and dots
+    //             if (!namePattern.test(inputElement.value)) {
+    //                 inputElement.setCustomValidity(input.errorMessage);
+    //                 inputElement.classList.add('is-invalid');
+    //             } else {
+    //                 inputElement.setCustomValidity("");
+    //                 inputElement.classList.remove('is-invalid');
+    //             }
+    //         });
+    //     })(nameInputs[i]);
+    // }
+
+    // Dropdown validation functions
+    var region = document.getElementById('region');
+    var province = document.getElementById('province');
+    var city = document.getElementById('city');
+    var barangay = document.getElementById('barangay');
+
+    function validateDropdown(dropdown, hiddenInput, errorMessage) {
+        if (dropdown.value === '' || dropdown.value === 'Choose...') {
+            hiddenInput.setCustomValidity(errorMessage);
+            dropdown.classList.add('is-invalid');
+        } else {
+            hiddenInput.setCustomValidity("");
+            dropdown.classList.remove('is-invalid');
+        }
+    }
+
+    // Add validation on form submission
+    form.addEventListener('submit', function(event) {
+        var isValid = true; // Assume the form is valid
+
+        validateDropdown(region, document.getElementById('region-text'), 'Region is required.');
+        validateDropdown(province, document.getElementById('province-text'), 'Province is required.');
+        validateDropdown(city, document.getElementById('city-text'), 'City / Municipality is required.');
+        validateDropdown(barangay, document.getElementById('barangay-text'), 'Barangay is required.');
+
+        // Check built-in HTML5 form validation
+        if (!form.checkValidity() || !isValid) {
+            event.preventDefault();
+            event.stopPropagation();
+            form.classList.add('was-validated');
+        } else {
+            form.classList.remove('was-validated');
+        }
+    }, false);
+});
+
     </script>
 
     <script>
@@ -985,6 +1004,9 @@ if (isset($_POST['save_Patient'])) {
 
             // Apply input mask
             $('#phone_number').inputmask('+639999999999', {
+                autoUnmask: true
+            });
+            $('#memberContact').inputmask('+639999999999', {
                 autoUnmask: true
             });
             $('#Phil_no').inputmask('99-999999999-9', {

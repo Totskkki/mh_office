@@ -103,14 +103,14 @@ if (isset($_POST['update_rhu'])) {
 
 			<br>
 			<?php
-	
+
 			try {
 				// Fetch total number of pending complaints
 				$queryTotal = "SELECT COUNT(*) AS total FROM `tbl_complaints` WHERE `status` = 'Pending'";
 				$stmtTotal = $con->prepare($queryTotal);
 				$stmtTotal->execute();
 				$totalComplaints = $stmtTotal->fetch(PDO::FETCH_ASSOC)['total'];
-			
+
 				// Fetch complaint details categorized
 				$queryDetails = "
 					SELECT 
@@ -159,7 +159,7 @@ if (isset($_POST['update_rhu'])) {
 								$description = 'You have new maternity care updates.';
 								$link = 'maternity.php';
 								break;
-								case 'Prenatal':
+							case 'Prenatal':
 								$image = 'maternitiy.png';
 								$description = 'You have new prenatal care updates.';
 								$link = 'prenatal.php';
@@ -180,7 +180,7 @@ if (isset($_POST['update_rhu'])) {
 								$link = 'animal_bite.php';
 								break;
 							default:
-							continue 2;
+								continue 2;
 						}
 						?>
 						<a href="<?php echo $link; ?>" class="dropdown-item">
@@ -197,7 +197,7 @@ if (isset($_POST['update_rhu'])) {
 				</div>
 
 			</div>
-		
+
 
 		</div>
 		<div class="dropdown ms-3">
@@ -239,33 +239,45 @@ if (isset($_POST['update_rhu'])) {
 			</div>
 			<div class="modal-body">
 
-				<form method="POST" enctype="multipart/form-data">
+				<form method="POST" enctype="multipart/form-data" id="rhuprofile" novalidate>
 
 					<input type="hidden" name="hidden" id="hidden" value="<?php echo $user['userID']; ?>">
 					<div class="mb-3 row">
-						<label for="text" class="col-sm-3 col-form-label text-center">First Name</label>
+						<label for="text" class="col-sm-3 col-form-label text-center">First Name <span class="text-danger">*</span></label>
 						<div class="col-sm-8">
 
-							<input type="text" value="<?php echo $user['first_name']; ?>" id="f_name" name="f_name" class="form-control" value="" required>
+							<input type="text" value="<?php echo $user['first_name']; ?>" id="f_name" name="f_name" class="form-control" value="" required pattern="[a-zA-Z\s\.]+">
+							<div class="invalid-feedback">
+							First Name is required.
+                             </div>
 						</div>
 					</div>
 					<div class="mb-3 row">
-						<label for="text" class="col-sm-3 col-form-label text-center">Last Name</label>
+						<label for="text" class="col-sm-3 col-form-label text-center">Last Name <span class="text-danger">*</span></label>
 						<div class="col-sm-8">
-							<input type="text" id="l_name" name="l_name" class="form-control" value="<?php echo $user['lastname']; ?>" required>
+							<input type="text" id="l_name" name="l_name" class="form-control" value="<?php echo $user['lastname']; ?>" required pattern="[a-zA-Z\s\.]+">
+							<div class="invalid-feedback">
+						    	Last Name is required.
+                             </div>
 						</div>
 					</div>
 					<div class="mb-3 row">
-						<label for="text" class="col-sm-3 col-form-label text-center">Email</label>
+						<label for="text" class="col-sm-3 col-form-label text-center">Email <span class="text-danger">*</span></label>
 						<div class="col-sm-8">
 							<input type="text" id="email" name="email" class="form-control" value="<?php echo $user['email']; ?>" required>
+							<div class="invalid-feedback">
+							Email is required.
+                             </div>
 						</div>
 					</div>
 
 					<div class="mb-3 row">
-						<label for="text" class="col-sm-3 col-form-label text-center">Username</label>
+						<label for="text" class="col-sm-3 col-form-label text-center">Username <span class="text-danger">*</span></label>
 						<div class="col-sm-8">
 							<input type="text" id="Username" name="Username" class="form-control" value="<?php echo $user['user_name']; ?>" required>
+							<div class="invalid-feedback">
+							Username is required.
+                             </div>
 						</div>
 					</div>
 					<div class="mb-3 row">
@@ -299,3 +311,21 @@ if (isset($_POST['update_rhu'])) {
 		</form>
 	</div>
 </div>
+
+<script>
+	document.addEventListener('DOMContentLoaded', function() {
+
+		var form = document.getElementById('rhuprofile');
+
+
+
+		form.addEventListener('submit', function(event) {
+			if (!form.checkValidity()) {
+				event.preventDefault();
+				event.stopPropagation();
+			}
+			form.classList.add('was-validated');
+		}, false);
+
+	});
+</script>

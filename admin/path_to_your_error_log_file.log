@@ -98,3 +98,5 @@ Stack trace:
 [04-Nov-2024 15:49:45 Asia/Manila] PHP Warning:  foreach() argument must be of type array|object, null given in D:\xampp\htdocs\MH_Office\admin\Doctor_schedule.php on line 720
 [04-Nov-2024 15:49:48 Asia/Manila] PHP Warning:  foreach() argument must be of type array|object, null given in D:\xampp\htdocs\MH_Office\admin\Doctor_schedule.php on line 720
 [04-Nov-2024 15:51:12 Asia/Manila] PHP Warning:  foreach() argument must be of type array|object, null given in D:\xampp\htdocs\MH_Office\admin\Doctor_schedule.php on line 720
+[05-Nov-2024 15:55:57 Asia/Manila] PHP Warning:  foreach() argument must be of type array|object, null given in D:\xampp\htdocs\MH_Office\admin\Doctor_schedule.php on line 720
+[05-Nov-2024 16:17:24 Asia/Manila] PHP Warning:  foreach() argument must be of type array|object, null given in D:\xampp\htdocs\MH_Office\admin\Doctor_schedule.php on line 720

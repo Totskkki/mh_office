@@ -1227,7 +1227,7 @@ if (isset($_POST['save_checkup'])) {
                             </div>
 
 
-                            <div <div class="col-12">
+                            <div class="col-12">
                                 <div class="d-flex gap-2 justify-content-end">
 
                                     <button type="submit" id="save_checkup" name="save_checkup" class="btn btn-info">

@@ -17,7 +17,7 @@ if (isset($_POST['save_complaints'])) {
     $Temp = $_POST['Temp'] . "°C";
     $Height = trim($_POST['Height'] . "cm");
     $PR = trim($_POST['PR']);
-    
+
     $Nature_visit = trim($_POST['Nature_visit']);
     $cp_visit = trim($_POST['cp_visit']);
     $Refferred = trim($_POST['Refferred']);
@@ -68,7 +68,7 @@ if (isset($_POST['save_complaints'])) {
     $insertQuery = "INSERT INTO `tbl_complaints` (`patient_id`, `Chief_Complaint`, `Remarks`, `bp`, `hr`, `weight`, `rr`, `temp`, `Height`, `Nature_Visit`, `consultation_purpose`, `refferred`, `reason_ref`, `status`, `pr`) 
                         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?, 'Pending',?)";
     $stmt = $con->prepare($insertQuery);
-    $stmt->execute([$patientid, $Complaint, $remarks, $bp, $hr, $weight, $rr, $Temp, $Height, $Nature_visit, $cp_visit, $Refferred, $reason,$PR]);
+    $stmt->execute([$patientid, $Complaint, $remarks, $bp, $hr, $weight, $rr, $Temp, $Height, $Nature_visit, $cp_visit, $Refferred, $reason, $PR]);
 
 
     $_SESSION['status'] = "Patient complaint handled successfully.";
@@ -182,9 +182,7 @@ if (isset($_POST['save_complaints'])) {
 
                 <!-- App brand starts -->
                 <div class="app-brand px-3 py-2 d-flex align-items-center">
-                    <a href="index.html">
-                        <img src="assets/images/logo.svg" class="logo" alt="Bootstrap Gallery" />
-                    </a>
+
                 </div>
                 <!-- App brand ends -->
 
@@ -254,10 +252,16 @@ if (isset($_POST['save_complaints'])) {
 
                                         <div class="row ">
                                             <div class="mb-5">
+
                                                 <div class="input-group w-50">
-                                                    <input type="text" class="form-control" id="search_patient" name="search_patient" placeholder="Search Patients" autofocus />
+
+                                                    <input type="text" class="form-control" id="search_patient" name="search_patient" placeholder="Search Patients" autofocus  required/>
+                                                    <div class="invalid-feedback">
+                                                                    Patient is required.
+                                                                </div>
                                                     <i class="fa fa-search search-icon" aria-hidden="true"></i>
                                                     <div id="searchResultsContainer" class="search-results-container"></div>
+                                                   
                                                 </div>
 
                                             </div>
@@ -266,7 +270,7 @@ if (isset($_POST['save_complaints'])) {
                                             <br><br>
                                             <br>
 
-                                            <form method="post">
+                                            <form method="post" novalidate id="oldpatient">
 
                                                 <p class="text-muted text-center"></p>
                                                 <ul class="list-group list-group-unbordered mb-3" id="patient_details">
@@ -347,6 +351,9 @@ if (isset($_POST['save_complaints'])) {
                                                                     <h6 for="bp" class="">Blood Pressure</h6>
                                                                     <input type="text" class="form-control form-control-sm rounded-0 blue-placeholder" id="bp" name="bp" required />
                                                                     <p>Systolic/Diastolic</p>
+                                                                    <div class="invalid-feedback">
+                                                                    Blood Pressure is required.
+                                                                </div>
                                                                 </div>
                                                             </div>
                                                             <div class="col-lg-2 col-sm-4 col-12">
@@ -355,6 +362,9 @@ if (isset($_POST['save_complaints'])) {
 
                                                                     <input type="text" class="form-control form-control-sm rounded-0 blue-placeholder" placeholder="0" id="hr" name="hr" required />
                                                                     <p>Beats per Minute</p>
+                                                                    <div class="invalid-feedback">
+                                                                    Heart Rate is required.
+                                                                </div>
                                                                 </div>
                                                             </div>
                                                             <div class="col-lg-1 col-sm-4 col-12">
@@ -362,6 +372,9 @@ if (isset($_POST['save_complaints'])) {
                                                                     <h6 for="weight" class="">Weight</h6>
                                                                     <input type="number" min="0" max="999" class="form-control form-control-sm rounded-0 blue-placeholder" placeholder="0" id="weight" name="weight" required />
                                                                     <p>Kilograms</p>
+                                                                    <div class="invalid-feedback">
+                                                                    Weight is required.
+                                                                </div>
                                                                 </div>
                                                             </div>
                                                             <div class="col-lg-1 col-sm-4 col-12">
@@ -369,6 +382,9 @@ if (isset($_POST['save_complaints'])) {
                                                                     <h6 for="Height" class="">Height</h6>
                                                                     <input type="number" min="0" max="999" class="form-control form-control-sm rounded-0 blue-placeholder" placeholder="0" id="Height" name="Height" required />
                                                                     <p>Centimeters</p>
+                                                                    <div class="invalid-feedback">
+                                                                    Heightis required.
+                                                                </div>
                                                                 </div>
                                                             </div>
 
@@ -377,6 +393,9 @@ if (isset($_POST['save_complaints'])) {
                                                                     <h6 for="Temp" class="">Temp</h6>
                                                                     <input type="number" min="0" max="999" class="form-control form-control-sm rounded-0 blue-placeholder" placeholder="0" id="Temp" name="Temp" required />
                                                                     <p>Celsius</p>
+                                                                    <div class="invalid-feedback">
+                                                                    Temperature is required.
+                                                                </div>
                                                                 </div>
                                                             </div>
                                                             <div class="col-lg-1 col-sm-4 col-12">
@@ -384,13 +403,19 @@ if (isset($_POST['save_complaints'])) {
                                                                     <h6 for="Temp" class="">PR</h6>
                                                                     <input type="number" min="0" max="999" class="form-control form-control-sm rounded-0 blue-placeholder" placeholder="0" id="PR" name="PR" required />
                                                                     <p>bpm</p>
+                                                                    <div class="invalid-feedback">
+                                                                    PR is required.
+                                                                </div>
                                                                 </div>
                                                             </div>
                                                             <div class="col-lg-2 col-sm-4 col-12">
                                                                 <div class="mb-3">
                                                                     <h6 for="rr" class="">Respiratory rate</h6>
-                                                                    <input type="text" class="form-control form-control-sm rounded-0 blue-placeholder" placeholder="0" id="rr" name="rr" />
+                                                                    <input type="text" class="form-control form-control-sm rounded-0 blue-placeholder" placeholder="0" id="rr" name="rr" required />
                                                                     <p>Breaths per Minute</p>
+                                                                    <div class="invalid-feedback">
+                                                                    Respiratory rate is required.
+                                                                </div>
                                                                 </div>
                                                             </div>
 
@@ -399,10 +424,13 @@ if (isset($_POST['save_complaints'])) {
 
                                                         <div class="col-lg-5 col-sm-4 col-12">
                                                             <div class="mb-3">
-                                                                <label for="visit" class="form-label">Nature of Visit</label>
+                                                                <label for="visit" class="form-label">Nature of Visit <span class="text-danger">*</span></label>
                                                                 <select id="Nature_visit" name="Nature_visit" class="form-control form-control-sm rounded-0" required="required">
                                                                     <?php echo getnature('', false); ?>
                                                                 </select>
+                                                                <div class="invalid-feedback">
+                                                                Nature of Visit is required.
+                                                                </div>
                                                             </div>
                                                         </div>
 
@@ -413,27 +441,32 @@ if (isset($_POST['save_complaints'])) {
 
                                                         <div class="col-lg-5 col-12">
                                                             <div class="mb-3">
-                                                                <label for="visit" class="form-label">Type of consultation purpose of visit</label>
+                                                                <label for="visit" class="form-label">Type of consultation purpose of visit <span class="text-danger">*</span></label>
                                                                 <select class="form-control form-control-sm rounded-0" id="cp_visit" name="cp_visit" required="required">
 
                                                                     <?php echo getconsulpurpose(); ?>
 
                                                                 </select>
+                                                                <div class="invalid-feedback">
+                                                                Type of consultation is required.
+                                                                </div>
                                                             </div>
                                                         </div>
 
                                                         <div class="col-lg-5 col-12">
                                                             <div class="mb-3">
                                                                 <label for="text" class="">Refferred by:</label>
-                                                                <input type="text" class="form-control form-control-sm rounded-0" id="Refferred" name="Refferred" />
+                                                                <input type="text" class="form-control form-control-sm rounded-0" id="Refferred" name="Refferred" value="<?php echo $user['first_name'] . ' ' . $user['lastname']; ?>" readonly />
 
                                                             </div>
                                                         </div>
                                                         <div class="col-lg-5 col-12">
                                                             <div class="mb-3">
-                                                                <label for="text" class="">Reason for referral:</label>
-                                                                <input type="text" class="form-control form-control-sm rounded-0" id="reason" name="reason" />
-
+                                                                <label for="text" class="">Reason for referral: <span class="text-danger">*</span></label>
+                                                                <input type="text" class="form-control form-control-sm rounded-0" id="reason" name="reason"  required/>
+                                                                <div class="invalid-feedback">
+                                                                Reason for referral is required.
+                                                                </div>
                                                             </div>
                                                         </div>
 
@@ -505,167 +538,32 @@ if (isset($_POST['save_complaints'])) {
 
     <?php include './config/site_js_links.php'; ?>
 
- 
+
 
     <!-- Date Range JS -->
-   
+
     <script>
         Inputmask("999 / 999").mask("#bp");
     </script>
-    <!-- <script>
-        $(document).ready(function() {
-            // Function to handle search input
-            $("#search_patient").on("input", function() {
-                var searchTerm = $(this).val().toLowerCase();
-
-                $.ajax({
-                    type: "POST",
-                    url: "ajax/searchpatients.php",
-                    data: {
-                        searchTerm: searchTerm
-                    },
-                    success: function(response) {
-                        $("#patient_select").html(response); // Update the dropdown with received data
-                    },
-                    error: function(error) {
-                        console.log("Error: " + error);
-                    }
-                });
-            });
 
 
-            // Function to handle selection from the dropdown options
-            $(document).on("change", "#patient_select", function() {
-                var selectedPatientID = $(this).val();
-
-                // Perform AJAX request to fetch patient details
-                $.ajax({
-                    type: "POST",
-                    url: "ajax/getpatientdetails.php",
-                    data: {
-                        patientID: selectedPatientID
-                    },
-                    success: function(response) {
-                        // Update the patient details
-                        var patient = JSON.parse(response);
-                        $("#patient_name").text(patient.patient_name);
-                        $("#patient_gender").text(patient.gender);
-                        $("#patient_contact").text(patient.phone_number);
-                        $("#patient_status").text(patient.civil_status);
-                        $("#patient_age").text(patient.age);
-                        $("#patient_address").text(patient.purok + " " + patient.brgy + " " + patient.province);
-
-                        // Show the patient details
-                        $("#patient_details, .text-muted").show();
-                    },
-                    error: function(error) {
-                        console.log("Error: " + error);
-                    }
-                });
-            });
-        });
-    </script> -->
+<script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var form = document.getElementById('oldpatient');
+           
 
 
-    <!-- <script>
-    $(document).ready(function() {
-     
-        $("#search_patient").on("input", function() {
-            var searchTerm = $(this).val().toLowerCase();
-
-            $.ajax({
-                type: "POST",
-                url: "ajax/searchpatients.php",
-                data: {
-                    searchTerm: searchTerm
-                },
-                success: function(response) {
-                    $("#patient_select").html(response); 
-                },
-                error: function(error) {
-                    console.log("Error: " + error);
+            form.addEventListener('submit', function(event) {
+                if (!form.checkValidity()) {
+                    event.preventDefault();
+                    event.stopPropagation();
                 }
-            });
-        });
+                form.classList.add('was-validated');
+            }, false);
 
-    
-        $(document).on("click", "#patient_select", function() {
-            var selectedPatientID = $(this).val();
-
-          
-            $.ajax({
-                type: "POST",
-                url: "ajax/getpatientdetails.php",
-                data: {
-                    patientID: selectedPatientID
-                },
-                success: function(response) {
-                   
-                    $("#patient_details").html(response);
-
-                    
-                    $("#patient_details, .text-muted").show();
-                },
-                error: function(error) {
-                    console.log("Error: " + error);
-                }
-            });
-        });
-    });
-</script> -->
-    <!-- 
-    <script>
-        $(document).ready(function() {
-
-            $("#search_patient").on("input", function() {
-                var searchTerm = $(this).val().toLowerCase();
-
-
-                $("#patient_select").show();
-             
-
-                $.ajax({
-                    type: "POST",
-                    url: "ajax/searchpatients.php",
-                    data: {
-                        searchTerm: searchTerm
-                    },
-                    success: function(response) {
-                        $("#patient_select").html(response);
-                    },
-                    error: function(error) {
-                        console.log("Error: " + error);
-                    }
-                });
-            });
-
-
-            $(document).on("click", "#patient_select", function() {
-                var selectedPatientID = $(this).val();
-
-                $("#hidden_id").val(selectedPatientID);
-                console.log("Selected Patient ID:", selectedPatientID);
-
-
-                $.ajax({
-                    type: "GET",
-                    url: "ajax/getpatientdetails.php",
-                    data: {
-                        patientID: selectedPatientID
-                    },
-                    success: function(response) {
-                        $("#patient_details").html(response);
-                        $("#patient_details, .text-muted").show();
-                        $("#hidden_id").val(selectedPatientID);
-                    },
-                    error: function(error) {
-                        console.log("Error: " + error);
-                    }
-                });
-            });
 
         });
-    </script> -->
+    </script>
 
 
     <script>

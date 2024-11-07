@@ -160,9 +160,7 @@ $doctors = getDoctor($con);
 
         <!-- App brand starts -->
         <div class="app-brand px-3 py-2 d-flex align-items-center">
-          <a href="index.html">
-            <img src="assets/images/logo.svg" class="logo" alt="Bootstrap Gallery" />
-          </a>
+         
         </div>
         <!-- App brand ends -->
 
@@ -291,7 +289,7 @@ $doctors = getDoctor($con);
                                       </div>
 
 
-
+                                      <div id="certificateLinkContainer"></div>
 
                                       <form method="Post" id="referralForm">
                                         <input type="hidden" name="patient_id" id="hidden_id1">
@@ -478,9 +476,14 @@ $doctors = getDoctor($con);
             success: function(response) {
                 response = JSON.parse(response);
                 if (response.status === "success") {
-                    window.location.href = 'print_cert.php?id=' + $('#hidden_id').val();  // Redirect to print cert
+                    window.location.href = 'print_cert.php?id=' + $('#hidden_id').val();  
+
+                    $('#certificateLinkContainer').html(`
+                        <p>Certificate Generated Successfully!</p>
+                        <a href="${response.fileUrl}" target="_blank">View Certificate</a>
+                    `);
                 } else {
-                    showCustomMessage(response.message);  // Show error message from server
+                    showCustomMessage(response.message);  
                 }
             },
             error: function(xhr, status, error) {
@@ -488,7 +491,7 @@ $doctors = getDoctor($con);
             }
         });
     } else {
-        showCustomMessage('Please select a valid patient before submitting.');  // Show error message if no patient is selected
+        showCustomMessage('Please select a valid patient before submitting.');  
     }
 });
 

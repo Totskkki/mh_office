@@ -81,10 +81,10 @@ function getGender($selectedGender = '') {
     $html = '';
     foreach ($genders as $gender) {
         $checked = ($selectedGender == $gender) ? 'checked' : '';
-        $html .= '<label class="gender-label">';
-        $html .= '<input type="radio" name="gender" value="' . $gender . '" ' . $checked . ' required>';
+        $html .= '<label class="form-check-label">';
+        $html .= '<input type="radio" name="gender"class="form-check-input"value="' . $gender . '" ' . $checked . ' required>';
         $html .= $gender;
-        $html .= '</label>&nbsp;&nbsp;&nbsp;';
+        $html .= '</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
     }
     return $html;
 }
@@ -191,7 +191,7 @@ function geteducation($stat = '')
 {
 	$data = '<option value="">Select Educational Attainment</option>';
 
-	$arr = array("No Formal Education", "Elementary", "High School", "College Level", "College Graduate");
+	$arr = array("No Formal Education", "Elementary", "High School", "Undergrad", "College Graduate");
 
 	$i = 0;
 	$size = sizeof($arr);

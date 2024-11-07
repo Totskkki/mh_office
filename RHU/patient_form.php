@@ -10,61 +10,35 @@ ini_set('error_log', 'path_to_your_error_log_file.log');
 
 $message = '';
 
-// $patientName = $middle_name = $last_name  = $suffix =  '';
-// $address  = $m_name = $f_gname = $dateBirth = $phoneNumber = '';
-// $gender = $Purok = $Province = $Nationality = $ed_att = $emp_stat = '';
-// $Blood = $Age = $date_of_birth = $phoneNumber = $civil_status = '';
-// $Sex = $m_name = $f_gname = '';
 
 
-
-// $errors = [
-//     'patient_name' => '',
-//     'last_name' => '',
-//     'address' => '',
-//     'date_of_birth' => '',
-//     'phone_number' => '',
-//     'gender' => '',
-//     'Purok' => '',
-//     'Province' => '',
-//     'Purok' => '',
-//     'civil_status' => '',
-//     'Nationality' => '',
-//     'Blood' => '',
-//     'Age' => '',
-//     'Sex' => '',
-//     'mother' => '',
-//     'father' => '',
-//     'philhealth' => ''
-
-// ];
-
-
-function getAffectedRecordName($table, $recordId, $con) {
+function getAffectedRecordName($table, $recordId, $con)
+{
     switch ($table) {
         case 'tbl_patients':
-        $stmt = $con->prepare("SELECT patient_name, last_name FROM tbl_patients WHERE patientID  = ?");
+            $stmt = $con->prepare("SELECT patient_name, last_name FROM tbl_patients WHERE patientID  = ?");
 
-        $stmt->execute([$recordId]);
-        $result = $stmt->fetch();
-        if ($result) {
-            return trim(($result['patient_name'] ?? '') . ' ' . ($result['last_name'] ?? ''));
-        } else {
-            return 'Unknown'; // If no record is found
-        }
+            $stmt->execute([$recordId]);
+            $result = $stmt->fetch();
+            if ($result) {
+                return trim(($result['patient_name'] ?? '') . ' ' . ($result['last_name'] ?? ''));
+            } else {
+                return 'Unknown'; // If no record is found
+            }
 
-        // case 'tbl_doctors':
-        //     $stmt = $con->prepare("SELECT doctor_name FROM tbl_doctors WHERE doctor_id = ?");
-        //     $stmt->execute([$recordId]);
-        //     $result = $stmt->fetch();
-        //     return $result['doctor_name'] ?? 'Unknown';
+            // case 'tbl_doctors':
+            //     $stmt = $con->prepare("SELECT doctor_name FROM tbl_doctors WHERE doctor_id = ?");
+            //     $stmt->execute([$recordId]);
+            //     $result = $stmt->fetch();
+            //     return $result['doctor_name'] ?? 'Unknown';
 
-        // Add other tables as needed
+            // Add other tables as needed
         default:
             return 'Unknown';
     }
 }
-function logAuditTrail($userId, $action, $description, $table, $recordId, $con) {
+function logAuditTrail($userId, $action, $description, $table, $recordId, $con)
+{
     // Get IP address
     $ipAddress = $_SERVER['REMOTE_ADDR'];
 
@@ -170,7 +144,7 @@ if (isset($_POST['save_Patient'])) {
             $Phil_no = '';
         } else {
             // Ensure that the input mask characters are removed
-            $Phil_no = !empty($Phil_no) ? preg_replace('/[^0-9]/', '', $Phil_no) : NULL;    
+            $Phil_no = !empty($Phil_no) ? preg_replace('/[^0-9]/', '', $Phil_no) : NULL;
             $Phil_member = !empty($Phil_member) ? $Phil_member : NULL;
         }
 
@@ -217,7 +191,7 @@ if (isset($_POST['save_Patient'])) {
 
         $lastInsertId = $con->lastInsertId();
 
-        
+
         $insertFatherGuardianQuery = "INSERT INTO tbl_family_members (name, relationship, contact, address,patient_id) 
                             VALUES (:name,:relationship, :contact, :address, :patient_id)";
         $stmtFatherGuardian = $con->prepare($insertFatherGuardianQuery);
@@ -236,14 +210,14 @@ if (isset($_POST['save_Patient'])) {
         $stmtMother->execute([
             ':name' => $m_name,
             ':relationship' => 'Mother',
-            ':contact' => $memberContact, 
+            ':contact' => $memberContact,
             ':address' => $memberAddress,
             ':patient_id' => $lastInsertId,
         ]);
 
         $affectedName = getAffectedRecordName('tbl_patients', $lastInsertId, $con);
 
-            // logAuditTrail($user, 'INSERT', 'Added a new patient', 'patients', $lastInsertId, $con);
+        // logAuditTrail($user, 'INSERT', 'Added a new patient', 'patients', $lastInsertId, $con);
         logAuditTrail($user, 'Insert', 'Added patient: ' . $affectedName, 'tbl_patients', $lastInsertId, $con);
 
         $con->commit();
@@ -594,7 +568,7 @@ if (isset($_POST['save_Patient'])) {
                                                     <div class="col-lg-3 col-sm-4 col-12">
                                                         <div class="mb-1">
                                                             <label class="form-label" for="abc6">Contact number: <span class="text-danger">*</span></label>
-                                                            <input type="text" inputmode="text" class="form-control " id="phone_number" name="phone_number" value="+639" required />
+                                                            <input type="text" inputmode="text" class="form-control " id="phone_number" name="phone_number" required />
                                                             <div class="invalid-feedback">
                                                                 Contact number is required.
                                                             </div>
@@ -689,10 +663,10 @@ if (isset($_POST['save_Patient'])) {
                                                         <div class="mb-3">
                                                             <label class="form-label" for="abc6">Mothers Name : <span class="text-danger">*</span></label>
                                                             <input type="text" class="form-control " id="m_name" name="m_name" placeholder="First Name   Middle Name   Last Name" style="width: 100%; padding: 8px;"
-                                                                pattern="^[A-Za-z\s]{2,}$"
-                                                                title="Mothers Name  should be at least 2 characters and contain only letters." required />
+
+                                                                title="Mothers Name  should be at least 2 characters and contain only letters." required pattern="[a-zA-Z\s\.]+" />
                                                             <div class="invalid-feedback">
-                                                            Mother's Name is required and must be without numbers.
+                                                                Mother's Name is required .
                                                             </div>
                                                         </div>
                                                     </div>
@@ -700,10 +674,10 @@ if (isset($_POST['save_Patient'])) {
                                                         <div class="mb-3">
                                                             <label class="form-label" for="abc6">Fathers Name/Guardian: <span class="text-danger">*</span></label>
                                                             <input type="text" class="form-control " id="f_gname" name="f_gname" placeholder="First Name   Middle Name   Last Name" style="width: 100%; padding: 8px;"
-                                                                pattern="^[A-Za-z\s]{2,}$"
-                                                                title="Mothers Name  should be at least 2 characters and contain only letters." required />
+
+                                                                title="Mothers Name  should be at least 2 characters and contain only letters." required pattern="[a-zA-Z\s\.]+" />
                                                             <div class="invalid-feedback">
-                                                                Fathers Name/Guardian is required and must be without numbers.
+                                                                Fathers Name/Guardian is required .
                                                             </div>
                                                         </div>
                                                     </div>
@@ -711,7 +685,7 @@ if (isset($_POST['save_Patient'])) {
                                                         <div class="mb-3">
                                                             <label class="form-label" for="abc6">Address: <span class="text-danger">*</span></label>
                                                             <textarea name="memberAddress" class="form-control " required> </textarea>
-                                                            
+
                                                             <div class="invalid-feedback">
                                                                 Address is required.
                                                             </div>
@@ -720,9 +694,9 @@ if (isset($_POST['save_Patient'])) {
                                                     <div class="col-lg-3 col-sm-4 col-12">
                                                         <div class="mb-3">
                                                             <label class="form-label" for="abc6">Contact number: <span class="text-danger">*</span></label>
-                                                            <input type="text" class="form-control " name="memberContact" />
+                                                            <input type="text" class="form-control " name="memberContact" id="memberContact" />
                                                             <div class="invalid-feedback">
-                                                            Contact number is required.
+                                                                Contact number is required.
                                                             </div>
                                                         </div>
                                                     </div>
@@ -847,31 +821,23 @@ if (isset($_POST['save_Patient'])) {
     ?>
 
     <script src="../assets/ph-address-selector.js"></script>
-   
+
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            var form = document.getElementById('patient_form');
-            var nameInputs = [{
-                    id: 'patient_name',
-                    errorMessage: 'Invalid first name.'
-                },
-                {
-                    id: 'last_name',
-                    errorMessage: 'Invalid last name.'
-                },
-                {
-                    id: 'm_name',
-                    errorMessage: 'Invalid Mothers Name.'
-                },
-                {
-                    id: 'f_gname',
-                    errorMessage: 'Invalid Fathers Name/Guardian.'
-                }
-            ];
-            var namePattern = /^[A-Za-z\s]{2,}$/; // Pattern for valid names (no numbers, at least 2 characters)
 
-            // Loop through each name input and add real-time validation
+            var form = document.getElementById('patient_form');
+
+
+
+            form.addEventListener('submit', function(event) {
+                if (!form.checkValidity()) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+                form.classList.add('was-validated');
+            }, false);
+
             for (var i = 0; i < nameInputs.length; i++) {
                 (function(input) {
                     var inputElement = document.getElementById(input.id);
@@ -977,9 +943,16 @@ if (isset($_POST['save_Patient'])) {
             $('#phone_number').inputmask('+639999999999', {
                 autoUnmask: true
             });
+            $('#memberContact').inputmask('+639999999999', {
+                autoUnmask: true
+            });
+
+
             $('#Phil_no').inputmask('99-999999999-9', {
                 autoUnmask: true
             });
+
+
 
 
             philhealthSelect.addEventListener("change", function() {
@@ -1052,36 +1025,35 @@ if (isset($_POST['save_Patient'])) {
         // });
         $(document).ready(function() {
 
-$("#patient_name, #last_name").blur(function() {
-    var patientName = $("#patient_name").val().trim();
-    var lastName = $("#last_name").val().trim();
+            $("#patient_name, #last_name").blur(function() {
+                var patientName = $("#patient_name").val().trim();
+                var lastName = $("#last_name").val().trim();
 
-    if (patientName !== '' && lastName !== '') {
-        $.ajax({
-            url: "ajax/check_patient.php",
-            type: 'GET',
-            data: {
-                'patient_name': patientName,
-                'last_name': lastName
-            },
-            cache: false,
-            async: true,
-            success: function(count, status, xhr) {
-                if (parseInt(count) > 0) {
-                    showCustomMessage("This patient already exists. Please check the name and last name.");
-                    $("#save_Patient").attr("disabled", "disabled");
-                } else {
-                    $("#save_Patient").removeAttr("disabled");
+                if (patientName !== '' && lastName !== '') {
+                    $.ajax({
+                        url: "ajax/check_patient.php",
+                        type: 'GET',
+                        data: {
+                            'patient_name': patientName,
+                            'last_name': lastName
+                        },
+                        cache: false,
+                        async: true,
+                        success: function(count, status, xhr) {
+                            if (parseInt(count) > 0) {
+                                showCustomMessage("This patient already exists. Please check the name and last name.");
+                                $("#save_Patient").attr("disabled", "disabled");
+                            } else {
+                                $("#save_Patient").removeAttr("disabled");
+                            }
+                        },
+                        error: function(jqXhr, textStatus, errorMessage) {
+                            showCustomMessage(errorMessage);
+                        }
+                    });
                 }
-            },
-            error: function(jqXhr, textStatus, errorMessage) {
-                showCustomMessage(errorMessage);
-            }
+            });
         });
-    }
-});
-});
-
     </script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {

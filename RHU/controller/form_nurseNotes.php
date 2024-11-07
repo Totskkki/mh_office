@@ -164,7 +164,7 @@ if (isset($_GET['id'])) {
                
                 <div class="container" id="print">
 
-                <h4 class="text-center mb-3 "><b>DOCTOR'S ORDER</b></h4>
+                <h4 class="text-center mb-3 "><b>NURSE'S NOTES</b></h4>
 
                     <div class="row">
 

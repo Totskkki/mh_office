@@ -709,7 +709,8 @@ $medicines = getpresMedicines($con);
         var duration = $("#Duration").val().trim();
         var advice = $("#Advice").val().trim();
 
-        if (medicineName && quantity && dosage && mg && duration && advice) {
+        // if (medicineName && quantity && dosage && mg && duration && advice) {
+          if (medicineName && quantity && dosage && mg && advice && (dosage === "schedule dose" ? duration : true)) {
           var combinedTimeFrame = timeframe ? `${timeframe} (${time})` : time;
           var inputs = `
             <input type="hidden" name="medicineDetailIds[]" value="${medicineId}" />
@@ -787,7 +788,7 @@ $medicines = getpresMedicines($con);
       
         var fieldsToValidate = [
             "search_patient", "visit_date", "next_visit_date", "disease", "doctor", "recom",
-            "medicine", "mg", "con_type", "timeframe", "quantity", "Duration", "time", "Advice"
+            "medicine", "mg", "con_type", "timeframe", "quantity", "time", "Advice"
         ];
 
       
@@ -818,7 +819,7 @@ $medicines = getpresMedicines($con);
     });
 
     // Event listener for individual fields blur
-    $("#search_patient, #visit_date, #next_visit_date, #disease, #doctor, #recom, #medicine, #mg, #con_type, #timeframe, #quantity, #Duration, #time, #Advice").on('blur', function() {
+    $("#search_patient, #visit_date, #next_visit_date, #disease, #doctor, #recom, #medicine, #mg, #con_type, #timeframe, #quantity, #time, #Advice").on('blur', function() {
         validateField($(this).attr('id'));
     });
 
@@ -829,38 +830,32 @@ $medicines = getpresMedicines($con);
 
   <script>
   
-    function toggleButtons(activeButton, inactiveButton, selectElement) {
-      if (inactiveButton.disabled) {
-        inactiveButton.disabled = false;
-        activeButton.style.backgroundColor = '#4284f5';
-        activeButton.style.color = 'white';
-        inactiveButton.style.backgroundColor = '';
-        inactiveButton.style.color = '';
-        selectElement.disabled = false;
-      } else {
-        inactiveButton.disabled = true;
-        activeButton.style.backgroundColor = '#4284f5';
-        activeButton.style.color = 'white';
-        inactiveButton.style.backgroundColor = '#CCCCCC';
-        inactiveButton.style.color = '#666';
-        selectElement.disabled = activeButton.id === 'as-needed';
-        
-      }
+  function toggleButtons(activeButton, inactiveButton, scheduleDosageSelect, durationSelect) {
+    activeButton.style.backgroundColor = "#4284f5";
+    activeButton.style.color = "white";
+    inactiveButton.style.backgroundColor = "";
+    inactiveButton.style.color = "";
+
+    // Disable schedule dosage and dose frequency when "As needed" is active
+    if (activeButton.id === "as-needed") {
+      scheduleDosageSelect.disabled = true;
+      durationSelect.disabled = true;
+      scheduleDosageSelect.selectedIndex = 0; // Reset value
+      durationSelect.selectedIndex = 0;       // Reset value
+    } else {
+      scheduleDosageSelect.disabled = false;
+      durationSelect.disabled = false;
     }
+  }
 
-    // Event listeners for the buttons
-    document.getElementById('as-needed').addEventListener('click', function() {
-      var scheduleDosageSelect = document.getElementById('schedule_dosage');
-      toggleButtons(this, document.getElementById('schedule-dose'), scheduleDosageSelect);
-      // Reset the value of the select element when disabling it
-      if (this.disabled) {
-        scheduleDosageSelect.selectedIndex = 0;
-      }
-    });
+  // Event listeners for the buttons
+  document.getElementById('as-needed').addEventListener('click', function() {
+    toggleButtons(this, document.getElementById('schedule-dose'), document.getElementById('schedule_dosage'), document.getElementById('Duration'));
+  });
 
-    document.getElementById('schedule-dose').addEventListener('click', function() {
-      toggleButtons(this, document.getElementById('as-needed'), document.getElementById('schedule_dosage'));
-    });
+  document.getElementById('schedule-dose').addEventListener('click', function() {
+    toggleButtons(this, document.getElementById('as-needed'), document.getElementById('schedule_dosage'), document.getElementById('Duration'));
+  });
     $(".timeframe").on("change", function() {
       if ($(".timeframe:checked").length == 1) {
         $(".timeframe").attr("disabled", "disabled");

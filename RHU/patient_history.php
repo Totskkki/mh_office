@@ -42,9 +42,7 @@ $patients = getPatients($con);
 
         <!-- App brand starts -->
         <div class="app-brand px-3 py-2 d-flex align-items-center">
-          <a href="index.html">
-            <img src="assets/images/logo.svg" class="logo" alt="Bootstrap Gallery" />
-          </a>
+         
         </div>
         <!-- App brand ends -->
 
@@ -114,14 +112,6 @@ $patients = getPatients($con);
 
 
 
-
-                    <!-- <div class="input-group w-50">
-                     
-                      <input type="text" class="form-control" id="patient">
-                      <button class="btn btn-info" id="search" type="button">
-                        <i class="icon-search"></i>
-                      </button>
-                    </div> -->
                     <div class="input-group w-50">
                       <input type="text" class="form-control" id="patient" style="height: 38px; line-height: 38px;">
                       <button class="btn btn-info" id="search" type="button" style="height: 38px; line-height: 38px;">
@@ -135,18 +125,7 @@ $patients = getPatients($con);
                     <div class="row">
                       <div class="col-md-12 table-responsive">
                         <table id="patient_history" class="table table-striped table-bordered">
-                          <colgroup>
-                            <!-- <col width="10%">
-                            <col width="15%">
-                            <col width="15%">
-                            <col width="20%">
-                            <col width="10%"> -->
-                            <!-- <col width="10%">
-                            <col width="10%">
-                            <col width="10%">
-                            <col width="10%">
-                            <col width="10%"> -->
-                          </colgroup>
+                         
                           <thead>
                             <tr class="bg-gradient-primary text-light">
                               <th class="p-1 text-center">#</th>
@@ -156,11 +135,7 @@ $patients = getPatients($con);
                               <th class="p-1 text-center">Next Visit Date</th>
                               <th class="p-1 text-center">Action</th>
 
-                              <!-- <th class="p-1 text-center">QTY</th>
-                              <th class="p-1 text-center">Dosage</th>
-
-                              <th class="p-1 text-center">Duration</th>
-                              <th class="p-1 text-center">Advice</th> -->
+                            
                             </tr>
                           </thead>
 
@@ -408,6 +383,39 @@ $patients = getPatients($con);
 
   <script>
     $(document).ready(function() {
+  // Trigger search on Enter key press in the input field
+  $("#patient").on("keydown", function(event) {
+    if (event.key === "Enter") { // Check if Enter key is pressed
+      event.preventDefault(); // Prevent default form submission behavior
+      $("#search").click(); // Trigger the search button click
+    }
+  });
+
+  // Existing click event for the search button
+  $("#search").click(function() {
+    var searchQuery = $("#patient").val();
+
+    if (searchQuery !== '') {
+      $.ajax({
+        url: "ajax/get_patient_history.php",
+        type: 'GET',
+        data: { 'search_query': searchQuery },
+        cache: false,
+        async: false,
+        success: function(data, status, xhr) {
+          $("#history_data").html(data);
+        },
+        error: function(jqXhr, textStatus, errorMessage) {
+          showCustomMessage(errorMessage);
+        }
+      });
+    }
+  });
+});
+
+  </script>
+  <script>
+    $(document).ready(function() {
       $(document).on('click', '.view-btn', function() {
         const medicineName = $(this).data('name');
         const patient = $(this).data('patient');
@@ -455,6 +463,43 @@ $patients = getPatients($con);
 
         $('#prescriptionModal').modal('show');
       });
+
+
+    // $(document).ready(function() {
+    // $(document).on('click', '.view-btn', function() {
+    //     const medicineName = $(this).data('name');
+    //     const patient = $(this).data('patient');
+    //     const schedule_dosage = $(this).data('schedule_dosage') || '';
+    //     const dosage = $(this).data('dosage') || '';
+    //     const duration = $(this).data('duration') || '';
+    //     const quantity = $(this).data('quantity') || '';
+    //     const time_frame = $(this).data('time_frame') || '';
+
+    //     const dosageArray = dosage.split(', ');
+    //     const scheduleDosageArray = schedule_dosage.split(', ');
+    //     const quantityArray = quantity.split(', ');
+    //     const durationArray = duration.split(', ');
+    //     const timeFrameArray = time_frame.split(', ');
+
+    //     $('#prescriptionModalLabel').text(`${patient} | Prescription for ${medicineName}`);
+    //     $('#prescriptionContent').empty();
+
+    //     const maxLength = Math.max(dosageArray.length, scheduleDosageArray.length, quantityArray.length, durationArray.length, timeFrameArray.length);
+
+    //     for (let i = 0; i < maxLength; i++) {
+    //         const row = $('<tr>').append(
+    //             $('<td>').text(dosageArray[i] || ''),
+    //             $('<td>').text(scheduleDosageArray[i] || ''),
+    //             $('<td>').text(quantityArray[i] || ''),
+    //             $('<td>').text(durationArray[i] || ''),
+    //             $('<td>').text(timeFrameArray[i] || '')
+    //         );
+    //         $('#prescriptionContent').append(row);
+    //     }
+
+    //     $('#prescriptionModal').modal('show');
+    // });
+
 
       $("#search").click(function() {
         var searchQuery = $("#patient").val();

@@ -36,19 +36,14 @@ if (isset($_GET['id'])) {
     $patientDetails = getPatientDetails($con, $patientID);
 
     if ($patientDetails) {
+        // Data extraction
         $patient_name = $patientDetails['patient_name'] . ' ' . $patientDetails['middle_name'] . ' ' . $patientDetails['last_name'];
         $patient_age = $patientDetails['age'];
         $patient_sex = $patientDetails['gender'];
         $patient_add = $patientDetails['familyaddress'];
         $exam_date = date('Y-m-d');
-        if (!empty($patientDetails['disease'])) {
-            $diagnosis = $patientDetails['disease'];
-            $recommendations = $patientDetails['recom'];
-        } else {
-            // Set default values when no illness/diagnosis is available
-            $diagnosis = "<i>This is to certify that the above-named person at this clinic and was found to be Apparently healthy.</i>";
-            $recommendations = "<i>PHYSICALLY FIT TO WORK.</i>";
-        }
+        $diagnosis = !empty($patientDetails['disease']) ? $patientDetails['disease'] : "<i>This is to certify that the above-named person is apparently healthy.</i>";
+        $recommendations = !empty($patientDetails['recom']) ? $patientDetails['recom'] : "<i>PHYSICALLY FIT TO WORK.</i>";
 
         $default_doctor_name = "WILJUN O. PANGARINTAO, MD, FPSMS";
         $default_license_no = "106268";
@@ -111,33 +106,32 @@ if (isset($_GET['id'])) {
         // Output the HTML content
         $pdf->writeHTML($html, true, false, true, false, '');
 
-        // Set filename and save the PDF
         $filename = $patientID . '_' . $exam_date . '.pdf';
-        $filePath = __DIR__ . '/certificates/' . $filename; // Absolute path
-
+        $filePath = __DIR__ . '/certificates/' . $filename; // Absolute path for saving
+        $fileUrl = 'certificates/' . $filename; // Relative path for web and DB
+        
+   
+        $pdf->Output($filePath, 'F');
   
-        $pdf->Output($filePath, 'F'); // 'F' for file saving
-
-       
+        // Save the file path to the database
         $query = "
-       
-           update tbl_certificate_log SET file_path = :filePath WHERE patient_id = :patientID";
-     
+            UPDATE tbl_certificate_log SET file_path = :filePath WHERE patient_id = :patientID";
         $stmt = $con->prepare($query);
         $stmt->bindParam(':patientID', $patientID, PDO::PARAM_INT);
         $stmt->bindParam(':filePath', $filePath, PDO::PARAM_STR);
 
         if ($stmt->execute()) {
-           
-            $_SESSION['status'] = "Certificate successfully generated and saved.";
-            $_SESSION['status_code'] = "success";
-            header('location: med_cert.php');
-            exit();
+            // No redirect; instead, directly display the file path in a link
+            echo "<h3>Certificate Generated Successfully!</h3>";
+            echo "<p>Click below to view the generated certificate:</p>";
+            echo "<a href='$fileUrl' target='_blank'>View Certificate</a>";
+
+
         } else {
-           
             $_SESSION['status'] = "Error updating certificate record.";
             $_SESSION['status_code'] = "error";
             header('location: med_cert.php');
+            exit();
         }
     } else {
         echo "No patient details found.";

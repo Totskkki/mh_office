@@ -35,9 +35,7 @@ include './common_service/common_functions.php';
 
                 <!-- App brand starts -->
                 <div class="app-brand px-3 py-2 d-flex align-items-center">
-                    <a href="index.html">
-                        <img src="assets/images/logo.svg" class="logo" alt="Bootstrap Gallery" />
-                    </a>
+                  
                 </div>
                 <!-- App brand ends -->
 

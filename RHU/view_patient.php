@@ -99,12 +99,15 @@ if (isset($_POST['savelaboratory'])) {
     $datetest = trim($_POST['datetest']);
     $testresults = trim($_POST['testresults']);
     $testimage = $_FILES['testimage']['name'];
-    
+
     $filename = null;  // Default to null if no image is uploaded
 
     if (!empty($testimage)) {
         move_uploaded_file($_FILES['testimage']['tmp_name'], './labtest/' . $testimage);
-        $filename = $testimage;  // Assign the image name if uploaded
+        $filename = $testimage;  
+    }else{
+        $filename = '';  
+
     }
 
     try {
@@ -294,43 +297,43 @@ if (isset($_POST['savelaboratory'])) {
                                             <hr />
 
                                             <div class="row" id="Familyform">
-                                            <div class="col-xl-4 col-sm-6 col-12">
-                                            <div class="card mb-4 rounded-0 shadow">
-                                                <div class="card-header rounded-1 shadow">
-                                                    <h5 class="card-title">
-                                                        Laboratory 
-                                                        <a href="#" id="Laboratory" class="btn btn-info  float-end">
-                                                            <i class="icon-plus"></i> 
-                                                        </a>
-                                                    </h5>
-                                                </div>
-                                                <!-- Check if lab data exists -->
-                                                <?php if (!empty($labqueryData)) { ?>
-                                                    <div class="card-body">
-                                                        <ul class="list-unstyled mb-0">
-                                                            <?php foreach ($labqueryData as $lab) { ?>
-                                                                <li class="d-flex justify-content-between align-items-center border-bottom py-2">
-                                                                    <span>
-                                                                        <?php echo htmlspecialchars(date('M d, Y', strtotime($lab['date_test']))); ?>
-                                                                    </span>
-                                                                    <button class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#Viewlabresult" data-record-id="<?php echo $lab['labid']; ?>">
-                                                                        <i class="icon-eye"></i> 
-                                                                    </button>
-                                                                </li>
-                                                            <?php } ?>
-                                                        </ul>
+                                                <div class="col-xl-4 col-sm-6 col-12">
+                                                    <div class="card mb-4 rounded-0 shadow">
+                                                        <div class="card-header rounded-1 shadow">
+                                                            <h5 class="card-title">
+                                                                Laboratory
+                                                                <a href="#" id="Laboratory" class="btn btn-info  float-end">
+                                                                    <i class="icon-plus"></i>
+                                                                </a>
+                                                            </h5>
+                                                        </div>
+                                                        <!-- Check if lab data exists -->
+                                                        <?php if (!empty($labqueryData)) { ?>
+                                                            <div class="card-body">
+                                                                <ul class="list-unstyled mb-0">
+                                                                    <?php foreach ($labqueryData as $lab) { ?>
+                                                                        <li class="d-flex justify-content-between align-items-center border-bottom py-2">
+                                                                            <span>
+                                                                                <?php echo htmlspecialchars(date('M d, Y', strtotime($lab['date_test']))); ?>
+                                                                            </span>
+                                                                            <button class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#Viewlabresult" data-record-id="<?php echo $lab['labid']; ?>">
+                                                                                <i class="icon-eye"></i>
+                                                                            </button>
+                                                                        </li>
+                                                                    <?php } ?>
+                                                                </ul>
+                                                            </div>
+                                                        <?php } else { ?>
+                                                            <!-- No data available -->
+                                                            <div class="card-body text-center text-danger">
+                                                                <p class="mt-2">No available data found</p>
+                                                            </div>
+                                                        <?php } ?>
+                                                        <div class="card-footer text-muted">
+                                                            <!-- Footer content can go here if needed -->
+                                                        </div>
                                                     </div>
-                                                <?php } else { ?>
-                                                    <!-- No data available -->
-                                                    <div class="card-body text-center text-danger">
-                                                        <p class="mt-2">No available data found</p>
-                                                    </div>
-                                                <?php } ?>
-                                                <div class="card-footer text-muted">
-                                                    <!-- Footer content can go here if needed -->
                                                 </div>
-                                            </div>
-                                        </div>
 
                                                 <div class="col-xl-4 col-sm-6 col-12">
                                                     <div class="card mb-4 card-outline rounded-0 shadow">
@@ -384,17 +387,17 @@ if (isset($_POST['savelaboratory'])) {
                                                         <div class="mb-3">
                                                             <label class="form-label" for="patient_name">Full Name: <span class="text-danger">*</span></label>
                                                             <input type="text" class="form-control " name="Name" id="Name" placeholder="First Name   Middle Name   Last Name" style="width: 100%; padding: 8px;"
-                                                                pattern="^[A-Za-z\s]{2,}$"
-                                                                title="Full Name accept only letters." required />
+                                                               
+                                                                title="Full Name accept only letters." required pattern="[a-zA-Z\s\.]+" />
                                                             <div class="invalid-feedback">
-                                                            Full Name is required and accept only letters..
+                                                                Full Name is required and accept only letters..
                                                             </div>
                                                         </div>
                                                     </div>
                                                     <div class="col-lg-3 col-sm-4 col-12">
                                                         <div class="mb-3">
                                                             <label class="form-label" for="patient_name">Contact: <span class="text-danger">*</span></label>
-                                                            <input type="text" class="form-control " id="Contact" name="Contact" required value="+639" />
+                                                            <input type="text" class="form-control " id="Contact" name="Contact" required  />
                                                             <div class="invalid-feedback">
                                                                 Please provide Contact number.
                                                             </div>
@@ -472,7 +475,7 @@ if (isset($_POST['savelaboratory'])) {
                                                                 <div class="modal-content">
                                                                     <div class="modal-body p-5">
                                                                         <div class="mb-3 row">
-                                                                            <label for="service" class="col-sm-3 col-form-label text-center">Select Laboratory Service</label>
+                                                                            <label for="service" class="col-sm-3 col-form-label text-center">Select Laboratory Service <span class="text-danger">*</span></label>
                                                                             <div class="col-sm-8">
                                                                                 <select id="service" name="service" class="form-select" required>
                                                                                     <option value="">-Select-</option>
@@ -485,13 +488,13 @@ if (isset($_POST['savelaboratory'])) {
 
                                                                                 </select>
                                                                                 <div class="invalid-feedback">
-                                                                                        Please Laboratory Service
-                                                                                    </div>
-                                                                                    </div>
+                                                                                    Please Laboratory Service
+                                                                                </div>
+                                                                            </div>
                                                                         </div>
 
                                                                         <div class="mb-3 row">
-                                                                            <label for="text" class="col-sm-3 col-form-label text-center">Date Test</label>
+                                                                            <label for="text" class="col-sm-3 col-form-label text-center">Date Test <span class="text-danger">*</span></label>
                                                                             <div class="col-sm-8">
 
 
@@ -509,19 +512,19 @@ if (isset($_POST['savelaboratory'])) {
                                                                             </div>
                                                                         </div>
                                                                         <div class="mb-3 row">
-                                                                            <label for="text" class="col-sm-3 col-form-label text-center">Test Results</label>
+                                                                            <label for="text" class="col-sm-3 col-form-label text-center">Test Results <span class="text-danger">*</span></label>
                                                                             <div class="col-sm-8">
-                                                                                <textarea name="testresults"  cols="30" rows="3" class="form-control" style="resize:none;" required></textarea>
+                                                                                <textarea name="testresults" cols="30" rows="3" class="form-control" style="resize:none;" required></textarea>
                                                                             </div>
                                                                             <div class="invalid-feedback">
-                                                                            Test Results is required
-                                                                                    </div>
+                                                                                Test Results is required
+                                                                            </div>
                                                                         </div>
 
                                                                         <div class="mb-3 row">
                                                                             <label for="text" class="col-sm-3 col-form-label text-center">Upload Image</label>
                                                                             <div class="col-sm-8">
-                                                                                <input type="file" name="testimage"  cols="30" rows="3" class="form-control" style="resize:none;"></input>
+                                                                                <input type="file" name="testimage" cols="30" rows="3" class="form-control" style="resize:none;"></input>
                                                                             </div>
                                                                         </div>
                                                                         <div class="row">
@@ -561,76 +564,76 @@ if (isset($_POST['savelaboratory'])) {
 
                     </div>
                     <!-- Container ends -->
-                   <!-- Existing Lab Result Modal -->
-<div class="modal fade" id="Viewlabresult" tabindex="-1" aria-labelledby="referModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Lab Result</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <input type="hidden" id="referPatientId">
-                <div class="modal position-static d-block shade-light rounded-3" tabindex="-1" role="dialog" id="modalSheet">
-                    <div class="modal-dialog modal-lg" role="document">
-                        <div class="modal-content">
-                            <div class="modal-body p-5">
-                                <!-- Laboratory Service -->
-                                <div class="mb-3 row">
-                                    <label for="service" class="col-sm-3 col-form-label text-center">Select Laboratory Service</label>
-                                    <div class="col-sm-8">
-                                        <input type="text" class="form-control" id="serviceDisplay" readonly>
-                                    </div>
+                    <!-- Existing Lab Result Modal -->
+                    <div class="modal fade" id="Viewlabresult" tabindex="-1" aria-labelledby="referModalLabel" aria-hidden="true">
+                        <div class="modal-dialog modal-lg">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title">Lab Result</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                 </div>
+                                <div class="modal-body">
+                                    <input type="hidden" id="referPatientId">
+                                    <div class="modal position-static d-block shade-light rounded-3" tabindex="-1" role="dialog" id="modalSheet">
+                                        <div class="modal-dialog modal-lg" role="document">
+                                            <div class="modal-content">
+                                                <div class="modal-body p-5">
+                                                    <!-- Laboratory Service -->
+                                                    <div class="mb-3 row">
+                                                        <label for="service" class="col-sm-3 col-form-label text-center">Select Laboratory Service</label>
+                                                        <div class="col-sm-8">
+                                                            <input type="text" class="form-control" id="serviceDisplay" readonly>
+                                                        </div>
+                                                    </div>
 
-                                <!-- Date Test -->
-                                <div class="mb-3 row">
-                                    <label for="Date" class="col-sm-3 col-form-label text-center">Date Test</label>
-                                    <div class="col-sm-8">
-                                        <input type="text" class="form-control" id="Date" readonly>
-                                    </div>
+                                                    <!-- Date Test -->
+                                                    <div class="mb-3 row">
+                                                        <label for="Date" class="col-sm-3 col-form-label text-center">Date Test</label>
+                                                        <div class="col-sm-8">
+                                                            <input type="text" class="form-control" id="Date" readonly>
+                                                        </div>
+                                                    </div>
+
+                                                    <!-- Test Results -->
+                                                    <div class="mb-3 row">
+                                                        <label for="testResult" class="col-sm-3 col-form-label text-center">Test Results</label>
+                                                        <div class="col-sm-8">
+                                                            <input type="text" class="form-control" id="testResult" readonly>
+                                                        </div>
+                                                    </div>
+
+                                                    <!-- Clickable Image Preview -->
+                                                    <div class="mb-3 row">
+                                                        <label for="labImage" class="col-sm-3 col-form-label text-center">Image</label>
+                                                        <div class="col-sm-8">
+                                                            <a href="#" id="imageLink" data-bs-toggle="modal" data-bs-target="#imageModal">
+                                                                <img id="labImage" src="" alt="Lab Test Image" class="img-fluid" style="max-width:100%; max-height:500px; cursor: pointer;">
+                                                            </a>
+                                                        </div>
+                                                    </div>
+
+                                                </div> <!-- modal-body -->
+                                            </div> <!-- modal-content -->
+                                        </div> <!-- modal-dialog -->
+                                    </div> <!-- modal -->
                                 </div>
-
-                                <!-- Test Results -->
-                                <div class="mb-3 row">
-                                    <label for="testResult" class="col-sm-3 col-form-label text-center">Test Results</label>
-                                    <div class="col-sm-8">
-                                        <input type="text" class="form-control" id="testResult" readonly>
-                                    </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                                 </div>
-
-                                <!-- Clickable Image Preview -->
-                                <div class="mb-3 row">
-                                    <label for="labImage" class="col-sm-3 col-form-label text-center">Image</label>
-                                    <div class="col-sm-8">
-                                        <a href="#" id="imageLink" data-bs-toggle="modal" data-bs-target="#imageModal">
-                                            <img id="labImage" src="" alt="Lab Test Image" class="img-fluid" style="max-width:100%; max-height:500px; cursor: pointer;">
-                                        </a>
-                                    </div>
-                                </div>
-
-                            </div> <!-- modal-body -->
-                        </div> <!-- modal-content -->
-                    </div> <!-- modal-dialog -->
-                </div> <!-- modal -->
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Modal for Enlarged Image -->
-            <div class="modal fade" id="imageModal" tabindex="-1" aria-labelledby="imageModalLabel" aria-hidden="true">
-                <div class="modal-dialog modal-dialog-centered">
-                    <div class="modal-content">
-                        <div class="modal-body">
-                            <img id="modalImage" src="" class="img-fluid" alt="Enlarged Image">
+                            </div>
                         </div>
                     </div>
-                </div>
-            </div>
+
+                    <!-- Modal for Enlarged Image -->
+                    <div class="modal fade" id="imageModal" tabindex="-1" aria-labelledby="imageModalLabel" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content">
+                                <div class="modal-body">
+                                    <img id="modalImage" src="" class="img-fluid" alt="Enlarged Image">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
 
 
@@ -668,55 +671,54 @@ if (isset($_POST['savelaboratory'])) {
     </script>
 
     <script>
-      // Function to set up the image click event
-function setupImageClickHandler() {
-    $('#labImage').on('click', function() {
-        const labImageSrc = $(this).attr('src');
-        $('#modalImage').attr('src', labImageSrc);
-    });
-}
-
-// Handle modal show event
-$('#Viewlabresult').on('show.bs.modal', function(event) {
-    var button = $(event.relatedTarget); // Button that triggered the modal
-    var labid = button.data('record-id'); // Get the patient ID
-
-    console.log(labid);
-
-    // Fetch record data
-    $.ajax({
-        type: 'POST',
-        url: 'fetchrow/labtest.php', // Ensure this URL is correct
-        data: {
-            labId: labid // Send the patient ID to the server
-        },
-        dataType: 'json',
-        success: function(response) {
-            console.log('AJAX response:', response);
-
-            if (response) {
-                $('#Laboratory').val(response.services);
-                $('#Date').val(response.date_test);
-                $('#testResult').val(response.test_result);
-                $('#serviceDisplay').val(response.services);
-
-                if (response.image) {
-                    $('#labImage').attr('src', './labtest/' + response.image);
-                } else {
-                    $('#labImage').attr('src', ''); // Clear the image if none exists
-                }
-
-                // Set up the click handler after the image is updated
-                setupImageClickHandler();
-            }
-        },
-        error: function(xhr, status, error) {
-            console.error('AJAX Error:', error);
-            console.error('XHR Object:', xhr);
+        // Function to set up the image click event
+        function setupImageClickHandler() {
+            $('#labImage').on('click', function() {
+                const labImageSrc = $(this).attr('src');
+                $('#modalImage').attr('src', labImageSrc);
+            });
         }
-    });
-});
 
+        // Handle modal show event
+        $('#Viewlabresult').on('show.bs.modal', function(event) {
+            var button = $(event.relatedTarget); // Button that triggered the modal
+            var labid = button.data('record-id'); // Get the patient ID
+
+            console.log(labid);
+
+            // Fetch record data
+            $.ajax({
+                type: 'POST',
+                url: 'fetchrow/labtest.php', // Ensure this URL is correct
+                data: {
+                    labId: labid // Send the patient ID to the server
+                },
+                dataType: 'json',
+                success: function(response) {
+                    console.log('AJAX response:', response);
+
+                    if (response) {
+                        $('#Laboratory').val(response.services);
+                        $('#Date').val(response.date_test);
+                        $('#testResult').val(response.test_result);
+                        $('#serviceDisplay').val(response.services);
+
+                        if (response.image) {
+                            $('#labImage').attr('src', './labtest/' + response.image);
+                        } else {
+                            $('#labImage').attr('src', ''); // Clear the image if none exists
+                        }
+
+                        // Set up the click handler after the image is updated
+                        setupImageClickHandler();
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('AJAX Error:', error);
+                    console.error('XHR Object:', xhr);
+                }
+            });
+        });
     </script>
 
 
@@ -763,30 +765,30 @@ $('#Viewlabresult').on('show.bs.modal', function(event) {
         document.addEventListener('DOMContentLoaded', function() {
             var form = document.getElementById('familymember');
             var form1 = document.getElementById('laboratoryForm');
-            var nameInputs = [{
-                    id: 'Name',
-                    errorMessage: 'Invalid first name.'
-                },
+            // var nameInputs = [{
+            //         id: 'Name',
+            //         errorMessage: 'Invalid first name.'
+            //     },
 
-            ];
-            var namePattern = /^[A-Za-z\s]{2,}$/; // Pattern for valid names (no numbers, at least 2 characters)
+            // ];
+            // var namePattern = /^[A-Za-z\s]{2,}$/; // Pattern for valid names (no numbers, at least 2 characters)
 
             // Loop through each name input and add real-time validation
-            for (var i = 0; i < nameInputs.length; i++) {
-                (function(input) {
-                    var inputElement = document.getElementById(input.id);
+            // for (var i = 0; i < nameInputs.length; i++) {
+            //     (function(input) {
+            //         var inputElement = document.getElementById(input.id);
 
-                    inputElement.addEventListener('input', function() {
-                        if (!namePattern.test(inputElement.value)) {
-                            inputElement.setCustomValidity(input.errorMessage);
-                            inputElement.classList.add('is-invalid');
-                        } else {
-                            inputElement.setCustomValidity("");
-                            inputElement.classList.remove('is-invalid');
-                        }
-                    });
-                })(nameInputs[i]);
-            }
+            //         inputElement.addEventListener('input', function() {
+            //             if (!namePattern.test(inputElement.value)) {
+            //                 inputElement.setCustomValidity(input.errorMessage);
+            //                 inputElement.classList.add('is-invalid');
+            //             } else {
+            //                 inputElement.setCustomValidity("");
+            //                 inputElement.classList.remove('is-invalid');
+            //             }
+            //         });
+            //     })(nameInputs[i]);
+            // }
 
             // Add validation on form submission
             form.addEventListener('submit', function(event) {

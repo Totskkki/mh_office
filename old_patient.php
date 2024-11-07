@@ -509,7 +509,7 @@ if (isset($_POST['save_complaints'])) {
                                                         <div class="col-lg-5 col-12">
                                                             <div class="mb-3">
                                                                 <label for="text" class="">Refferred by:</label>
-                                                                <input type="text" class="form-control form-control-sm rounded-0" id="Refferred" name="Refferred" />
+                                                                <input type="text" class="form-control form-control-sm rounded-0" value="<?php echo $user['first_name'] . ' ' . $user['lastname']; ?>"readonly id="Refferred" name="Refferred" />
 
                                                             </div>
                                                         </div>

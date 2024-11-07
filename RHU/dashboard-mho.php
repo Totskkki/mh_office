@@ -105,13 +105,13 @@ try {
 	<style>
 		.container {
 			display: flex;
-			max-width: 900px;
+			max-width: 100%;
 			width: 100%;
 			margin: 20px;
 		}
 
 		#calendar {
-			width: 70%;
+			width: 100%;
 			margin-right: 20px;
 			background-color: #fff;
 			border-radius: 8px;
@@ -488,10 +488,10 @@ try {
 									</ul>
 								</div>
 							</div>
-							<div class="col-xxl-4 col-sm-6 col-12">
+							<div class="col-12">
 								<div class="card mb-4">
 									<div class="card-header">
-										<h5 class="card-title">Documents</h5>
+										<h5 class="card-title">Documents Tracking</h5>
 									</div>
 									<div class="card-body">
 										<div class="table-responsive">

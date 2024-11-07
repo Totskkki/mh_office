@@ -7,7 +7,7 @@
             </div>
             <div class="modal-body">
 
-                <form method="POST">
+                <form method="POST" novalidate id="vaccinations"> 
 
 
                     <input type="hidden" id="user" name="patient_id">
@@ -15,32 +15,39 @@
 
 
                     <div class="mb-3 row">
-                        <label for="vaccineSelect" class="col-sm-3 col-form-label text-center">Search and Select Vaccine</label>
+                        <label for="vaccineSelect" class="col-sm-3 col-form-label text-center">Search and Select Vaccine <span class="text-danger">*</span></label>
                         <div class="col-sm-8">
-                            <select id="vaccineSelect" multiple="multiple" data-placeholder="Search here" name="vaccineSelect[]" class="vaccineSelect form-control" style="width: 100%;">
+                            <select id="vaccineSelect" multiple="multiple" data-placeholder="Search here" name="vaccineSelect[]" class="vaccineSelect form-control" required style="width: 100%;">
                                 <?php echo $medicines; ?>
                             </select>
+                            <div class="invalid-feedback">
+                            Vaccine is required.
+                        </div>
                         </div>
                     </div>
 
 
 
                     <div class="mb-3 row">
-                        <label for="text" class="col-sm-3 col-form-label text-center">Date Administered</label>
+                        <label for="text" class="col-sm-3 col-form-label text-center">Date Administered <span class="text-danger">*</span></label>
                         <div class="col-sm-8">
                             <div class="input-group date" id="date_ad" data-target-input="nearest">
                                 <input type="text" class="form-control datetimepicker-input" data-target="#date_ad" name="date_ad" data-toggle="datetimepicker" autocomplete="off"required />
                                 <div class="input-group-append" data-target="#date_ad" data-toggle="datetimepicker">
                                     <div class="input-group-text" style="height: 100%;">
                                         <i class="icon-calendar" style="height: 100%;"></i>
+                                        <div class="invalid-feedback">
+                                        Date Administered is required.
                                     </div>
+                                    </div>
+                                    
                                 </div>
                             </div>
                         </div>
                     </div>
 
                     <div class="mb-3 row">
-                        <label for="text" class="col-sm-3 col-form-label text-center">Next Due Visit</label>
+                        <label for="text" class="col-sm-3 col-form-label text-center">Next Due Visit <span class="text-danger">*</span></label>
                         <div class="col-sm-8">
                             
 
@@ -48,8 +55,12 @@
                                 <input type="text" class="form-control datetimepicker-input" data-target="#next_due" name="next_due" data-toggle="datetimepicker" autocomplete="off"required />
                                 <div class="input-group-append" data-target="#next_due" data-toggle="datetimepicker">
                                     <div class="input-group-text" style="height: 100%;">
-                                        <i class="icon-calendar" style="height: 100%;"></i>
+                                        <i class="icon-calendar" style="height: 100%;"></i>                      
                                     </div>
+                                    <div class="invalid-feedback">
+                                    Next Due Visit is required.
+                                    </div>
+                                    
                                 </div>
                             </div>
                         </div>
