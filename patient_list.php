@@ -2,6 +2,10 @@
 include 'config/connection.php';
 include 'common_service/common_functions.php';
 
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
 
 if (isset($_SESSION['user_id'])) {
 	$user_id = $_SESSION['user_id'];
@@ -132,6 +136,7 @@ if (isset($_SESSION['user_id'])) {
 														<th>Current/Old Patient</th>
 														<th>Status</th>												
 														<th class="text-center">Registered Date</th>
+															<th class="text-center">Action</th>
 													</tr>
 												</thead>
 												</tbody>
@@ -149,7 +154,7 @@ if (isset($_SESSION['user_id'])) {
 
 															<tr>
 																<td><?php echo $serial; ?></td>
-																<td><?php echo ucwords($row['patient_name'] . ' ' . $row['middle_name'] . '. ' . $row['last_name'] . ' ' . $row['suffix']); ?></td>
+																<td><?php echo ucwords($row['patient_name'] . ' ' . $row['middle_name'] . ' ' . $row['last_name'] . ' ' . $row['suffix']); ?></td>
 																<td><?php echo $row['brgy'] . ' ' . ucwords($row['purok']) . ' ' . ucwords($row['province']); ?></td>
 																<td><?php echo $row['date_of_birth']; ?></td>
 																<td><?php echo $row['age']; ?></td>
@@ -190,6 +195,11 @@ if (isset($_SESSION['user_id'])) {
 
 
 																<td><?php echo $row['reg_date']; ?></td>
+																<td class="text-center">
+																	<a href="view_patient.php?id=<?php echo $row['patientID']; ?>" class="btn btn-info btn-sm btn-flat">
+																	<i class="icon-eye"></i>
+																	</a>
+																</td>
 
 
 															</tr>
@@ -198,9 +208,7 @@ if (isset($_SESSION['user_id'])) {
 													} else {
 														
 														?>
-														<tr>
-															<td colspan="8">No patients found.</td>
-														</tr>
+														
 													<?php
 													}
 													?>

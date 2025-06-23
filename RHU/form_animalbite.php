@@ -112,6 +112,17 @@ if (isset($_POST['save_bite'])) {
         ]);
 
 
+      $immuneId = $con->lastInsertId();
+      $stmt = $con->prepare("insert into tbl_patient_visits(`visit_date`, `visit_counts`) VALUES (:visitdate,:visit_counts)");
+        $stmt->execute([
+              
+                ':visitdate' => $visit_date,
+                ':visit_counts' => $immuneId,
+                
+         ]);
+        
+        
+
         $con->commit();
 
 

@@ -6,14 +6,25 @@ include '../config/connection.php';
 
 
 // SQL query to get normal deliveries per barangay
+// $query = "SELECT COUNT(*) AS delivery_count, 
+//         MONTH(bi.`date`) AS month, 
+//         b.brgy
+//     FROM tbl_birth_info AS bi
+//     LEFT JOIN tbl_patients AS p ON bi.patient_id = p.patientID
+//     LEFT JOIN tbl_familyAddress AS b ON p.family_address = b.famID
+//     LEFT JOIN tbl_complaints AS c ON c.patient_id = bi.patient_id
+//     WHERE (c.status = 'Done' OR c.consultation_purpose = 'Birthing')
+//     GROUP BY b.brgy, MONTH(bi.`date`)
+//     ORDER BY b.brgy, month";
+
 $query = "SELECT COUNT(*) AS delivery_count, 
         MONTH(bi.`date`) AS month, 
         b.brgy
     FROM tbl_birth_info AS bi
     LEFT JOIN tbl_patients AS p ON bi.patient_id = p.patientID
-    LEFT JOIN tbl_familyaddress AS b ON p.family_address = b.famID
+    LEFT JOIN tbl_familyAddress AS b ON p.family_address = b.famID
     LEFT JOIN tbl_complaints AS c ON c.patient_id = bi.patient_id
-    WHERE (c.status = 'Done' OR c.consultation_purpose = 'Birthing')
+     WHERE c.consultation_purpose = 'Birthing' AND (c.status = 'Done' OR c.status IS NULL)
     GROUP BY b.brgy, MONTH(bi.`date`)
     ORDER BY b.brgy, month";
 

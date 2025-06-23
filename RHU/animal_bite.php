@@ -371,7 +371,7 @@ if (isset($_POST['saveNextvaccine'])) {
                               <td><?php echo $vaccinationStatus; ?></td>
                               <td class="text-center">
                                 <?php if ($showConsultButton): ?>
-                                  <a href="form_animalbite.php?id=<?php echo $row['complaintID'] ?>" class="btn btn-info btn-sm">
+                                  <a href="form_animalbite.php?id=<?php echo $row['complaintID'] ?>" class="btn btn-info btn-sm btn-flat btn-request">
                                     <i class="icon-feather">Consult</i>
                                   </a>
                                 <?php endif; ?>
@@ -411,7 +411,7 @@ if (isset($_POST['saveNextvaccine'])) {
                                 <input type="hidden" id="vaccine" name="hidden2">
 
                                 <div class="mb-3 row">
-                                  <label for="text" class="col-sm-3 col-form-label text-center">Search and Select Vaccine</label>
+                                  <label for="text" class="col-sm-3 col-form-label text-center">Search and Select Vaccine <span class="text-danger">*</span></label>
                                   <div class="col-sm-8">
                                     <select id="vaccineSelect" name="vaccineSelect" class="form-control" required>
                                       <?php echo $medicines; ?>
@@ -422,7 +422,7 @@ if (isset($_POST['saveNextvaccine'])) {
                                   </div>
                                 </div>
                                 <div class="mb-3 row">
-                                  <label class="col-sm-3 col-form-label text-center"> Dose Quantity</label>
+                                  <label class="col-sm-3 col-form-label text-center"> Dose Quantity <span class="text-danger">*</span></label>
                                   <div class="col-sm-8">
 
 
@@ -435,7 +435,7 @@ if (isset($_POST['saveNextvaccine'])) {
                                 </div>
 
                                 <div class="mb-3 row">
-                                  <label for="text" class="col-sm-3 col-form-label text-center">Date Administered</label>
+                                  <label for="text" class="col-sm-3 col-form-label text-center">Date Administered <span class="text-danger">*</span></label>
                                   <div class="col-sm-8">
                                     <div class="input-group date" id="date_ad" data-target-input="nearest">
                                       <input type="text" class="form-control datetimepicker-input" data-target="#date_ad" name="date_ad" data-toggle="datetimepicker" autocomplete="off" required />
@@ -449,7 +449,7 @@ if (isset($_POST['saveNextvaccine'])) {
                                 </div>
 
                                 <div class="mb-3 row">
-                                  <label for="text" class="col-sm-3 col-form-label text-center">Next Due Visit</label>
+                                  <label for="text" class="col-sm-3 col-form-label text-center">Next Due Visit <span class="text-danger">*</span></label>
                                   <div class="col-sm-8">
                                     <div class="input-group date" id="next_due" data-target-input="nearest">
                                       <input type="text" class="form-control datetimepicker-input" data-target="#next_due" name="next_due" data-toggle="datetimepicker" autocomplete="off" required />
@@ -500,6 +500,24 @@ if (isset($_POST['saveNextvaccine'])) {
           <!-- Row end -->
 
 
+                    <div class="modal fade" id="confirmationModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
+                      <div class="modal-dialog">
+                        <div class="modal-content">
+                          <div class="modal-header">
+                            <h5 class="modal-title" id="confirmationModalLabel">Confirm Animal bite</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                          </div>
+
+                          
+                          <div class="modal-footer">
+                            <button type="button" class="btn btn-danger" data-bs-dismiss="modal">No</button>
+                            <button type="button" class="btn btn-info" id="confirmRequest">Yes</button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+
 
 
 
@@ -534,16 +552,41 @@ if (isset($_POST['saveNextvaccine'])) {
   <?php include './config/site_js_links.php'; ?>
   <?php include './config/data_tables_js.php'; ?>
 
+<script>
+    $(document).ready(function() {
+      var requestUrl;
+
+      $('.btn-request').on('click', function(e) {
+        e.preventDefault();
+        requestUrl = $(this).attr('href');
+        $('#confirmationModal').modal('show');
+      });
+
+      $('#confirmRequest').on('click', function() {
+        window.location.href = requestUrl;
+      });
+    });
+  </script>
   <script>
     $(document).ready(function() {
       $('#vaccineSelect').select2({
         theme: 'bootstrap4',
         dropdownParent: $('#consultModal')
       });
-      $('#date_ad, #next_due').datetimepicker({
-        format: 'YYYY-MM-DD',
-        minDate: new Date()
-      });
+    //   $('#date_ad, #next_due').datetimepicker({
+    //     format: 'YYYY-MM-DD',
+    //     minDate: new Date()
+    //   });
+      $('#date_ad').datetimepicker({
+    format: 'L',
+    minDate: new Date(), // Minimum date is today
+    maxDate: new Date()  // Maximum date is also today
+    });
+    
+    $('#next_due').datetimepicker({
+        format: 'L',
+        minDate: new Date() // Minimum date is today
+    });
     });
   </script>
   <script>

@@ -3,6 +3,10 @@ include './config/connection.php';
 
 include './common_service/common_functions.php';
 
+if (!isset($_SESSION['user_id']) || empty($_SESSION['user_id'])) {
+    header('Location: ../index.php');
+    exit;
+}
 
 
 if (isset($_POST['save_complaints'])) {
@@ -10,7 +14,11 @@ if (isset($_POST['save_complaints'])) {
     $patientid = trim($_POST['hidden_id']);
     $Complaint = trim($_POST['Complaint']);
     $remarks = trim($_POST['remarks']);
-    $bp = trim($_POST['bp']);
+    
+     $bp_systolic = trim($_POST['bp_systolic']);
+    $bp_diastolic = trim($_POST['bp_diastolic']);
+    $bp = $bp_systolic . '/' . $bp_diastolic; 
+    
     $hr = trim($_POST['hr']);
     $weight = trim($_POST['weight'] . "kg");
     $rr = trim($_POST['rr']);
@@ -19,31 +27,36 @@ if (isset($_POST['save_complaints'])) {
     $PR = trim($_POST['PR']);
 
     $Nature_visit = trim($_POST['Nature_visit']);
-    $cp_visit = trim($_POST['cp_visit']);
+    $cp_visit = trim($_POST['cp_visit']); // consultation purpose
     $Refferred = trim($_POST['Refferred']);
     $reason = trim($_POST['reason']);
 
-    // Retrieve patient details
-    $query = $con->prepare("SELECT * FROM `tbl_patients` WHERE `patientID` = :id");
-    $query->bindParam(':id', $patientid, PDO::PARAM_INT);
-    $query->execute();
-    $patient = $query->fetch(PDO::FETCH_ASSOC);
+    // Check if there's a pending consultation for the same purpose
+    $checkQuery = $con->prepare("SELECT * FROM `tbl_complaints` WHERE `patient_id` = :id AND `consultation_purpose` = :cp_visit AND `status` = 'Pending'");
+    $checkQuery->bindParam(':id', $patientid, PDO::PARAM_INT);
+    $checkQuery->bindParam(':cp_visit', $cp_visit, PDO::PARAM_STR);
+    $checkQuery->execute();
+    $existingPending = $checkQuery->fetch(PDO::FETCH_ASSOC);
 
-    if (!$patient) {
-        $_SESSION['status'] = "Patient not found.";
+    if ($existingPending) {
+        $_SESSION['status'] = "This patient already has a pending " . htmlspecialchars(json_encode($cp_visit), ENT_QUOTES) . " consultation.";
         $_SESSION['status_code'] = "error";
         header('location:old_patient.php');
         exit;
     }
 
+    // Retrieve patient details
+    // $query = $con->prepare("SELECT * FROM `tbl_patients` WHERE `patientID` = :id");
+    // $query->bindParam(':id', $patientid, PDO::PARAM_INT);
+    // $query->execute();
+    // $patient = $query->fetch(PDO::FETCH_ASSOC);
 
-    if ($bp !== '' || $hr !== '' || $weight !== '' || $rr !== '') {
-        // $_SESSION['status'] = "Some error occurred. Please fill all required fields.";
-        // $_SESSION['status_code'] = "error";
-        // header('location:old_patient.php');
-        // exit;
-    }
-
+    // if (!$patient) {
+    //     $_SESSION['status'] = "Patient not found.";
+    //     $_SESSION['status_code'] = "error";
+    //     header('location:old_patient.php');
+    //     exit;
+    // }
 
     if (($cp_visit == "Prenatal" || $cp_visit == "Birthing") && ($patient['gender'] == "Male" || $patient['gender'] == "Other")) {
         $_SESSION['status'] = "Invalid section for male patient.";
@@ -52,30 +65,18 @@ if (isset($_POST['save_complaints'])) {
         exit;
     }
 
-
-    // $existingComplaintQuery = "SELECT COUNT(*) FROM `tbl_complaints` WHERE `patient_id` = ?";
-    // $stmt = $con->prepare($existingComplaintQuery);
-    // $stmt->execute([$patientid]);
-    // $existingComplaintCount = $stmt->fetchColumn();
-
-    // if ($existingComplaintCount > 0) {
-
-    //     $updateQuery = "UPDATE `tbl_complaints` SET `Chief_Complaint` = ?, `Remarks` = ?, `bp` = ?, `hr` = ?, `weight` = ?, `rr` = ?, `temp` = ?, `Height` = ?, `Nature_Visit` = ?, `consultation_purpose` = ?, `refferred` = ? ,`reason_ref`= ? WHERE `patient_id` = ?";
-    //     $stmt = $con->prepare($updateQuery);
-    //     $stmt->execute([$Complaint, $remarks, $bp, $hr, $weight, $rr, $Temp, $Height, $Nature_visit, $cp_visit, $Refferred,$reason, $patientid]);
-    // } else {
-
+    // Insert new complaint if checks pass
     $insertQuery = "INSERT INTO `tbl_complaints` (`patient_id`, `Chief_Complaint`, `Remarks`, `bp`, `hr`, `weight`, `rr`, `temp`, `Height`, `Nature_Visit`, `consultation_purpose`, `refferred`, `reason_ref`, `status`, `pr`) 
-                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?, 'Pending',?)";
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Pending', ?)";
     $stmt = $con->prepare($insertQuery);
     $stmt->execute([$patientid, $Complaint, $remarks, $bp, $hr, $weight, $rr, $Temp, $Height, $Nature_visit, $cp_visit, $Refferred, $reason, $PR]);
-
 
     $_SESSION['status'] = "Patient complaint handled successfully.";
     $_SESSION['status_code'] = "success";
     header('location:old_patient.php');
     exit;
 }
+
 
 
 ?>
@@ -234,6 +235,8 @@ if (isset($_POST['save_complaints'])) {
                                 <div class="card mb-4">
                                     <div class="card-header">
                                         <h5 class="card-title">Patient information</h5>
+                                         <small class="text-danger">* Maari kang maglagay ng konsultasyon ng pasyente dito</small><br/>
+                                         <small class="text-danger">* Halimbawa: Check-up, Prenatal, Birthing, Immunization & vaccination, Animal bite</small>
                                     </div>
 
                                     <div class="card-body">
@@ -255,13 +258,13 @@ if (isset($_POST['save_complaints'])) {
 
                                                 <div class="input-group w-50">
 
-                                                    <input type="text" class="form-control" id="search_patient" name="search_patient" placeholder="Search Patients" autofocus  required/>
+                                                    <input type="text" class="form-control" id="search_patient" name="search_patient" placeholder="Search Patients" autofocus required />
                                                     <div class="invalid-feedback">
-                                                                    Patient is required.
-                                                                </div>
+                                                        Patient is required.
+                                                    </div>
                                                     <i class="fa fa-search search-icon" aria-hidden="true"></i>
                                                     <div id="searchResultsContainer" class="search-results-container"></div>
-                                                   
+
                                                 </div>
 
                                             </div>
@@ -346,78 +349,86 @@ if (isset($_POST['save_complaints'])) {
 
                                                         <div class="row" id="RHU">
 
-                                                            <div class="col-lg-2 col-sm-4 col-12">
-                                                                <div class="mb-3">
-                                                                    <h6 for="bp" class="">Blood Pressure</h6>
-                                                                    <input type="text" class="form-control form-control-sm rounded-0 blue-placeholder" id="bp" name="bp" required />
-                                                                    <p>Systolic/Diastolic</p>
-                                                                    <div class="invalid-feedback">
-                                                                    Blood Pressure is required.
+                                                           <div class="col-lg-2 col-sm-4 col-12">
+                                                                    <div class="mb-3">
+                                                                        <h6 for="bp" class="">Blood Pressure</h6>
+                                                                        <div class="d-flex align-items-center">
+                                                                            <input type="text" style="width: 50%;" class="form-control form-control-sm rounded-0 blue-placeholder me-2" id="bp_systolic" name="bp_systolic" required placeholder="" />
+                                                                            <span class="mx-1">/</span>
+                                                                            <input type="text" style="width: 50%;" class="form-control form-control-sm rounded-0 blue-placeholder" id="bp_diastolic" name="bp_diastolic" required placeholder="" />
+                                                                       
+                                                                              <div class="invalid-feedback">
+                                                                            Blood Pressure is required.
+                                                                        </div>
+                                                                        </div>
+                                                                       
+                                                                        <p class="mt-1">Systolic/Diastolic</p>
+                                                                       
+                                                                    </div>
                                                                 </div>
-                                                                </div>
-                                                            </div>
+
+
                                                             <div class="col-lg-2 col-sm-4 col-12">
                                                                 <div class="mb-3">
                                                                     <h6 for="hr" class="">Heart Rate</h6>
-
-                                                                    <input type="text" class="form-control form-control-sm rounded-0 blue-placeholder" placeholder="0" id="hr" name="hr" required />
+                                                                    <input type="text" class="form-control form-control-sm rounded-0 blue-placeholder" placeholder="0" id="hr" name="hr" required min="0" max="300" />
                                                                     <p>Beats per Minute</p>
                                                                     <div class="invalid-feedback">
-                                                                    Heart Rate is required.
-                                                                </div>
+                                                                        Heart Rate is required and must be between 0 and 300.
+                                                                    </div>
                                                                 </div>
                                                             </div>
                                                             <div class="col-lg-1 col-sm-4 col-12">
                                                                 <div class="mb-3">
                                                                     <h6 for="weight" class="">Weight</h6>
-                                                                    <input type="number" min="0" max="999" class="form-control form-control-sm rounded-0 blue-placeholder" placeholder="0" id="weight" name="weight" required />
+                                                                    <input type="text" class="form-control form-control-sm rounded-0 blue-placeholder" placeholder="0" id="weight" name="weight" required min="0" max="999" />
                                                                     <p>Kilograms</p>
                                                                     <div class="invalid-feedback">
-                                                                    Weight is required.
-                                                                </div>
-                                                                </div>
-                                                            </div>
-                                                            <div class="col-lg-1 col-sm-4 col-12">
-                                                                <div class="mb-3">
-                                                                    <h6 for="Height" class="">Height</h6>
-                                                                    <input type="number" min="0" max="999" class="form-control form-control-sm rounded-0 blue-placeholder" placeholder="0" id="Height" name="Height" required />
-                                                                    <p>Centimeters</p>
-                                                                    <div class="invalid-feedback">
-                                                                    Heightis required.
-                                                                </div>
-                                                                </div>
-                                                            </div>
-
-                                                            <div class="col-lg-1 col-sm-4 col-12">
-                                                                <div class="mb-3">
-                                                                    <h6 for="Temp" class="">Temp</h6>
-                                                                    <input type="number" min="0" max="999" class="form-control form-control-sm rounded-0 blue-placeholder" placeholder="0" id="Temp" name="Temp" required />
-                                                                    <p>Celsius</p>
-                                                                    <div class="invalid-feedback">
-                                                                    Temperature is required.
-                                                                </div>
-                                                                </div>
-                                                            </div>
-                                                            <div class="col-lg-1 col-sm-4 col-12">
-                                                                <div class="mb-3">
-                                                                    <h6 for="Temp" class="">PR</h6>
-                                                                    <input type="number" min="0" max="999" class="form-control form-control-sm rounded-0 blue-placeholder" placeholder="0" id="PR" name="PR" required />
-                                                                    <p>bpm</p>
-                                                                    <div class="invalid-feedback">
-                                                                    PR is required.
-                                                                </div>
+                                                                        Weight is required and must be between 0 and 999 kg.
+                                                                    </div>
                                                                 </div>
                                                             </div>
                                                             <div class="col-lg-2 col-sm-4 col-12">
                                                                 <div class="mb-3">
-                                                                    <h6 for="rr" class="">Respiratory rate</h6>
-                                                                    <input type="text" class="form-control form-control-sm rounded-0 blue-placeholder" placeholder="0" id="rr" name="rr" required />
-                                                                    <p>Breaths per Minute</p>
+                                                                    <h6 for="Height" class="">Height</h6>
+                                                                    <input type="text" class="form-control form-control-sm rounded-0 blue-placeholder" placeholder="0" id="Height" name="Height" required min="0" max="500" step="0.01" />
+                                                                    <p>Centimeters</p>
                                                                     <div class="invalid-feedback">
-                                                                    Respiratory rate is required.
-                                                                </div>
+                                                                        Height is required and must be between 0 and 999 cm.
+                                                                    </div>
                                                                 </div>
                                                             </div>
+                                                            <div class="col-lg-1 col-sm-4 col-12">
+                                                                <div class="mb-3">
+                                                                    <h6 for="Temp" class="">Temp</h6>
+                                                                    <input type="text" class="form-control form-control-sm rounded-0 blue-placeholder" placeholder="0" id="Temp" name="Temp" required min="0" max="100" step="0.1" />
+                                                                    <p>Celsius</p>
+                                                                    <div class="invalid-feedback">
+                                                                        Temperature is required and must be between 0 and 100°C.
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-lg-1 col-sm-4 col-12">
+                                                                <div class="mb-3">
+                                                                    <h6 for="PR" class="">PR</h6>
+                                                                    <input type="text" class="form-control form-control-sm rounded-0 blue-placeholder" placeholder="0" id="PR" name="PR" required min="0" max="300" />
+                                                                    <p>bpm</p>
+                                                                    <div class="invalid-feedback">
+                                                                        PR is required and must be between 0 and 300 bpm.
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                           
+                                                            <div class="col-lg-2 col-sm-4 col-12">
+                                                                <div class="mb-3">
+                                                                    <h6 for="rr" class="">Respiratory rate</h6>
+                                                                    <input type="text" class="form-control form-control-sm rounded-0 blue-placeholder" placeholder="0" id="rr" name="rr" required min="0" max="100" />
+                                                                    <p>Breaths per Minute</p>
+                                                                    <div class="invalid-feedback">
+                                                                        Respiratory rate is required and must be between 0 and 100.
+                                                                    </div>
+                                                                </div>
+                                                               </div>
 
                                                         </div>
 
@@ -429,7 +440,7 @@ if (isset($_POST['save_complaints'])) {
                                                                     <?php echo getnature('', false); ?>
                                                                 </select>
                                                                 <div class="invalid-feedback">
-                                                                Nature of Visit is required.
+                                                                    Nature of Visit is required.
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -448,7 +459,7 @@ if (isset($_POST['save_complaints'])) {
 
                                                                 </select>
                                                                 <div class="invalid-feedback">
-                                                                Type of consultation is required.
+                                                                    Type of consultation is required.
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -463,10 +474,10 @@ if (isset($_POST['save_complaints'])) {
                                                         <div class="col-lg-5 col-12">
                                                             <div class="mb-3">
                                                                 <label for="text" class="">Reason for referral: <span class="text-danger">*</span></label>
-                                                                <input type="text" class="form-control form-control-sm rounded-0" id="reason" name="reason"  required/>
-                                                                <div class="invalid-feedback">
-                                                                Reason for referral is required.
-                                                                </div>
+                                                                <input type="text" class="form-control form-control-sm rounded-0" id="reason" name="reason" required />
+                                                                <!--<div class="invalid-feedback">-->
+                                                                <!--    Reason for referral is required.-->
+                                                                <!--</div>-->
                                                             </div>
                                                         </div>
 
@@ -542,15 +553,15 @@ if (isset($_POST['save_complaints'])) {
 
     <!-- Date Range JS -->
 
+    // <script>
+    //     Inputmask("999 / 999").mask("#bp");
+    // </script>
+
+
     <script>
-        Inputmask("999 / 999").mask("#bp");
-    </script>
-
-
-<script>
         document.addEventListener('DOMContentLoaded', function() {
             var form = document.getElementById('oldpatient');
-           
+
 
 
             form.addEventListener('submit', function(event) {
@@ -592,7 +603,7 @@ if (isset($_POST['save_complaints'])) {
 
                 $.ajax({
                     type: "POST",
-                    url: "ajax/searchpatients.php",
+                    url: "./ajax/searchpatients.php",
                     data: {
                         search: searchTerm
                     },
@@ -643,7 +654,7 @@ if (isset($_POST['save_complaints'])) {
                 if (patientId) {
                     $.ajax({
                         type: "GET",
-                        url: "ajax/getpatientdetails.php",
+                        url: "/ajax/getpatientdetails.php",
                         data: {
                             patientID: patientId
                         },
@@ -672,6 +683,149 @@ if (isset($_POST['save_complaints'])) {
             }
 
 
+        });
+//   $(document).ready(function() {
+//     var debouncedSearch = debounce(performSearch, 300);
+
+//     $('#search_patient').on("input", debouncedSearch);
+
+//     function debounce(func, delay) {
+//         let debounceTimer;
+//         return function() {
+//             const context = this;
+//             const args = arguments;
+//             clearTimeout(debounceTimer);
+//             debounceTimer = setTimeout(() => func.apply(context, args), delay);
+//         };
+//     }
+
+//     function performSearch() {
+//         var searchTerm = $('#search_patient').val().toLowerCase().trim();
+//         if (searchTerm === '') {
+//             $("#searchResultsContainer").html('');
+//             $("#searchResultsContainer").hide();
+//             return;
+//         }
+
+//         $.ajax({
+//             type: "POST",
+//             url: "ajax/searchpatients.php",
+//             data: {
+//                 search: searchTerm
+//             },
+//             success: function(response) {
+//                 $("#searchResultsContainer").html(response);
+//                 $("#searchResultsContainer").show();
+//             },
+//             error: function(error) {
+//                 console.log("Error: " + error);
+//                 $("#searchResultsContainer").html('');
+//                 $("#searchResultsContainer").hide();
+//             }
+//         });
+//     }
+
+//     $(document).on("mouseenter", ".search-item", function() {
+//         $(this).addClass('highlight');
+//     });
+
+//     $(document).on("mouseleave", ".search-item", function() {
+//         $(this).removeClass('highlight');
+//     });
+
+//     // Click event for search result
+//     $(document).on("click", ".search-item", function() {
+//         var name = $(this).text();
+//         var patientId = $(this).data('id'); // Get ID from the data attribute
+//         var type = $(this).data('type'); // Get type (patient or family_member) from the data attribute
+
+//         $('#search_patient').val(name);
+//         $("#searchResultsContainer").empty();
+//         $("#searchResultsContainer").hide();
+//         $("#submit").prop('disabled', !name);
+
+//         $("#hidden_id").val(patientId); // Store the selected ID in a hidden input
+
+//         // Log which type of patient or member is being fetched
+//         console.log("Fetching details for ID: " + patientId + ", Type: " + type);
+
+//         // Call the fetch function, passing the ID and type
+//         fetchPatientDetails(patientId, type);
+
+//         $('#search_patient').focus();
+//     });
+
+//     function fetchPatientDetails(patientId, type) {
+//         if (patientId) {
+//             // Log details before making the AJAX request
+//             console.log("Preparing AJAX request for patientID: " + patientId + " with type: " + type);
+
+//             $.ajax({
+//                 type: "GET",
+//                 url: "ajax/getpatientdetails.php",
+//                 data: {
+//                     patientID: patientId,
+//                     type: type // Send type to the server if needed
+//                 },
+//                 success: function(response) {
+//                     var patient = JSON.parse(response);
+//                     if (patient.error) {
+//                         console.log(patient.error);
+//                         return;
+//                     }
+
+//                     // Update UI with details depending on type
+//                     if (type === 'patient') {
+//                         $("#patient_name").text(patient.name || "N/A");
+//                         $("#patient_gender").text(patient.gender || "N/A");
+//                         $("#patient_contact").text(patient.phone_number || "N/A");
+//                         $("#patient_status").text(patient.civil_status || "N/A");
+//                         $("#patient_age").text(patient.age || "N/A");
+//                         $("#patient_address").text(patient.familyaddress || "N/A");
+//                         $("#patient_details").show();
+//                     } else if (type === 'family_member') {
+//                         $("#patient_name").text(patient.name || "N/A");
+//                         $("#patient_contact").text(patient.contact || "N/A");
+//                         $("#patient_address").text(patient.familyaddress || "N/A");
+
+//                         $("#patient_details").show();
+//                     }
+//                 },
+//                 error: function(error) {
+//                     console.log("Error: " + error);
+//                 }
+//             });
+//         } else {
+//             $("#patient_details").hide().empty();
+//         }
+//     }
+// });
+
+
+
+    </script>
+    
+     <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const inputs = document.querySelectorAll('input');
+            inputs.forEach(input => {
+                input.addEventListener('input', function() {
+                    const value = parseFloat(this.value);
+                    const min = parseFloat(this.min);
+                    const max = parseFloat(this.max);
+                    const invalidFeedback = this.nextElementSibling;
+
+                    {
+                        if (isNaN(value) || value < min || value > max) {
+                            invalidFeedback.style.display = 'block';
+                            this.classList.add('is-invalid');
+                        } else {
+                            invalidFeedback.style.display = 'none';
+                            this.classList.remove('is-invalid');
+                        }
+                    }
+                });
+            });
         });
     </script>
 

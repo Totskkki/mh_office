@@ -131,7 +131,7 @@ include './common_service/common_functions.php';
                                                         <?php
                                                         $query = "SELECT users.*, family.brgy, family.purok, family.province, mem.*, complaints.*
                                                                 FROM tbl_patients AS users 
-                                                                LEFT JOIN tbl_family AS family ON users.family_address = family.famID 
+                                                                LEFT JOIN tbl_familyAddress AS family ON users.family_address = family.famID 
                                                                 LEFT JOIN tbl_membership_info AS mem ON users.Membership_Info = mem.membershipID
                                                                 LEFT JOIN tbl_complaints AS complaints ON users.patientID = complaints.patient_id
                                                                 WHERE complaints.status = 'Done' AND complaints.consultation_purpose = 'Checkup'

@@ -135,6 +135,22 @@ if (isset($_POST['save_prenatal'])) {
 
 
     $stmt->execute();
+    
+
+        
+    $immuneId = $con->lastInsertId();
+  
+  
+
+  
+         $stmt = $con->prepare("insert into tbl_patient_visits(`visit_date`, `visit_counts`) VALUES (:visitdate,:visit_counts)");
+        $stmt->execute([
+              
+                ':visitdate' => $date,
+                ':visit_counts' => $immuneId,
+                
+         ]);
+        
 
     $con->commit();
     $stmtUpdate1 = $con->prepare("UPDATE tbl_complaints SET status = 'Done' WHERE patient_id = :patientID AND consultation_purpose = 'Prenatal' or consultation_purpose ='Birthing' and  complaintID = :complaintID");

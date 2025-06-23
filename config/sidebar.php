@@ -22,6 +22,30 @@ if ($_SESSION['user_type'] === 'Admin') {
 
 <style>
  
+ 
+ <?php
+
+$userID = $_SESSION['user_id'];
+$userType = $_SESSION['user_type'];
+
+if ($userType == 'BHW') {
+	try {
+		$stmt = $con->prepare("SELECT headerColor FROM tbl_user_page WHERE userID = :userID");
+		$stmt->bindParam(':userID', $userID, PDO::PARAM_INT);
+		$stmt->execute();
+		$result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+		$headerColor = $result['headerColor'] ?? '#3F7791';
+	} catch (PDOException $e) {
+		echo "Error: " . $e->getMessage();
+		$headerColor = '#fffff';
+	}
+} else {
+	$headerColor = '#';
+}
+
+?>
+
 
 
  .sidebar-menu .treeview-menu>li>a {
@@ -71,7 +95,7 @@ if ($_SESSION['user_type'] === 'Admin') {
    */
   .app-brand {
 
-    background: #3F7791;
+    background: <?php echo htmlspecialchars($headerColor ?? '#3F7791'); ?>;
 
   }
 
@@ -93,7 +117,7 @@ if ($_SESSION['user_type'] === 'Admin') {
   }
 
   .sidebar-wrapper {
-    background-color: #34424F;
+    background-color: <?php echo htmlspecialchars($headerColor ?? '#3F7791'); ?>;
   }
 
   .sidebar-menu>li.active>a [class^=icon-] {
@@ -121,7 +145,7 @@ if ($_SESSION['user_type'] === 'Admin') {
 
 
   .sidebar-menu>li.active>a {
-    background-color: #202A33;
+    background-color: <?php echo htmlspecialchars($headerColor ?? '#3F7791'); ?>;
     color: #ffffff;
     border-radius: 15px;
 
@@ -195,7 +219,7 @@ if ($_SESSION['user_type'] === 'Admin') {
       </li>
 
 
-      <li class="med_cert.php <?php if ($Page === 'referrals.php') echo 'active'; ?>">
+      <li class="referrals.php <?php if ($Page === 'referrals.php') echo 'active'; ?>">
 
         <a href="referrals.php">
 
@@ -217,12 +241,12 @@ if ($_SESSION['user_type'] === 'Admin') {
           <span class="menu-text <?php if ($Page === 'profile.php') echo 'active'; ?>">Settings</span>
         </a>
 
-        <ul class="treeview-menu" <?php if ($Page === 'profile.php') echo 'style="display:block;"'; ?>>
-          <li <?php if ($Page === 'profile.php') echo 'class="active"'; ?>>
-            <a href="profile.php?id=<?php echo $_SESSION['user_id']; ?>">Profile</a>
-          </li>
+      <ul class="treeview-menu" <?php if ($Page === 'profile') echo 'style="display:block;"'; ?>>
+    <li <?php if ($Page === 'profile') echo 'class="active"'; ?>>
+        <a href="profile.php?id=<?php echo $_SESSION['user_id']; ?>">Profile</a>
+    </li>
+</ul>
 
-        </ul>
       </li>
 
 

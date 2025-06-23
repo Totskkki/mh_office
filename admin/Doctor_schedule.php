@@ -20,7 +20,7 @@ if (isset($_POST['dsID'])) {
               FROM tbl_doctor_schedule AS s
               LEFT JOIN tbl_users AS user ON user.userID = s.userID
               LEFT JOIN tbl_personnel AS personnel ON user.personnel_id = personnel.personnel_id
-              WHERE s.doc_scheduleID = :id";
+              WHERE s.doc_scheduleID = :id order by s.doc_scheduleID asc";
 
     $stmt = $con->prepare($query);
     $stmt->execute([':id' => $id]);
@@ -102,12 +102,12 @@ if (isset($_POST['add_schedule'])) {
 
         $_SESSION['status'] = "Schedule added successfully for selected days!";
         $_SESSION['status_code'] = "success";
-        header('location: doctor_schedule.php');
+        header('location: Doctor_schedule.php');
         exit();
     } catch (PDOException $e) {
         $_SESSION['status'] = "Something went wrong: " . $e->getMessage();
         $_SESSION['status_code'] = "danger";
-        header('location: doctor_schedule.php');
+        header('location:Doctor_schedule.php');
         exit();
     }
 }
@@ -552,6 +552,8 @@ $doctors = getDoctorSchedule($con);
                                                                 'schedules' => [],
                                                                 'is_available' => $row['is_available'],
                                                                 'date_schedule' => $row['date_schedule'],
+                                                                'leave_start_date' => $row['leave_start_date'],
+                                                                'leave_end_date' => $row['leave_end_date'],
                                                             ];
                                                         }
 
@@ -587,11 +589,41 @@ $doctors = getDoctorSchedule($con);
                                                                         if ($index < count($scheduleData['schedules']) - 1) echo ', ';
                                                                     }
                                                                 } else {
-                                                                    echo 'No schedules available';
+                                                                    echo '';
                                                                 }
                                                                 ?>
                                                             </td>
-                                                            <td><?php echo $scheduleData['date_schedule']; ?> </td>
+                                                        <td>
+                                                        <?php
+                                                        // Check if the date_schedule is valid and not '0000-00-00'
+                                                        if ($scheduleData['date_schedule'] && $scheduleData['date_schedule'] !== '0000-00-00') {
+                                                            // Convert date_schedule to "Nov 3, 2024" format
+                                                            try {
+                                                                $dateSchedule = new DateTime($scheduleData['date_schedule']);
+                                                                echo $dateSchedule->format('M j, Y');
+                                                            } catch (Exception $e) {
+                                                                echo 'Invalid date';  // Fallback message if the date is invalid
+                                                            }
+                                                        } else {
+                                                            echo '';  // Fallback message for invalid date
+                                                        }
+                                                    
+                                                        // Check for leave dates and format them as well
+                                                        if (($scheduleData['leave_start_date'] && $scheduleData['leave_start_date'] !== '0000-00-00') && 
+                                                            ($scheduleData['leave_end_date'] && $scheduleData['leave_end_date'] !== '0000-00-00')) :
+                                                            try {
+                                                                $leaveStart = new DateTime($scheduleData['leave_start_date']);
+                                                                $leaveEnd = new DateTime($scheduleData['leave_end_date']);
+                                                                echo ' - ' . htmlspecialchars($leaveStart->format('M j, Y')) . ' to ' . htmlspecialchars($leaveEnd->format('M j, Y'));
+                                                            } catch (Exception $e) {
+                                                                echo 'Invalid leave dates';  // Fallback message if leave dates are invalid
+                                                            }
+                                                        endif;
+                                                        ?>
+                                                    </td>
+
+
+
                                                             <td>
                                                                 <?php
                                                                 // Display the status based on `is_available` value
@@ -606,9 +638,9 @@ $doctors = getDoctorSchedule($con);
                                                                         echo '<span class="badge bg-warning">Pending</span>';
                                                                         break;
                                                                     case 3:
-                                                                        echo '<span class="badge bg-warning">Approved</span>';
+                                                                        echo '<span class="badge bg-success">Approved</span>';
                                                                         break;
-                                                                        case 4:
+                                                                    case 4:
                                                                         echo '<span class="badge bg-danger">Rejected</span>';
                                                                         break;
                                                                 }
@@ -633,7 +665,7 @@ $doctors = getDoctorSchedule($con);
                                                                     </button>
                                                                 <?php elseif ($scheduleData['is_available'] == 3) : ?>
                                                                     <!-- Only show Approve and Reject actions for Pending status -->
-                                                                    <?php elseif ($scheduleData['is_available'] == 4) : ?>
+                                                                <?php elseif ($scheduleData['is_available'] == 4) : ?>
                                                                     <!-- Only show Approve and Reject actions for Pending status -->
 
                                                                 <?php endif; ?>
@@ -682,102 +714,155 @@ $doctors = getDoctorSchedule($con);
                                             $color = $colorList[$index % count($colorList)];
                                             $doctorColors[$doctorName] = $color;
                                         }
-
-                                        $query = "SELECT s.*, position.*, personnel.*,
+                                        $query = "SELECT s.*, position.*, personnel.*, 
                                         CONCAT(personnel.first_name, ' ', personnel.middlename, ' ', personnel.lastname) AS doctorsname
-                                        FROM tbl_doctor_schedule AS s
-                                        LEFT JOIN tbl_users AS user ON user.userID = s.userID
-                                        LEFT JOIN tbl_personnel AS personnel ON user.personnel_id = personnel.personnel_id
-                                        LEFT JOIN tbl_position AS position ON user.position_id = position.position_id";
+                                      FROM tbl_doctor_schedule AS s
+                                      LEFT JOIN tbl_users AS user ON user.userID = s.userID
+                                      LEFT JOIN tbl_personnel AS personnel ON user.personnel_id = personnel.personnel_id
+                                      LEFT JOIN tbl_position AS position ON user.position_id = position.position_id";
 
                                         $stmt = $con->prepare($query);
                                         $stmt->execute();
                                         $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-                                        $calendarEvents = [];
+                                       $calendarEvents = [];
 
-
-                                     
-                                        foreach ($results as $event) {
-                                            $schedulesArray = json_decode($event['schedules'], true);
-                                            $doctorName = htmlspecialchars($event['doctorsname']);
-                                            $color = $doctorColors[$doctorName] ?? '#0073e6';
-
-                                          
-                                            if ($event['is_available'] == 3 && !empty($event['date_schedule'])) {
-                                                $noDutyDate = new DateTime($event['date_schedule']);
-                                                $calendarEvents[] = [
-                                                    'title' => 'No Duty: ' . $doctorName,
-                                                    'start' => $noDutyDate->format('Y-m-d') . 'T00:00:00',
-                                                    'end'   => $noDutyDate->format('Y-m-d') . 'T23:59:59',
-                                                    'color' => '#FF0000',
-                                                    'status' => 'No Duty',
-                                                ];
-                                            } else {
-                                                $statusText = $event['is_available'] == 1 ? 'Available' : 'Not Available';
-
-                                              
-                                                foreach ($schedulesArray as $day => $slots) {
-                                                    $dayNumber = date('N', strtotime($day));
-
-                                                    foreach ($slots as $slot) {
-                                                        $startTime = htmlspecialchars($slot['fromtime']);
-                                                        $endTime = htmlspecialchars($slot['totime']);
-                                                        $baseDate = new DateTime();
-                                                        $baseDate->setTime(0, 0, 0);
-
-                                                        $eventDate = clone $baseDate;
-                                                        $eventDate->modify("next $day");
-
-                                                        $repeatType = $event['reapet'];
-                                                        if ($repeatType === 'Weekly') {
-                                                            for ($i = 0; $i < 4; $i++) {
-                                                                $weeklyEventDate = clone $eventDate;
-                                                                $weeklyEventDate->modify("+$i week");
-                                                                $calendarEvents[] = [
-                                                                    'title' => 'Dr.: ' . $doctorName,
-                                                                    'start' => $weeklyEventDate->format('Y-m-d') . 'T' . $startTime,
-                                                                    'end'   => $weeklyEventDate->format('Y-m-d') . 'T' . $endTime,
-                                                                    'color' => $color,
-                                                                    'status' => $statusText,
-                                                                ];
-                                                            }
-                                                        } elseif ($repeatType === 'Monthly') {
-                                                            for ($i = 0; $i < 4; $i++) {
-                                                                $eventDate = clone $baseDate;
-                                                                $eventDate->modify("first day of next month");
-                                                                $eventDate->modify("+$i month");
-                                                                $eventDate->modify("next $day");
-                                                                $calendarEvents[] = [
-                                                                    'title' => 'Dr.: ' . $doctorName,
-                                                                    'start' => $eventDate->format('Y-m-d') . 'T' . $startTime,
-                                                                    'end'   => $eventDate->format('Y-m-d') . 'T' . $endTime,
-                                                                    'color' => $color,
-                                                                    'status' => $statusText,
-                                                                ];
-                                                            }
-                                                        } elseif ($repeatType === 'Yearly') {
-                                                            for ($i = 0; $i < 4; $i++) {
-                                                                $eventDate = clone $baseDate;
-                                                                $eventDate->modify("first day of January");
-                                                                $eventDate->modify("+$i year");
-                                                                $eventDate->modify("next $day");
-                                                                $calendarEvents[] = [
-                                                                    'title' => 'Dr.: ' . $doctorName,
-                                                                    'start' => $eventDate->format('Y-m-d') . 'T' . $startTime,
-                                                                    'end'   => $eventDate->format('Y-m-d') . 'T' . $endTime,
-                                                                    'color' => $color,
-                                                                    'status' => $statusText,
-                                                                ];
+                                            foreach ($results as $event) {
+                                                $schedulesArray = json_decode($event['schedules'], true);
+                                                $doctorName = htmlspecialchars($event['doctorsname']);
+                                                $color = $doctorColors[$doctorName] ?? '#0073e6';
+                                            
+                                                // Validate the 'date_schedule' and 'leave_start_date' and 'leave_end_date' for '0000-00-00' and empty dates
+                                                $isValidDateSchedule = $event['date_schedule'] !== '0000-00-00' && !empty($event['date_schedule']);
+                                                $isValidLeaveDates = !empty($event['leave_start_date']) && !empty($event['leave_end_date']) &&
+                                                                     $event['leave_start_date'] !== '0000-00-00' && $event['leave_end_date'] !== '0000-00-00';
+                                            
+                                                // Check for "No Duty" status based on date_schedule
+                                                if ($event['is_available'] == 3 && $isValidDateSchedule) {
+                                                    $noDutyDate = new DateTime($event['date_schedule']);
+                                                    $calendarEvents[] = [
+                                                        'title' => 'On Leave: ' . $doctorName,
+                                                        'start' => $noDutyDate->format('Y-m-d') . 'T00:00:00',
+                                                        'end'   => $noDutyDate->format('Y-m-d') . 'T23:59:59',
+                                                        'color' => '#FF0000',
+                                                        'status' => 'On Leave',
+                                                    ];
+                                                }
+                                                // Check for "On Leave" status
+                                                elseif ($event['is_available'] == 3 && $isValidLeaveDates) {
+                                                    $leaveStartDate = new DateTime($event['leave_start_date']);
+                                                    $leaveEndDate = new DateTime($event['leave_end_date']);
+                                            
+                                                    // Add "On Leave" event to the calendar
+                                                    $calendarEvents[] = [
+                                                        'title' => 'On Leave: ' . $doctorName,
+                                                        'start' => $leaveStartDate->format('Y-m-d') . 'T00:00:00',
+                                                        'end'   => $leaveEndDate->format('Y-m-d') . 'T23:59:59',
+                                                        'color' => '#FF0000',
+                                                        'status' => 'On Leave',
+                                                    ];
+                                                } else {
+                                                    // Handle doctor's available schedule
+                                                    $statusText = $event['is_available'] == 1 ? 'Available' : 'Not Available';
+                                            
+                                                    foreach ($schedulesArray as $day => $slots) {
+                                                        $dayNumber = date('N', strtotime($day));
+                                            
+                                                        foreach ($slots as $slot) {
+                                                            $startTime = htmlspecialchars($slot['fromtime']);
+                                                            $endTime = htmlspecialchars($slot['totime']);
+                                                            $baseDate = new DateTime();
+                                                            $baseDate->setTime(0, 0, 0);
+                                            
+                                                            $eventDate = clone $baseDate;
+                                                            $eventDate->modify("next $day");
+                                            
+                                                            $repeatType = $event['reapet'];  // Typo should be 'repeat'
+                                                            if ($repeatType === 'Weekly') {
+                                                                for ($i = 0; $i < 4; $i++) {
+                                                                    $weeklyEventDate = clone $eventDate;
+                                                                    $weeklyEventDate->modify("+$i week");
+                                            
+                                                                    // Skip events that fall during the leave period or no duty date
+                                                                    if ($isValidLeaveDates && $weeklyEventDate >= $leaveStartDate && $weeklyEventDate <= $leaveEndDate) {
+                                                                        continue;
+                                                                    }
+                                            
+                                                                    // Skip if the event matches a "No Duty" date
+                                                                    if ($isValidDateSchedule && $weeklyEventDate->format('Y-m-d') == $noDutyDate->format('Y-m-d')) {
+                                                                        continue;
+                                                                    }
+                                            
+                                                                    $calendarEvents[] = [
+                                                                        'title' => 'Dr.: ' . $doctorName,
+                                                                        'start' => $weeklyEventDate->format('Y-m-d') . 'T' . $startTime,
+                                                                        'end'   => $weeklyEventDate->format('Y-m-d') . 'T' . $endTime,
+                                                                        'color' => $color,
+                                                                        'status' => $statusText,
+                                                                    ];
+                                                                }
+                                                            } elseif ($repeatType === 'Monthly') {
+                                                                for ($i = 0; $i < 4; $i++) {
+                                                                    $monthlyEventDate = clone $baseDate;
+                                                                    $monthlyEventDate->modify("first day of next month");
+                                                                    $monthlyEventDate->modify("+$i month");
+                                                                    $monthlyEventDate->modify("next $day");
+                                            
+                                                                    // Skip events that fall during the leave period or no duty date
+                                                                    if ($isValidLeaveDates && $monthlyEventDate >= $leaveStartDate && $monthlyEventDate <= $leaveEndDate) {
+                                                                        continue;
+                                                                    }
+                                            
+                                                                    // Skip if the event matches a "No Duty" date
+                                                                    if ($isValidDateSchedule && $monthlyEventDate->format('Y-m-d') == $noDutyDate->format('Y-m-d')) {
+                                                                        continue;
+                                                                    }
+                                            
+                                                                    $calendarEvents[] = [
+                                                                        'title' => 'Dr.: ' . $doctorName,
+                                                                        'start' => $monthlyEventDate->format('Y-m-d') . 'T' . $startTime,
+                                                                        'end'   => $monthlyEventDate->format('Y-m-d') . 'T' . $endTime,
+                                                                        'color' => $color,
+                                                                        'status' => $statusText,
+                                                                    ];
+                                                                }
+                                                            } elseif ($repeatType === 'Yearly') {
+                                                                for ($i = 0; $i < 4; $i++) {
+                                                                    $yearlyEventDate = clone $baseDate;
+                                                                    $yearlyEventDate->modify("first day of January");
+                                                                    $yearlyEventDate->modify("+$i year");
+                                                                    $yearlyEventDate->modify("next $day");
+                                            
+                                                                    // Skip events that fall during the leave period or no duty date
+                                                                    if ($isValidLeaveDates && $yearlyEventDate >= $leaveStartDate && $yearlyEventDate <= $leaveEndDate) {
+                                                                        continue;
+                                                                    }
+                                            
+                                                                    // Skip if the event matches a "No Duty" date
+                                                                    if ($isValidDateSchedule && $yearlyEventDate->format('Y-m-d') == $noDutyDate->format('Y-m-d')) {
+                                                                        continue;
+                                                                    }
+                                            
+                                                                    $calendarEvents[] = [
+                                                                        'title' => 'Dr.: ' . $doctorName,
+                                                                        'start' => $yearlyEventDate->format('Y-m-d') . 'T' . $startTime,
+                                                                        'end'   => $yearlyEventDate->format('Y-m-d') . 'T' . $endTime,
+                                                                        'color' => $color,
+                                                                        'status' => $statusText,
+                                                                    ];
+                                                                }
                                                             }
                                                         }
                                                     }
                                                 }
                                             }
-                                        }
-                                        $calendarEventsJson = json_encode($calendarEvents);
+                                            
+                                            $calendarEventsJson = json_encode($calendarEvents);
+
 
                                         ?>
+
+
 
 
 
@@ -1219,7 +1304,8 @@ $doctors = getDoctorSchedule($con);
                     const docScheduleID = this.getAttribute("data-id");
                     const confirmation = confirm("Are you sure you want to approve this schedule?");
                     if (confirmation) {
-                        updateAvailability(docScheduleID, 3, "approved");
+                        const actionTime = new Date().toISOString(); // Get current time in ISO format
+                        updateAvailability(docScheduleID, 3, "approved", actionTime);
                     }
                 });
             });
@@ -1230,13 +1316,14 @@ $doctors = getDoctorSchedule($con);
                     const docScheduleID = this.getAttribute("data-id");
                     const confirmation = confirm("Are you sure you want to reject this schedule?");
                     if (confirmation) {
-                        updateAvailability(docScheduleID, 4, "rejected");
+                        const actionTime = new Date().toISOString(); // Get current time in ISO format
+                        updateAvailability(docScheduleID, 4, "rejected", actionTime);
                     }
                 });
             });
 
-            // Function to update is_available
-            function updateAvailability(docScheduleID, newStatus, action) {
+            // Function to update is_available and log the action time
+            function updateAvailability(docScheduleID, newStatus, action, actionTime) {
                 fetch("ajax/update_schedule_status.php", {
                         method: "POST",
                         headers: {
@@ -1244,7 +1331,8 @@ $doctors = getDoctorSchedule($con);
                         },
                         body: JSON.stringify({
                             doc_scheduleID: docScheduleID,
-                            is_available: newStatus
+                            is_available: newStatus,
+                            action_time: actionTime // Send the action time
                         })
                     })
                     .then(response => response.json())

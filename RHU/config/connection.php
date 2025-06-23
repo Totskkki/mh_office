@@ -46,20 +46,20 @@ try {
 session_start();
 
 
-// $sessionTimeout = 7200; 
+$sessionTimeout = 7200; 
 
 
-// if (isset($_SESSION['LAST_ACTIVITY']) && (time() - $_SESSION['LAST_ACTIVITY']) > $sessionTimeout) {
+if (isset($_SESSION['LAST_ACTIVITY']) && (time() - $_SESSION['LAST_ACTIVITY']) > $sessionTimeout) {
 
-//     session_unset();    
-//     session_destroy();   
-//     echo "<script>alert('Your session has expired. Please log in again.');</script>";
+    session_unset();    
+    session_destroy();   
+    echo "<script>alert('Your session has expired. Please log in again.');</script>";
 
-//     echo "<script>window.location = '../index.php';</script>";
-//     exit;
-// }
+    echo "<script>window.location = '../index.php';</script>";
+    exit;
+}
 
 
-// $_SESSION['LAST_ACTIVITY'] = time();
+$_SESSION['LAST_ACTIVITY'] = time();
 ?>
 

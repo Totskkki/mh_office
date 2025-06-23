@@ -1,21 +1,20 @@
 <?php
 include '../config/connection.php';
 
-include '../common_service/common_functions.php';
 date_default_timezone_set('Asia/Manila');
 $message = '';
 if (isset($_GET['id'])) {
     $complaintID = $_GET['id'];
 
-    $query = "SELECT pat.*, fam.*,c.*, i.vaccine, COUNT(i.vaccine) AS vaccine_count,
+    $query = "SELECT com.*, pat.*, fam.*, i.vaccine, COUNT(i.vaccine) AS vaccine_count,
               CONCAT(pat.`patient_name`, ' ', pat.`middle_name`, ' ', pat.`last_name`, ' ', pat.`suffix`) AS `name`,
               CONCAT(fam.`brgy`, ' ', fam.`purok`, ' ', fam.`province`) as `address`,
               i.immunization_date, i.remarks
-              FROM tbl_immunization_records AS i 
-              JOIN tbl_patients AS pat ON i.patient_id = pat.patientID
-              JOIN tbl_familyaddress AS fam ON pat.family_address = fam.famID  
-              LEFT JOIN tbl_complaints AS c ON pat.patientID = c.patient_id    AND C.created_at = i.created_at       
-              WHERE i.immunID  = :complaintID
+              FROM tbl_complaints AS com 
+              JOIN tbl_patients AS pat ON com.patient_id = pat.patientID
+              JOIN tbl_familyAddress AS fam ON pat.family_address = fam.famID
+              LEFT JOIN tbl_immunization_records AS i ON pat.patientID = i.patient_id
+              WHERE com.complaintID = :complaintID
               GROUP BY pat.patientID, i.vaccine, i.immunization_date, i.remarks
               ORDER BY i.immunization_date DESC";
 
@@ -26,7 +25,7 @@ if (isset($_GET['id'])) {
     $f = $stmt->fetch(PDO::FETCH_ASSOC);
 
 
-    $immunizationQuery = "SELECT i.*,i.vaccine, COUNT(i.vaccine) AS vaccine_count
+    $immunizationQuery = "SELECT i.*, i.vaccine, COUNT(i.vaccine) AS vaccine_count, i.immunization_date, i.remarks
                           FROM tbl_immunization_records AS i
                           WHERE i.patient_id = :patientID
                           GROUP BY i.vaccine";
@@ -46,6 +45,7 @@ if (isset($_GET['id'])) {
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <!-- Meta -->
+
 
 
 <link rel="shortcut icon" href="../../assets/images/favicon.svg" />
@@ -79,6 +79,8 @@ if (isset($_GET['id'])) {
 
 <link rel="stylesheet" href="../../assets/daterangepicker/daterangepicker.css">
 <link rel="stylesheet" href="../../assets/js/jquery-confirm.min.css">
+
+
 
 
 
@@ -191,15 +193,14 @@ if (isset($_GET['id'])) {
 
         <!-- App body starts -->
         <div class="app-body">
+            
+             <button onclick="printContent('print')" style="float: right;" class="btn btn-secondary">Print Content</button>
 
-           
-        <button onclick="window.history.back()" class="btn btn-primary" class="btn btn-primary "><i class="icon-arrow-left"></i> Back</button>
-            <button onclick="printContent('print')" class="btn btn-secondary float-end">Print Content</button>
-
-
+           <button onclick="window.history.back()" class="btn btn-primary"><i class="icon-chevron-left"></i>Back</button>
 
 
-            <div class="container" id="print">
+
+            <div class="container"  id="print">
                 <h1>Adult Immunization Record</h1>
                 <div class="info">
 
@@ -292,15 +293,61 @@ if (isset($_GET['id'])) {
     <!-- Main container end -->
 
     </div>
-    <script>
-        function printContent(el) {
-            var restorepage = document.body.innerHTML;
-            var printcontent = document.getElementById(el).innerHTML;
-            document.body.innerHTML = printcontent;
-            window.print();
-            document.body.innerHTML = restorepage;
-        }
-    </script>
+    <!-- Page wrapper end -->
+
+    <!-- *************
+			************ JavaScript Files *************
+		************* -->
+    <!-- Required jQuery first, then Bootstrap Bundle JS -->
+
+
+
+
+    <!-- <script src="../assets/js/jquery.min.js"></script> -->
+    <!-- <script src="../assets/js/bootstrap.bundle.min.js"></script> -->
+
+    <!-- 
+<script src="dist/js/jquery_confirm/jquery-confirm.js"></script> -->
+
+    <!-- Custom JS files -->
+    <!-- <script src="../assets/js/custom.js"></script> -->
+
+
+    <!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script> -->
+
+
+    <!-- <script src="../assets/js/jquery-confirm.min.js"></script>
+
+	<script src="../assets/js/common_javascript_functions.js"></script>
+	<script src="../assets/moment/moment.min.js"></script>
+	<script src="../assets/daterangepicker/daterangepicker.js"></script>
+	<script src="../assets/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js"></script> -->
+
+
+  <script>
+                function openPrintDialog() {
+                    alert("Please ensure you disable 'Headers and Footers' in the print settings dialog for best results.");
+                    window.print();
+                }
+
+                function printContent(el) {
+                    var inputElements = document.getElementById(el).querySelectorAll('input');
+                    inputElements.forEach(function(input) {
+                        input.setAttribute('value', input.value);
+                    });
+
+                    var originalContents = document.body.innerHTML;
+                    var printContents = document.getElementById(el).innerHTML;
+
+                    document.body.innerHTML = printContents;
+                    window.print();
+                    document.body.innerHTML = originalContents;
+                }
+            </script>
+
+
+
+
 
 
 

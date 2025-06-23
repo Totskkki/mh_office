@@ -23,7 +23,7 @@ if (isset($_POST['userID'])) {
     if ($row && !empty($row['profile_picture']) && file_exists('../user_images/' . $row['profile_picture'])) {
         $row['profile_picture'] = '../user_images/' . $row['profile_picture'];
     } else {
-        $row['profile_picture'] = '../user_images/default-profile.jpg'; // Default image path
+        $row['profile_picture'] = '../user_images/profile.jpg'; // Default image path
     }
     echo json_encode($row);
     exit;
@@ -165,10 +165,32 @@ if (isset($_POST['update_user'])) {
             $updateUserQuery = "UPDATE tbl_users SET user_name = ?, status = ?, UserType = ?";
             $params = [$uname, $status, $Role];
 
+            // if (!empty($_FILES['Profile']['name'])) {
+            //     $finalimage = $_FILES['Profile']['name'];
+            //     $updateUserQuery .= ", profile_picture = ?";
+            //     $params[] = $finalimage;
+            // }
             if (!empty($_FILES['Profile']['name'])) {
-                $finalimage = $_FILES['Profile']['name'];
-                $updateUserQuery .= ", profile_picture = ?";
-                $params[] = $finalimage;
+                $profilePicture = $_FILES['Profile'];
+                $allowedExtensions = ['jpg', 'jpeg', 'png', 'gif'];
+                $fileExtension = strtolower(pathinfo($profilePicture['name'], PATHINFO_EXTENSION));
+                $uploadDir = '../user_images/';
+                $newFileName = uniqid() . '.' . $fileExtension;
+
+                if (in_array($fileExtension, $allowedExtensions) && $profilePicture['size'] <= 2000000) {
+                    if (!file_exists($uploadDir)) {
+                        mkdir($uploadDir, 0777, true);
+                    }
+                    $uploadPath = $uploadDir . $newFileName;
+                    if (move_uploaded_file($profilePicture['tmp_name'], $uploadPath)) {
+                        $updateUserQuery .= ", profile_picture = ?";
+                        $params[] = $newFileName;
+                    } else {
+                        throw new Exception("Failed to upload profile picture.");
+                    }
+                } else {
+                    throw new Exception("Invalid file type or size for profile picture.");
+                }
             }
 
             if ($passwordChanged) {
@@ -215,6 +237,7 @@ if (isset($_POST['update_user'])) {
         exit();
     }
 }
+
 
 ?>
 
@@ -547,7 +570,7 @@ if (isset($_POST['update_user'])) {
                     }
                 },
                 error: function(xhr, status, error) {
-                    console.error("Error fetching user details:", error);
+                   
                 }
             });
         }
@@ -581,41 +604,6 @@ if (isset($_POST['update_user'])) {
     </script>
 
 
-    <!-- <script>
-        function toggleUserStatus(checkbox) {
-            const userId = checkbox.getAttribute('data-user-id');
-            const newStatus = checkbox.checked ? 'active' : 'inactive';
-
-            // Send AJAX request to update user status
-            fetch('ajax/update_user.php', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        userID: userId,
-                        status: newStatus
-                    })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        console.log('User status updated successfully:', data);
-                        // Optionally update the label text
-                        checkbox.nextElementSibling.textContent = newStatus.charAt(0).toUpperCase() + newStatus.slice(1);
-                    } else {
-                        console.error('Error updating user status:', data.message);
-                        // If there's an error, revert the checkbox to its previous state
-                        checkbox.checked = !checkbox.checked;
-                    }
-                })
-                .catch((error) => {
-                    console.error('Error:', error);
-                    // If there's a network error, revert the checkbox to its previous state
-                    checkbox.checked = !checkbox.checked;
-                });
-        }
-    </script> -->
 
 
 </body>

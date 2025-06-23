@@ -195,7 +195,16 @@ include './common_service/common_functions.php';
                                                             <td><?php echo ucwords($row['patient_name'] . ' ' . $row['middle_name'] . '. ' . $row['last_name'] . ' ' . $row['suffix']); ?></td>
                                                             <td><?php echo $row['personnel_name']; ?></td>
                                                             <td><?php echo $row['radiologist']; ?></td>
-                                                            <td><?php echo date('F j, Y', strtotime($row['date'])); ?></td>
+                                                           <td>
+                                                            <?php 
+                                                            // Check if the 'date' field is empty or not a valid date
+                                                            if (empty($row['date']) || !strtotime($row['date'])) {
+                                                                echo ""; 
+                                                            } else {
+                                                                echo date('F j, Y', strtotime($row['date'])); 
+                                                            }
+                                                            ?>
+                                                        </td>
                                                             <td>
                                                                 <?php
                                                                 if ($row['status'] == 'Done') {
@@ -225,7 +234,14 @@ include './common_service/common_functions.php';
                                                             <td><?php echo ucwords($row['patient_name'] . ' ' . $row['middle_name'] . '. ' . $row['last_name'] . ' ' . $row['suffix']); ?></td>
                                                             <td></td>
                                                             <td></td>
-                                                            <td><?php echo date('F j, Y', strtotime($row['date'])); ?></td>
+                                                            <td><?php 
+                                                            // Check if the 'date' field is empty or not a valid date
+                                                            if (empty($row['date']) || !strtotime($row['date'])) {
+                                                                echo ""; 
+                                                            } else {
+                                                                echo date('F j, Y', strtotime($row['date'])); 
+                                                            }
+                                                            ?></td>
                                                             <td>
                                                                 <span class="badge bg-warning">Referred</span>
                                                             </td>

@@ -5,13 +5,13 @@ include './common_service/common_functions.php';
 
 if (isset($_GET['id'])) {
     $patientID = $_GET['id'];
-    $query = "SELECT pat.*, fam.*, c.*, r.referral_date,p.*,b.*,mem.*,page.*,page.sidebar,
+    $query = "SELECT pat.*, fam.*, c.*, r.referral_date,p.*,b.*,mem.*,page.*,page.sidebar,c.created_at,
           
           CONCAT(pat.`patient_name`, ' ', pat.`middle_name`, ' ', pat.`last_name`, ' ', pat.`suffix`) AS `name`
           FROM tbl_patients AS pat
           LEFT JOIN tbl_familyAddress AS fam ON pat.family_address = fam.famID
            LEFT JOIN tbl_membership_info AS mem ON mem.membershipID  = pat.Membership_Info 
-          LEFT JOIN tbl_complaints AS c ON pat.patientID = c.patient_id
+          LEFT JOIN tbl_complaints AS c ON pat.patientID = c.patient_id AND c.created_at 
           LEFT JOIN tbl_prenatal AS p ON pat.patientID = p.patient_id
           LEFT JOIN tbl_birth_info AS b ON pat.patientID = b.patient_id
          
@@ -135,18 +135,19 @@ if (isset($_GET['id'])) {
     <div id="print" style="max-width:850px;">
         <div style="display: flex; justify-content: space-between; margin: 10px;">
         <div class="logo left">
-                <img src=""  style="width: 200px;height:60px"alt="Left Logo">
+                <img src="<?php echo (!empty($patientData['home_img'])) ? './logo/' . $patientData['home_img'] : './logo/2.png'; ?>"  style="width: 140px;height:60px"alt="Left Logo">
             </div>
             <div style="text-align: center; flex: 1;">
                 <h3>CLINICAL REFERRAL SLIP</h3>      
                 <h3><?php echo htmlspecialchars($patientData['sidebar']); ?></h3><br>
             </div>
             <div class="logo right">
-                <img src=""  style="width: 200px;height:60px" alt="Right Logo">
+               
+                <img src=" <?php echo (!empty($patientData['home_img'])) ? './logo/' . $patientData['home_img'] : './logo/2.png'; ?>"  style="width: 140px;height:60px" alt="Right Logo">
             </div>
         </div>
        
-
+<br>
 
        
 
@@ -175,7 +176,7 @@ if (isset($_GET['id'])) {
         <div style="display: flex; justify-content: space-between; margin: 10px;">
             
             <h5 class="form-label" for="text">REFERRED FROM: <u><?php echo htmlspecialchars('BHS ' .$patientData['sidebar']); ?></u></h5>
-            <h5 class="form-label" for="text">REFERRED TO: <u>_________________________</u></h5>
+            <h5 class="form-label" for="text">REFERRED TO: <u>RHU Health Center</u></h5>
 
         </div>
         
@@ -202,22 +203,22 @@ if (isset($_GET['id'])) {
 
         </div>
         <div style="  margin: 10px;">
-            <p>_________________________________________________________________________________________________________________________________________</p>
+            <p><input style="width:90%" type="text" class="form-check-label input-bottom-border-only"></p>
         </div>
         <div style="  margin: 10px;">
-            <p>_________________________________________________________________________________________________________________________________________</p>
+            <p><input style="width:90%" type="text" class="form-check-label input-bottom-border-only"></p>
         </div>
         <div style="  margin: 10px;">
-            <p>_________________________________________________________________________________________________________________________________________</p>
+            <p><input style="width:90%" type="text" class="form-check-label input-bottom-border-only"></p>
         </div>
         
         <div style="  margin: 10px;">
-            <p>_________________________________________________________________________________________________________________________________________</p>
+            <p><input style="width:90%" type="text" class="form-check-label input-bottom-border-only"></p>
         </div>
         
         <div style="display: flex;  margin: 10px;">
             
-            <h5 class="form-label" for="text">NOI:__________________<span>POI:_________________________</span><span>TOI:___________________</span><span>DOI:_________________________</span></h5>
+            <h5 class="form-label" for="text">NOI: <input type="text" style="width:15%"class="form-check-label input-bottom-border-only"><span>POI:<input type="text" style="width:15%"class="form-check-label input-bottom-border-only"></span><span>TOI:<input type="text" style="width:15%"class="form-check-label input-bottom-border-only"></span><span>DOI:<input type="text" style="width:15%"class="form-check-label input-bottom-border-only"></span></h5>
            
 
         </div>
@@ -227,23 +228,23 @@ if (isset($_GET['id'])) {
 
         </div>
         <div style="display: flex; justify-content: space-between; margin: 10px;">
-            <h5 class="form-label">ACTION TAKEN BY REFERRED LEVEL: <u><?php echo htmlspecialchars(ucwords($patientData['reason_ref'])); ?></u></h5>
+            <h5 class="form-label">ACTION TAKEN BY REFERRED LEVEL: <u><?php echo htmlspecialchars(ucwords($patientData['action_taken'])); ?></u></h5>
           
             
 
         </div>
         <div style="display: flex; justify-content: space-between; margin: 10px;">
-            <u><h5 class="form-label">V/S taken and Recorded: <span>________________________________________________________________________________ </span></h5></u>
+            <u><h5 class="form-label">V/S taken and Recorded: <span><?php echo htmlspecialchars(ucwords($patientData['sidebar'])); ?> - <?php echo htmlspecialchars(ucwords($patientData['created_at'])); ?> </span></h5></u>
           
         </div>
         <div style="display: flex; justify-content: space-between; margin: 10px;">
-            <h5 class="form-label">INSTRUCTION TO REFERRAL LEVEL: <u><?php echo htmlspecialchars(ucwords($patientData['reason_ref'])); ?></u></h5>
+            <h5 class="form-label">INSTRUCTION TO REFERRAL LEVEL: <u><?php echo htmlspecialchars(ucwords($patientData['instruction_to'])); ?></u></h5>
           
             
 
         </div>
         <div style="display: flex; justify-content: space-between; margin: 10px;">
-            <u><h5 class="form-label">Not included in close contact list: <span>_______________________________________________________________________ </span></h5></u>
+            <u><h5 class="form-label">Not included in close contact list: <span> <input style="width:100%" type="text" class="form-check-label input-bottom-border-only"></span></h5></u>
           
         </div>
         <div style="display: flex; justify-content: space-between; margin: 10px;">
@@ -254,7 +255,7 @@ if (isset($_GET['id'])) {
           
         </div>
         <div style="display: flex; justify-content: space-between; margin: 10px;">
-            <u><h5 class="form-label">Not listed as suspect/probable/confirmed COVID-19 patient <span>__________________________________________</span></h5></u>
+            <u><h5 class="form-label">Not listed as suspect/probable/confirmed COVID-19 patient <span> <input type="text"style="width:100%" class="form-check-label input-bottom-border-only"></span></h5></u>
           
         </div>
         <br>

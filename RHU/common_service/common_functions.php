@@ -1,63 +1,6 @@
 <?php
 
 
-
-
-
-// function getGender222()
-// {
-// 	//do not use this function
-// 	exit;
-// 	$data = '<option value="">Select Gender</option>';
-
-// 	$data = $data . '<option value="Male">Male</option>';
-// 	$data = $data . '<option value="Female">Female</option>';
-// 	$data = $data . '<option value="Other">Other</option>';
-
-// 	return $data;
-// }
-
-// function getGenderFromDatabase($patientId) {
-//     // Include your database connection code here
-
-// 	global $con;
-
-//         $query = "SELECT gender FROM patients WHERE id = :patientId";
-//         $stmt = $con->prepare($query);
-//         $stmt->bindParam(':patientId', $patientId, PDO::PARAM_INT);
-//         $stmt->execute();
-
-//         $result = $stmt->fetch(PDO::FETCH_ASSOC);
-
-//         if ($result) {
-//             return $result['gender'];
-//         } else {
-//             return '';  // Return empty string if no gender is found
-//         }
-
-// }
-
-// function redirect($page, $message = '') {
-//     header("Location: $page?message=$message");
-//     exit;
-// }
-
-// function getMemCat($MemCat = '')
-// {
-//     $data = '';
-
-//     $arr = array("NHTS", "4PS", "LGU","Private");
-
-//     $size = sizeof($arr);
-
-//     for ($i = 0; $i < $size; $i++) {
-//         $checked = ($MemCat == $arr[$i]) ? 'checked="checked"' : '';
-// 		$id = strtolower($arr[$i]); 
-//         $data .= '<input type="checkbox" id="MemCat'  . $id .'" name="MemCat" value="' . $arr[$i] . '" ' . $checked . '>' . $arr[$i] . '&nbsp;&nbsp;&nbsp;';
-//     }
-
-//     return $data;
-// }
 function redirect($url, $status)
 {
 	$_SESSION['status'] = $status;
@@ -189,22 +132,39 @@ function getnationality($stat = '')
 }
 function geteducation($stat = '')
 {
-	$data = '<option value="">Select Educational Attainment</option>';
+    $data = '<option value="">Select Educational Attainment</option>';
 
-	$arr = array("No Formal Education", "Elementary", "High School", "Undergrad", "College Graduate");
+    // Updated array with detailed educational attainments
+    $arr = array(
+        "No Formal Education",
+        "Elementary",
+        "High School",
+        "Undergrad",
+        "College Graduate",
+        "Master's Degree",
+        "Doctoral Degree",
+        "Postdoctoral Fellow",
+        "Ph.D.",
+        "MBA",
+        "MFA",
+        "MSc",
+        "MA",
+        "JD",
+        "MD",
+        "DVM"
+    );
 
-	$i = 0;
-	$size = sizeof($arr);
+    $size = sizeof($arr);
 
-	for ($i = 0; $i < $size; $i++) {
-		if ($stat == $arr[$i]) {
-			$data = $data . '<option selected="selected" value="' . $arr[$i] . '">' . $arr[$i] . '</option>';
-		} else {
-			$data = $data . '<option value="' . $arr[$i] . '">' . $arr[$i] . '</option>';
-		}
-	}
+    for ($i = 0; $i < $size; $i++) {
+        if ($stat == $arr[$i]) {
+            $data = $data . '<option selected="selected" value="' . $arr[$i] . '">' . $arr[$i] . '</option>';
+        } else {
+            $data = $data . '<option value="' . $arr[$i] . '">' . $arr[$i] . '</option>';
+        }
+    }
 
-	return $data;
+    return $data;
 }
 function getblood($blood = '')
 {
@@ -327,6 +287,7 @@ function getbrgy($brgy = '')
 	$data = '<option value="">Select Barangay</option>';
 
 	$arr = array(
+		"Antong",
 		"Bayasong",
 		"Blingkong",
 		"lut Proper",
@@ -338,7 +299,7 @@ function getbrgy($brgy = '')
 		"Palavilla",
 		"Sampao",
 		"Sisiman",
-		"Tamnag",
+		"Tamnag (Pob.)",
 		"Tananzang",
 	);
 
@@ -495,42 +456,94 @@ function getMedication($con, $medicineId = 0)
 
 	return $data;
 }
+// function getpresMedicines($con, $medicineId = 0)
+// {
+
+// 	$query = "SELECT m.*, d.*,
+//               (d.qt - COALESCE((
+//                   SELECT SUM(quantity)
+//                   FROM tbl_patient_medication_history
+//                   WHERE medicine_details_id = m.medicineID
+//               ), 0)) AS available_qty
+//               FROM `tbl_medicines` AS m
+//               LEFT JOIN `tbl_medicine_details` AS d ON m.`medicineID` = d.`medicine_id`
+// 			  WHERE m.category not in ('Vaccines') and m.status= 1
+// 			  GROUP BY m.`medicine_name`
+//               ORDER BY m.`medicine_name` ASC
+// 			  ";
+
+// 	$stmt = $con->prepare($query);
+// 	try {
+// 		$stmt->execute();
+// 	} catch (PDOException $ex) {
+// 		echo $ex->getTraceAsString();
+// 		echo $ex->getMessage();
+// 		exit;
+// 	}
+
+// 	$data = '<option value="" >Select Medicine</option>';
+
+// 	while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+// 		if ($medicineId == $row['medicineID']) {
+// 			$data = $data . '<option selected="selected" value="' . $row['medicineID'] . '">' . $row['medicine_name'] . '</option>';
+// 		} else {
+// 			$data = $data . '<option value="' . $row['medicineID'] . '">' . $row['medicine_name'] . '</option>';
+// 		}
+// 	}
+
+// 	return $data;
+// }
+
+
 function getpresMedicines($con, $medicineId = 0)
 {
+    // Define the low stock threshold
+    $lowStockThreshold =20; // Adjust this value as needed
 
-	$query = "SELECT m.*, d.*,
-              (d.qt - COALESCE((
-                  SELECT SUM(quantity)
-                  FROM tbl_patient_medication_history
-                  WHERE medicine_details_id = m.medicineID
-              ), 0)) AS available_qty
+    $query = "SELECT m.medicineID, m.medicine_name, m.category, m.status, 
+                     d.qt AS total_stock, 
+                     (d.qt - COALESCE((
+                         SELECT SUM(quantity)
+                         FROM tbl_patient_medication_history
+                         WHERE medicine_details_id = m.medicineID
+                     ), 0)) AS available_qty
               FROM `tbl_medicines` AS m
               LEFT JOIN `tbl_medicine_details` AS d ON m.`medicineID` = d.`medicine_id`
-			  WHERE m.category not in ('Vaccines')
-			  GROUP BY m.`medicine_name`
-              ORDER BY m.`medicine_name` ASC
-			  ";
+              WHERE m.category NOT IN ('Vaccines') AND m.status = 1
+              GROUP BY m.`medicineID`
+              ORDER BY m.`medicine_name` ASC";
 
-	$stmt = $con->prepare($query);
-	try {
-		$stmt->execute();
-	} catch (PDOException $ex) {
-		echo $ex->getTraceAsString();
-		echo $ex->getMessage();
-		exit;
-	}
+    $stmt = $con->prepare($query);
 
-	$data = '<option value="" >Select Medicine</option>';
+    try {
+        $stmt->execute();
+    } catch (PDOException $ex) {
+        echo $ex->getTraceAsString();
+        echo $ex->getMessage();
+        exit;
+    }
 
-	while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-		if ($medicineId == $row['medicineID']) {
-			$data = $data . '<option selected="selected" value="' . $row['medicineID'] . '">' . $row['medicine_name'] . '</option>';
-		} else {
-			$data = $data . '<option value="' . $row['medicineID'] . '">' . $row['medicine_name'] . '</option>';
-		}
-	}
+    $data = '<option value="">Select Medicine</option>';
 
-	return $data;
+    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+        $availableQty = (int) $row['available_qty'];
+        $stockStatus = '';
+
+        // Determine stock status
+        if ($availableQty <= 0) {
+            $stockStatus = ' (Out of Stock)';
+        } elseif ($availableQty <= $lowStockThreshold) {
+            $stockStatus = ' (Low Stock)';
+        }
+
+        // Mark the selected option if the medicine ID matches
+        $selected = $medicineId == $row['medicineID'] ? 'selected="selected"' : '';
+
+        // Append the option with stock status
+        $data .= '<option ' . $selected . ' value="' . $row['medicineID'] . '">' . $row['medicine_name'] . $stockStatus . '</option>';
+    }
+
+    return $data;
 }
 
 
@@ -638,7 +651,36 @@ function getDoctor($con)
               FROM `tbl_users` AS user
               INNER JOIN `tbl_personnel` AS personnel ON user.personnel_id = personnel.personnel_id
               INNER JOIN `tbl_position` AS position ON personnel.personnel_id = position.personnel_id
-              WHERE user.UserType = 'Doctor' or user.UserType ='Midwife'";
+              WHERE user.UserType = 'Doctor' or user.UserType ='Midwife' and user.status !='inactive'";
+
+	$stmt = $con->prepare($query);
+	try {
+		$stmt->execute();
+	} catch (PDOException $ex) {
+		echo $ex->getTraceAsString();
+		echo $ex->getMessage();
+		exit;
+	}
+
+	$data = '<option value="">Select Doctor/MidWife</option>';
+
+	while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+		$data = $data . '<option value="' . $row['userID'] . '">' . $row['first_name'] . ' ' . $row['middlename'] . ' ' . $row['lastname'] . '</option>';
+	}
+
+	return $data;
+}
+
+function getDoctorpres($con)
+{
+
+
+	$query = "SELECT user.*, personnel.*, position.*, user.UserType
+              FROM `tbl_users` AS user
+              INNER JOIN `tbl_personnel` AS personnel ON user.personnel_id = personnel.personnel_id
+              INNER JOIN `tbl_position` AS position ON personnel.personnel_id = position.personnel_id
+              WHERE (user.UserType = 'Doctor' OR user.UserType = 'Midwife') 
+              and user.status !='inactive'";
 
 	$stmt = $con->prepare($query);
 	try {

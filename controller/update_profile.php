@@ -55,7 +55,7 @@ if (isset($_POST['update_profile'])) {
                             personnel.contact = '$contact',			
                             personnel.email = '$email',
                             personnel.address = '$address',
-                            user.status = 'active'
+                            user.status = 'Active'
                         WHERE user.userID = $hiddenId";
 
 	try {

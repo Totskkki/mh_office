@@ -50,7 +50,7 @@ WHERE     pat.`patientID` = :id";
 
     // Fetch vital signs data
     $vitalSignsQuery = "SELECT vitals.*,u.*,p.*,b.* 
-    FROM tbl_vitalSigns_Monitoring vitals
+    FROM tbl_vitalsigns_monitoring vitals
     LEFT JOIN tbl_users u on u.userID = vitals.nurse_midwife
     LEFT JOIN tbl_personnel p on p.personnel_id = u.personnel_id 
      LEFT JOIN tbl_birth_info b ON b.birth_info_id = vitals.birth_info_id
@@ -323,7 +323,7 @@ if (isset($_POST['saveVitals'])) {
         }
 
 
-        $stmt = $con->prepare("INSERT INTO tbl_vitalSigns_Monitoring (`room`, `date_shift`, `time`, `bp`, `cr`, `rr`, `temp`, `fht`, `duration`, `frequency`, `intensity`, `nurse_midwife`, `patient_id`,`birth_info_id`)
+        $stmt = $con->prepare("INSERT INTO tbl_vitalsigns_monitoring (`room`, `date_shift`, `time`, `bp`, `cr`, `rr`, `temp`, `fht`, `duration`, `frequency`, `intensity`, `nurse_midwife`, `patient_id`,`birth_info_id`)
         VALUES (:room, :date_shift, :time, :bp, :cr, :rr, :temp, :fht, :duration,:frequency, :intensity,:nurse_midwife_signature,:patient_id,:birth_info_id)");
 
         // Loop through each row and insert into the database
@@ -566,7 +566,7 @@ if (isset($_POST['savedeliveryRecord'])) {
         ]);
 
         $con->commit();
-        $_SESSION['status'] = "Vital Signs added successfully.";
+        $_SESSION['status'] = "Delivery Room Record added successfully.";
         $_SESSION['status_code'] = "success";
         header('Location: birthing_patients.php?id=' . urlencode($patientID));
         exit();
@@ -1485,7 +1485,7 @@ if (isset($_POST['submitnursenotes'])) {
                                               Notes</a> -->
                                                     <select id="HealthNotes" class="form-select text-center" style="color: #ffffff; background-color: #009879; font-size: 15px; padding: 0.5rem; border-radius: 4px;width: 15%;">
                                                         <option value="">-Select Notes-</option>
-                                                        <option value="docnotes" data-healthnotes-id="<?php echo htmlspecialchars($patientData['patientID']); ?>">Doctor's Notes</option>
+                                                        <option value="docnotes" data-healthnotes-id="<?php echo htmlspecialchars($patientData['patientID']); ?>">Doctor's Order</option>
                                                         <option value="nursenote" data-healthnotes-id="<?php echo htmlspecialchars($patientData['patientID']); ?>">Nurses Notes</option>
                                                     </select>
                                                     <select id="ActionSelect" class="form-select text-center" style="color: #ffffff; background-color: #009879; font-size: 15px; padding: 0.5rem; border-radius: 4px;width: 15%;">
@@ -2331,7 +2331,7 @@ if (isset($_POST['submitnursenotes'])) {
     ?>
 
     <script src="../assets/vendor/apex/apexcharts.min.js"></script>
-    <script src="../assets/chart.js/Chart.min.js"></script>
+    <script src="./chart.js/Chart.min.js"></script>
     <!-- <script src="assets/vendor/apex/custom/graphs/line.js"></script> -->
 
     <script src="../assets/script.js"></script>
@@ -2797,7 +2797,7 @@ if (isset($_POST['submitnursenotes'])) {
                     },
                     dataType: 'json',
                     success: function(response) {
-                        console.log('AJAX response:', response); // Debugging: Log the response
+                      
 
                         if (response) {
 
@@ -2871,7 +2871,7 @@ if (isset($_POST['submitnursenotes'])) {
                     },
                     dataType: 'json',
                     success: function(response) {
-                        console.log(response);
+                     
                         if (response) {
                             // Populate modal fields for viewing a record
 
@@ -3094,9 +3094,8 @@ if (isset($_POST['submitnursenotes'])) {
                         if (response) {
 
 
-                            // Populate modal fields for viewing a record
-                            // // Example:
-                            // $('#patientName').val(response.name);
+                             $('#deliveryid').val(response.roomID);
+                            $('#patients').val(response.patient_id);
                             $('#patientName').val(response.name);
                             $('#Admitted').val(response.dateAdmitted);
 
@@ -3182,22 +3181,25 @@ if (isset($_POST['submitnursenotes'])) {
 
 
 
-
-                            // Populate umbilical cord data
                             $('input[name="cm"]').val(placentaData.umbilicalCord.cm || '');
 
-                            $('input[name="umbilicalCordLoops"]').val(placentaData.umbilicalCord.loops || '');
-
-                            if (placentaData.umbilicalCord.none) {
-                                $('input[name="umbilicalCordLoops"][value="None"]').prop('checked', true);
+                            // Handle 'None' checkbox for umbilicalCordNone
+                            if (placentaData.umbilicalCord.none === 'None') {
+                                $('input[name="umbilicalCordNone"]').prop('checked', true);
+                                $('input[name="no_nexk"]').val(''); // Clear No. of Loops field
+                            } else {
+                                $('input[name="umbilicalCordNone"]').prop('checked', false);
+                                $('input[name="no_nexk"]').val(placentaData.umbilicalCord.loops_at_neck || '');
                             }
 
-                            $('input[name="no_nexk"]').val(placentaData.umbilicalCord.loops || '');
-
-                            if (placentaData.umbilicalCord.none) {
-                                $('input[name="no_nexk"][value="None"]').prop('checked', true);
+                            // Handle 'None' checkbox for umbilicalCordLoopsNone
+                            if (placentaData.umbilicalCord.loopsNone === 'None') {
+                                $('input[name="umbilicalCordLoopsNone"]').prop('checked', true);
+                                $('input[name="umbilicalCordLoops"]').val(''); // Clear Other Abnormalities field
+                            } else {
+                                $('input[name="umbilicalCordLoopsNone"]').prop('checked', false);
+                                $('input[name="umbilicalCordLoops"]').val(placentaData.umbilicalCord.loops || '');
                             }
-
 
                             // Populate other placenta info
                             $('input[name="placentaOther"]').val(placentaData.other || '');
@@ -3207,6 +3209,7 @@ if (isset($_POST['submitnursenotes'])) {
                             $('input[name="bloodLossIntrapartum"]').val(placentaData.bloodLoss.intrapartum || '');
                             $('input[name="bloodLossPostpartum"]').val(placentaData.bloodLoss.postpartum || '');
                             $('input[name="totalBloodLoss"]').val(placentaData.bloodLoss.total || '');
+
 
 
                             if (response.method_delivery) {

@@ -14,7 +14,7 @@ if (isset($_POST['RoomID'])) {
                    CONCAT(a.brgy, ' ', a.purok, ' ', a.province) AS address
                   FROM tbl_birthroom b
                   LEFT JOIN tbl_patients p ON p.patientID = b.patient_id
-                  LEFT JOIN tbl_familyaddress a ON a.famID = p.family_address
+                  LEFT JOIN tbl_familyAddress a ON a.famID = p.family_address
                   LEFT JOIN tbl_birth_info bm on bm.patient_id = b.patient_id
                     left  JOIN tbl_complaints com ON b.patient_id = com.patient_id
                   WHERE b.roomID  = :recordId";

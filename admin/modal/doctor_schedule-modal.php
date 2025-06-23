@@ -45,10 +45,16 @@
                         </ul>
 
                     </div>
+                      <div class="mb-3">
+                        
+                        <small for="text" class="form-label me-5"> <span class="text-danger">* Ensure to have Repeat Schedule for Doctors.</span></small>
+                      
+                    </div>
 
 
                     <div class="mb-3">
-                        <label for="text" class="form-label me-5">Repeat</label>
+                        
+                        <label for="text" class="form-label me-5">Repeat <span class="text-danger">*</span></label>
                         <input class="form-check-input me-2 day-radio" type="radio" name="repeat" value="Weekly">
                         <label class="form-check-label me-3" for="Weekly">Weekly</label>
 
@@ -404,7 +410,7 @@
 
 
                     <div class="mb-3">
-                        <label for="text" class="form-label me-5">Repeat</label>
+                        <label for="text" class="form-label me-5">Repeat <span class="text-danger">*</span></label>
                         <input class="form-check-input me-2 day-radio" type="radio" id="Weekly" name="repeat" value="Weekly">
                         <label class="form-check-label me-3" for="Weekly">Weekly</label>
 

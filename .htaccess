@@ -1,0 +1,75 @@
+# <IfModule mod_rewrite.c>
+# RewriteEngine On
+
+# # 1. Exclude AJAX requests within the admin directory and RHU directory (do not rewrite)
+# RewriteCond %{REQUEST_URI} ^/(admin|RHU)/.*\.php$ [NC]
+# RewriteRule .* - [L]
+
+# # 2. Allow direct access to AJAX requests within the admin and RHU directories
+# RewriteCond %{REQUEST_URI} ^/(admin|RHU)/ajax/ [NC]
+# RewriteRule .* - [L]
+# RewriteCond %{REQUEST_URI} ^/api/ [NC]
+# RewriteRule .* - [L]
+
+# # 3. Rewrite URLs to remove .php extension if they exist (except for AJAX paths)
+# RewriteCond %{REQUEST_FILENAME}\.php -f
+# RewriteCond %{REQUEST_URI} !^/(admin|RHU)/.*\.php$ [NC]  # Ensure AJAX and PHP files within admin/RHU aren't rewritten
+# RewriteRule ^(.+)$ $1.php [L,QSA]
+
+# # 4. Redirect .php URLs to clean URLs (strip .php in the browser)
+# RewriteCond %{THE_REQUEST} "^[A-Z]{3,9}\ /.*\.php\ HTTP/"
+# RewriteRule ^(.*)\.php$ /$1 [R=301,L]
+
+# # 5. Fallback for non-existing files or directories to index.php
+# RewriteCond %{REQUEST_FILENAME} !-f
+# RewriteCond %{REQUEST_FILENAME} !-d
+# RewriteRule ^ index.php [L]
+# </IfModule>
+
+# RewriteEngine On
+
+# # Exclude AJAX requests in all directories (e.g., admin/ajax, RHU/ajax)
+# RewriteCond %{REQUEST_URI} ^/(admin|RHU)/ajax/ [NC]
+# RewriteRule .* - [L]
+
+# # Exclude "config" directory (prevent direct access)
+# RewriteCond %{REQUEST_URI} ^/(admin|RHU)/config/ [NC]
+# RewriteRule .* - [F]
+
+# # Allow direct access to files in the root-level "ajax" directory
+# RewriteCond %{REQUEST_URI} ^/ajax/ [NC]
+# RewriteRule .* - [L]
+
+# # Rewrite URLs to serve .php files without .php extension
+# RewriteCond %{REQUEST_FILENAME}\.php -f
+# RewriteCond %{REQUEST_URI} !^/ajax/ [NC]
+# RewriteRule ^(.+)$ $1.php [L,QSA]
+
+# # Rewrite URLs to serve .html files without .html extension
+# RewriteCond %{REQUEST_FILENAME}\.html -f
+# RewriteCond %{REQUEST_URI} !^/ajax/ [NC]
+# RewriteRule ^(.+)$ $1.html [L,QSA]
+
+# # Redirect .php URLs to clean URLs (strip .php in the browser)
+# RewriteCond %{THE_REQUEST} "^[A-Z]{3,9}\ /.*\.php\ HTTP/"
+# RewriteRule ^(.*)\.php$ /$1 [R=301,L]
+
+# # Fallback for non-existing files or directories to index.php
+# RewriteCond %{REQUEST_FILENAME} !-f
+# RewriteCond %{REQUEST_FILENAME} !-d
+# RewriteRule ^ index.php [L]
+
+
+# php_value date.timezone "Asia/Manila"
+
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_FILENAME}\.php -f
+    RewriteRule ^(.*)$ $1.php [NC,L]
+</IfModule>
+
+
+

@@ -301,8 +301,8 @@ if (isset($_POST['update_rhu'])) {
 				<button type="button" class="btn " data-bs-dismiss="modal">
 					Close
 				</button>
-				<button type="submit" id="update_rhu" name="update_rhu" class="btn btn-primary">
-					Save
+				<button type="submit" id="update_rhu" name="update_rhu" class="btn btn-info">
+					Update
 				</button>
 
 			</div>

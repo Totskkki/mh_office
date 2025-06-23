@@ -289,7 +289,7 @@ if (isset($_POST['editevent'])) {
                                                         </div>
                                                         <div class="modal-footer">
                                                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                                            <button type="submit" id="add_Event" name="add_Event" class="btn btn-primary">Save</button>
+                                                            <button type="submit" id="add_Event" name="add_Event" class="btn btn-info">Save</button>
                                                         </div>
                                                     </form>
                                                 </div>
@@ -344,7 +344,7 @@ if (isset($_POST['editevent'])) {
                                                         </div>
                                                         <div class="modal-footer">
                                                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                                            <button type="submit" id="editevent" name="editevent" class="btn btn-primary">Save</button>
+                                                            <button type="submit" id="editevent" name="editevent" class="btn btn-info">Update</button>
                                                         </div>
                                                         <input type="hidden" id="announID" name="announID">
                                                     </form>
@@ -550,7 +550,7 @@ if (isset($_POST['editevent'])) {
                     },
                     dataType: 'json',
                     success: function(response) {
-                        console.log(response);
+                        
                         $('#announID').val(response.announceID);
 
 

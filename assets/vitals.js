@@ -1,15 +1,15 @@
 document.addEventListener('DOMContentLoaded', () => {
     $.ajax({
-        url: 'ajax/vitalsigns.php', // URL of your PHP script
+        url: 'ajax/vitalsigns.php', 
         method: 'GET',
         dataType: 'json',
         success: function(data) {
-            // Initialize arrays for chart data
+          
             let labels = [];
             let pulseData = [];
             let tempData = [];
 
-            // Process the data and extract necessary values
+         
             data.forEach(item => {
                 const formattedDateTime = formatDate(item.date_shift) + ' ' + convertTo12HourFormat(item.time);
                 labels.push(formattedDateTime); // Use formatted date and time as labels

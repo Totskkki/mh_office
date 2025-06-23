@@ -8,16 +8,14 @@ $message = '';
 if (isset($_GET['id'])) {
     $complaintID = $_GET['id'];
 
-    // Prepare a statement to select the patient, complaint, family, and checkup data
-    $query = "SELECT a.*, com.*, pat.*, fam.*,mem.*,
-            CONCAT(pat.`patient_name`, ' ', pat.`middle_name`, ' ', pat.`last_name`, ' ', pat.`suffix`) AS `name`,
-            CONCAT(fam.`brgy`, ' ', fam.`purok`, ' ', fam.`province`) as` address`
-            FROM tbl_checkup AS a 
-            JOIN tbl_patients AS pat ON a.patient_id = pat.patientID
-            JOIN tbl_familyaddress AS fam ON pat.family_address = fam.famID
-            JOIN tbl_membership_info AS mem ON pat.Membership_Info = mem.membershipID    
-            JOIN tbl_complaints as com on com.complaintID
-            WHERE a.checkupID  = :complaintID";
+ $query = "SELECT checkup.*, pat.*, fam.*, com.*,
+              CONCAT(pat.`patient_name`, ' ', pat.`middle_name`, ' ', pat.`last_name`, ' ', pat.`suffix`) AS `name`,
+              CONCAT(fam.`brgy`, ' ', fam.`purok`, ' ', fam.`province`) as` address`
+              FROM tbl_checkup AS checkup 
+              JOIN tbl_patients AS pat ON checkup.patient_id = pat.patientID
+              JOIN tbl_familyAddress AS fam ON pat.family_address = fam.famID
+              LEFT JOIN tbl_complaints as com on com.patient_id = pat.patientID  AND com.created_at = checkup.created_at
+              WHERE checkup.checkupID = :complaintID";
 
 
 

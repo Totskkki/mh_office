@@ -111,9 +111,7 @@ $message = '';
 
         <!-- App brand starts -->
         <div class="app-brand px-3 py-2 d-flex align-items-center">
-          <a href="index.html">
-            <img src="assets/images/logo.svg" class="logo" alt="Bootstrap Gallery" />
-          </a>
+         
         </div>
         <!-- App brand ends -->
 
@@ -156,7 +154,7 @@ $message = '';
                 <!-- Breadcrumb start -->
                 <ol class="breadcrumb mb-1">
                   <li class="breadcrumb-item">
-                    <a href="dashboard.php">Home</a>
+                    <a href="home.php">Home</a>
 
                   </li>
                   <li class=" breadcrumb-active">

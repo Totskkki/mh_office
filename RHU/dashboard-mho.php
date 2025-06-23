@@ -508,8 +508,9 @@ try {
 													<?php
 													$query = "SELECT l.*,p.*  FROM tbl_certificate_log l
 													  left join tbl_patients p on p.patientID = l.patient_id
+													  GROUP BY l.patient_id
 													 											 
-													  ORDER BY log_id  DESC";
+													  ORDER BY l.log_id  DESC";
 													$stmtdoc = $con->prepare($query);
 													$stmtdoc->execute();
 													?>
@@ -565,6 +566,11 @@ try {
 
 						</div>
 					</div>
+
+
+
+           
+           
 
 
 				</div>

@@ -166,8 +166,8 @@
 
       <li class="treeview <?php if (strpos($_SERVER['REQUEST_URI'], 'backup.php')) echo  'active'; ?>">
         <a href="#!">
-          <i class="icon-settings"></i>
-          <span class="menu-text <?php if ($Page === 'backup.php') echo 'active'; ?>">Settings</span>
+          <i class="icon-database"></i>
+          <span class="menu-text <?php if ($Page === 'backup.php') echo 'active'; ?>">Backup</span>
         </a>
         <ul class="treeview-menu"  <?php if ($Page === 'backup.php') echo 'style="display:block;"'; ?>>
           <li <?php if ($Page === 'backup.php') echo 'class="active"'; ?>>

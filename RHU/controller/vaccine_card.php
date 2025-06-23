@@ -12,7 +12,7 @@ if (isset($_GET['id'])) {
         CONCAT(ad.brgy, ' ', ad.city_municipality, ' ', ad.province) AS address
         FROM tbl_animal_bite_care a 
         LEFT JOIN tbl_patients p ON p.patientID = a.patient_id
-        LEFT JOIN tbl_familyaddress ad ON ad.famID = p.family_address
+        LEFT JOIN tbl_familyAddress ad ON ad.famID = p.family_address
         WHERE a.animal_biteID  = :animal_biteID AND a.bite_status = 'done'";
 
     $stmt = $con->prepare($query);

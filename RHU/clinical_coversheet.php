@@ -12,7 +12,9 @@ if (isset($_GET['patientID'])) {
     $query = "SELECT   pat.*, fam.*, mem.*, com.*, b.*, d.date_discharged, u.*,per.*,famMem.*, famMem.contact, 
             
                 CONCAT(fam.`brgy`, ' ', fam.`purok`, ' ', fam.`province`) AS address1,
-                DATE_FORMAT(pat.`date_of_birth`, '%m/%d/%Y') AS `date_of_birth`
+                DATE_FORMAT(pat.`date_of_birth`, '%m/%d/%Y') AS `date_of_birth`,
+                  m1.name AS mother_name, m1.relationship AS mother_relationship,
+              m2.name AS father_name, m2.relationship AS father_relationship
               FROM `tbl_patients` AS pat
               LEFT JOIN `tbl_familyAddress` AS fam ON pat.`family_address` = fam.`famID`
               LEFT JOIN `tbl_membership_info` AS mem ON pat.`membership_info` = mem.`membershipID`
@@ -20,6 +22,8 @@ if (isset($_GET['patientID'])) {
               LEFT JOIN `tbl_birthing_monitoring` AS b ON b.`patient_id` = pat.`patientID`
               LEFT JOIN `tbl_discharged` AS d ON d.`patientid` = pat.`patientID`
               LEFT JOIN `tbl_birth_info` AS bi ON bi.`patient_id` = pat.`patientID`
+               LEFT JOIN tbl_family_members AS m1 ON m1.patient_id = pat.patientID AND m1.relationship = 'mother'
+              LEFT JOIN tbl_family_members AS m2 ON m2.patient_id = pat.patientID AND m2.relationship = 'father'
 
             LEFT JOIN tbl_users AS u on u.userID  = bi.midwife_nurse
              LEFT JOIN tbl_personnel AS per ON u.personnel_id = per.personnel_id 
@@ -435,7 +439,7 @@ if(isset($_POST['saverecord'])){
                                     <div class="row">
                                         <div class="col">
                                             <label for="fatherName">Name of Father / Guardian:</label>
-                                            <input type="text" id="fatherName" name="fatherName" value="<?php echo htmlspecialchars($patientData['father_guardian_name']); ?>" readonly>
+                                            <input type="text" id="fatherName" name="fatherName" value="<?php echo htmlspecialchars($patientData['father_name']); ?>" readonly>
                                         </div>
                                         <div class="col">
                                             <label for="fatherAddress">Address:</label>
@@ -472,14 +476,14 @@ if(isset($_POST['saverecord'])){
                                             <input type="time" id="admissionTime" name="admissionTime" value="<?php echo htmlspecialchars($patientData['admission_time']); ?>" >
                                         </div>
                                         <div class="col-2">
-                                            <label for="dischargeDate">Discharge Date:</label>
+                                            <label for="dischargeDate">Discharge Date:<span class="text-danger">*</span></label>
                                             <input type="date" id="dischargeDate" name="dischargeDate" value="<?php echo htmlspecialchars($patientData['date_discharged']); ?>" required>
                                             <div class="invalid-feedback">
                                             Discharge Date required.
                                         </div>
                                         </div>
                                         <div class="col-2">
-                                            <label for="dischargeTime">Time:</label>
+                                            <label for="dischargeTime">Time:<span class="text-danger">*</span></label>
                                             <input type="time" id="dischargeTime" name="dischargeTime" required>
                                             <div class="invalid-feedback">
                                             Time required.
@@ -497,7 +501,7 @@ if(isset($_POST['saverecord'])){
 
                                     <div class="row">
                                         <div class="col">
-                                            <label for="typeOfAdmission">Type of Admission:</label>
+                                            <label for="typeOfAdmission">Type of Admission:<span class="text-danger">*</span></label>
                                             <select id="typeOfAdmission" name="typeOfAdmission" required>
                                             <option value="">-Select-</option>
                                                 <option value="new">New</option>
@@ -559,14 +563,14 @@ if(isset($_POST['saverecord'])){
 
                                     <div class="row">
                                         <div class="col">
-                                            <label for="admittingDiagnosis">Admitting Diagnosis:</label>
+                                            <label for="admittingDiagnosis">Admitting Diagnosis:<span class="text-danger">*</span></label>
                                             <textarea id="admittingDiagnosis" name="admittingDiagnosis" required></textarea>
                                             <div class="invalid-feedback">
                                             Admitting Diagnosis is required.
                                         </div>
                                         </div>
                                         <div class="col">
-                                            <label for="finalDiagnosis">Final Diagnosis:</label>
+                                            <label for="finalDiagnosis">Final Diagnosis:<span class="text-danger">*</span></label>
                                             <textarea id="finalDiagnosis" name="finalDiagnosis" required></textarea>
                                             <div class="invalid-feedback">
                                             Final Diagnosis is required.
@@ -576,7 +580,7 @@ if(isset($_POST['saverecord'])){
 
                                     <div class="row">
                                         <div class="col">
-                                            <label for="procedureDone">Procedure Done:</label>
+                                            <label for="procedureDone">Procedure Done:<span class="text-danger">*</span></label>
                                             <textarea id="procedureDone" name="procedureDone" required></textarea>
                                             <div class="invalid-feedback">
                                             Procedure Done is required.
@@ -586,7 +590,7 @@ if(isset($_POST['saverecord'])){
 
                                     <div class="row">
                                         <div class="col">
-                                            <label for="disposition">Disposition:</label>
+                                            <label for="disposition">Disposition:<span class="text-danger">*</span></label>
                                             <select id="disposition" name="disposition" required>
                                             <option value="">-Select-</option>
                                                 <option value="discharged">Discharged</option>

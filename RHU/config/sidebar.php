@@ -20,6 +20,11 @@
     -webkit-transition: left .3s ease, width .3s ease;
     transition: left .3s ease, width .3s ease;
   }
+  .treeview-menu .badge {
+    display: inline-block !important;
+    margin-left: 5px;
+}
+
 
 </style>
 <!-- Sidebar wrapper start -->
@@ -60,21 +65,97 @@
           <i class="icon-business"></i>
           <span class="menu-text <?php if ($Page === 'maternity.php') echo 'active'; ?>">Integrated Health</span>
         </a>
+        
+                        <?php 
+                // Query to count the number of checkups with 'Pending' status
+                $sql = "SELECT COUNT(*) AS total_checkup FROM tbl_complaints WHERE consultation_purpose = 'Checkup' AND status = 'Pending'";
+                $stmt = $con->prepare($sql);
+                $stmt->execute();
+                
+                // Initialize the total checkup count
+                $totalcheckup = 0;
+                
+                // Fetch the result properly from the prepared statement
+                if ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                    $totalcheckup = $row['total_checkup'];
+                }
+                ?>
         <ul class="treeview-menu <?php if ($Page === 'maternity.php')  echo 'style="display:block;"'; ?>">
-          <li <?php if ($Page === 'checkup.php'|| $Page === 'checkup_record.php')  echo 'class="active"'; ?>>
-            <a href="checkup.php">Checkup</a>
-          </li>
+          <li <?php if ($Page === 'checkup.php' || $Page === 'checkup_record.php') echo 'class="active"'; ?>>
+                <a href="checkup.php">
+                    Checkup <span class="badge bg-warning"><?= htmlspecialchars($totalcheckup) ?></span>
+                </a>
+            </li>
+            
+            
+                 <?php 
+                // Query to count the number of checkups with 'Pending' status
+                $sql = "SELECT COUNT(*) AS total_birthing FROM tbl_complaints WHERE consultation_purpose = 'Birthing' AND status = 'Pending'";
+                $stmt = $con->prepare($sql);
+                $stmt->execute();
+                
+                // Initialize the total checkup count
+                $totalcheckup = 0;
+                
+                // Fetch the result properly from the prepared statement
+                if ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                    $totalcheckup = $row['total_birthing'];
+                }
+                ?>
           <li <?php if ($Page === 'maternity.php') echo 'class="active"'; ?>>
-            <a href="maternity.php">Birthing</a>
+            <a href="maternity.php">Birthing <span class="badge bg-warning"><?= htmlspecialchars($totalcheckup) ?></span></a>
           </li>
+           <?php 
+                // Query to count the number of checkups with 'Pending' status
+                $sql = "SELECT COUNT(*) AS total_prenatal FROM tbl_complaints WHERE consultation_purpose = 'Prenatal' AND status = 'Pending'";
+                $stmt = $con->prepare($sql);
+                $stmt->execute();
+                
+                // Initialize the total checkup count
+                $totalcheckup = 0;
+                
+                // Fetch the result properly from the prepared statement
+                if ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                    $totalcheckup = $row['total_prenatal'];
+                }
+                ?>
           <li <?php if ($Page === 'prenatal.php') echo 'class="active"'; ?>>
-            <a href="prenatal.php">Prenatal</a>
+            <a href="prenatal.php">Prenatal <span class="badge bg-warning"><?= htmlspecialchars($totalcheckup) ?></span></a>
           </li>
+          
+           <?php 
+                // Query to count the number of checkups with 'Pending' status
+                $sql = "SELECT COUNT(*) AS total_bite FROM tbl_complaints WHERE consultation_purpose = 'Animal bite and Care' AND status = 'Pending'";
+                $stmt = $con->prepare($sql);
+                $stmt->execute();
+                
+                // Initialize the total checkup count
+                $totalcheckup = 0;
+                
+                // Fetch the result properly from the prepared statement
+                if ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                    $totalcheckup = $row['total_bite'];
+                }
+                ?>
           <li <?php if ($Page === 'animal_bite.php' ) echo 'class="active"'; ?>>
-            <a href="animal_bite.php">Animal bite & care</a>
+            <a href="animal_bite.php">Animal bite & care <span class="badge bg-warning"><?= htmlspecialchars($totalcheckup) ?></span></a>
           </li>
+           <?php 
+                // Query to count the number of checkups with 'Pending' status
+                $sql = "SELECT COUNT(*) AS total_vaccine FROM tbl_complaints WHERE consultation_purpose = 'Vaccination and Immunization' AND status = 'Pending'";
+                $stmt = $con->prepare($sql);
+                $stmt->execute();
+                
+                // Initialize the total checkup count
+                $totalcheckup = 0;
+                
+                // Fetch the result properly from the prepared statement
+                if ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                    $totalcheckup = $row['total_vaccine'];
+                }
+                ?>
           <li <?php if ($Page === 'vaccination.php') echo 'class="active"'; ?>>
-            <a href="vaccination.php">Vaccination & Immunization</a>
+            <a href="vaccination.php">Vaccination & <br/> Immunization <span class="badge bg-warning"><?= htmlspecialchars($totalcheckup) ?></span></a>
           </li>
 
         </ul>

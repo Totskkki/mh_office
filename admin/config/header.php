@@ -6,6 +6,7 @@ if (isset($_POST['update_admin'])) {
 	$password = $_POST['password'];
 	$firstname = $_POST['f_name'];
 	$lastname = $_POST['l_name'];
+	$email = $_POST['email'];
 	$photo = $_FILES['avatar']['name'];
 	$hiddenId = $_POST['hidden_id'];
 
@@ -35,6 +36,7 @@ if (isset($_POST['update_admin'])) {
             u.`password` = :password,
             p.`first_name` = :firstname,
             p.`lastname` = :lastname,
+            p.`email` = :email,
             u.`profile_picture` = :avatar
             WHERE u.`userID` = :admin_id";
 
@@ -43,6 +45,7 @@ if (isset($_POST['update_admin'])) {
 	$stmt->bindParam(':password', $hashedPassword);
 	$stmt->bindParam(':firstname', $firstname);
 	$stmt->bindParam(':lastname', $lastname);
+	$stmt->bindParam(':email', $email);
 	$stmt->bindParam(':avatar', $filename);
 	$stmt->bindParam(':admin_id', $_SESSION['admin_id'], PDO::PARAM_INT);
 
@@ -121,24 +124,27 @@ if (isset($_POST['update_admin'])) {
 			<br><br>
 			<div class="dropdown ms-3 mt-2">
 
-				<?php
-				try {
-					// Fetch the total number of upcoming non-duty schedules
-					$today = date('Y-m-d'); // Get today's date
-					$queryTotal = "
-                    SELECT COUNT(*) AS total 
-                    FROM `tbl_doctor_schedule` 
-                    WHERE `is_available` = 2
-                    AND `date_schedule` >= :today
-                ";
-					$stmtTotal = $con->prepare($queryTotal);
-					$stmtTotal->execute(['today' => $today]);
-					$docscheds = $stmtTotal->fetch(PDO::FETCH_ASSOC)['total'];
-				} catch (PDOException $ex) {
-					echo "An error occurred: " . $ex->getMessage();
-					exit;
-				}
-				?>
+			<?php
+try {
+    // Fetch the total number of upcoming non-duty schedules or active leave schedules
+    $today = date('Y-m-d'); // Get today's date
+    $queryTotal = "
+        SELECT COUNT(*) AS total 
+        FROM `tbl_doctor_schedule` 
+        WHERE (`is_available` = 2 AND `date_schedule` >= :today)
+        OR (`leave_start_date` IS NOT NULL AND `leave_end_date` IS NOT NULL AND `leave_end_date` >= :today)
+        AND `is_available` NOT IN (3, 4)
+		ORDER BY doc_scheduleID  DESC
+    ";
+    $stmtTotal = $con->prepare($queryTotal);
+    $stmtTotal->execute(['today' => $today]);
+    $docscheds = $stmtTotal->fetch(PDO::FETCH_ASSOC)['total'];
+} catch (PDOException $ex) {
+    echo "An error occurred: " . $ex->getMessage();
+    exit;
+}
+?>
+
 				<a class="dropdown-toggle position-relative action-icon" href="#!" role="button" data-bs-toggle="dropdown" aria-expanded="false">
 					<i class="icon-bell fs-5 lh-1"></i>
 					<span class="count rounded-circle bg-danger"><?php echo $docscheds; ?></span>
@@ -150,26 +156,32 @@ if (isset($_POST['update_admin'])) {
 
 					<?php
 					try {
-						// Fetch the details for each non-duty schedule
+						
 						$queryDetails = "SELECT s.*, position.*, personnel.*,user.*,
                                         CONCAT(personnel.first_name, ' ', personnel.middlename, ' ', personnel.lastname) AS doctorsname
                                         FROM tbl_doctor_schedule AS s
                                         LEFT JOIN tbl_users AS user ON user.userID = s.userID
                                         LEFT JOIN tbl_personnel AS personnel ON user.personnel_id = personnel.personnel_id
                                         LEFT JOIN tbl_position AS position ON user.position_id = position.position_id
-										WHERE s.`is_available` = 2
-										AND s.`date_schedule` >= :today
-										ORDER BY s.`date_schedule` ASC
+										WHERE  (s.`is_available` = 2 AND s.`date_schedule` >= :today)
+       									 OR (s.`leave_start_date` IS NOT NULL AND s.`leave_end_date` IS NOT NULL AND s.`leave_end_date` >= :today)
+       									 AND `is_available` NOT IN (3, 4)
+										ORDER BY s.`doc_scheduleID` DESC
 										LIMIT 10
                     ";
 						$stmtDetails = $con->prepare($queryDetails);
 						$stmtDetails->execute(['today' => $today]);
 
 						while ($row = $stmtDetails->fetch(PDO::FETCH_ASSOC)) :
-							$link = 'doctor_schedule.php?date=' . $row['date_schedule'];
-							$formattedDate = date('F j, Y', strtotime($row['date_schedule']));
+							$link = 'Doctor_schedule.php?date=' . $row['date_schedule'];
+							
+							$formattedDate = !empty($row['date_schedule']) ? date('F j, Y', strtotime($row['date_schedule'])) : '';
 							$doctorsname = $row['doctorsname'];
 							$profilePicture = !empty($row['profile_picture']) ? '../user_images/' . $row['profile_picture'] : '../user_images/doctor.jpg';
+
+							$leaveStartDate = !empty($row['leave_start_date']) ? date('F j, Y', strtotime($row['leave_start_date'])) : '';
+							$leaveEndDate = !empty($row['leave_end_date']) ? date('F j, Y', strtotime($row['leave_end_date'])) : '';
+					
 
 					?>
 							<a href="<?php echo $link; ?>" class="dropdown-item">
@@ -179,6 +191,11 @@ if (isset($_POST['update_admin'])) {
 										<h6 class="mb-1 fw-semibold"><?php echo $doctorsname; ?></h6>
 
 										<p class="mb-1 fw-semibold"> <?php echo $formattedDate; ?></p>
+										
+										<p class="small m-0 opacity-50">
+											<b>Leave:</b> 
+											<?php echo $leaveStartDate . ' - ' . $leaveEndDat; ?>
+										</p>
 
 										<p class="small m-0 opacity-50"><b><?php echo $row['message']; ?></b></p>
 									</div>
@@ -236,23 +253,29 @@ if (isset($_POST['update_admin'])) {
 
 					<input type="hidden" name="hidden_id" id="hidden_id" value="<?php echo $admin['userID']; ?>">
 					<div class="mb-3 row">
-						<label for="text" class="col-sm-3 col-form-label text-center">First Name</label>
+						<label for="text" class="col-sm-3 col-form-label text-center">First Name <span class="text-danger">*</span></label>
 						<div class="col-sm-8">
 
 							<input type="text" value="<?php echo $admin['first_name']; ?>" id="f_name" name="f_name" class="form-control" value="" required>
 						</div>
 					</div>
 					<div class="mb-3 row">
-						<label for="text" class="col-sm-3 col-form-label text-center">Last Name</label>
+						<label for="text" class="col-sm-3 col-form-label text-center">Last Name <span class="text-danger">*</span></label>
 						<div class="col-sm-8">
 							<input type="text" id="l_name" name="l_name" class="form-control" value="<?php echo $admin['lastname']; ?>" required>
 						</div>
 					</div>
 
 					<div class="mb-3 row">
-						<label for="text" class="col-sm-3 col-form-label text-center">Username</label>
+						<label for="text" class="col-sm-3 col-form-label text-center">Username <span class="text-danger">*</span></label>
 						<div class="col-sm-8">
 							<input type="text" id="Username" name="Username" class="form-control" value="<?php echo $admin['user_name']; ?>" required>
+						</div>
+					</div>
+						<div class="mb-3 row">
+						<label for="text" class="col-sm-3 col-form-label text-center">Email <span class="text-danger">*</span></label>
+						<div class="col-sm-8">
+							<input type="text"name="email" class="form-control" value="<?php echo $admin['email']; ?>" >
 						</div>
 					</div>
 					<div class="mb-3 row">

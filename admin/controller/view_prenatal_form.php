@@ -27,7 +27,7 @@ if (isset($_GET['id'])) {
 	CONCAT(per.`first_name`, ' ', per.`middlename`, ' ', per.`lastname`) AS `personnel_name`
 	FROM tbl_prenatal AS a 
 	LEFT JOIN tbl_patients AS pat ON a.patient_id = pat.patientID
-	LEFT JOIN tbl_familyaddress AS fam ON pat.family_address = fam.famID
+	LEFT JOIN tbl_familyAddress AS fam ON pat.family_address = fam.famID
 	LEFT JOIN tbl_membership_info AS mem ON pat.Membership_Info = mem.membershipID    
 	LEFT JOIN tbl_complaints as com on com.complaintID
 	LEFT JOIN tbl_users AS u ON u.userID  = a.attending_physician

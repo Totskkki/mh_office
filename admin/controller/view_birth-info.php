@@ -21,7 +21,7 @@ if (isset($_GET['id'])) {
    
   FROM tbl_birth_info AS b 
   JOIN tbl_patients AS pat ON b.patient_id = pat.patientID
-  JOIN tbl_familyaddress AS fam ON pat.family_address = fam.famID
+  JOIN tbl_familyAddress AS fam ON pat.family_address = fam.famID
   JOIN tbl_membership_info AS mem ON pat.Membership_Info = mem.membershipID
   JOIN tbl_physicalexam AS p ON p.physical_exam_id = b.physicalExamID 
   JOIN tbl_systemreview AS s ON s.system_review_id = b.systemReviewID 

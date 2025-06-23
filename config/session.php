@@ -1,22 +1,22 @@
 <?php
 
-if (session_status() === PHP_SESSION_NONE) {
+// if (session_status() === PHP_SESSION_NONE) {
       
-    }
+//     }
     
-    // Securely regenerate the session ID if necessary
-    if (!isset($_SESSION['initiated'])) {
-        session_regenerate_id(true);
-        $_SESSION['initiated'] = true;
-    }
+//     // Securely regenerate the session ID if necessary
+//     if (!isset($_SESSION['initiated'])) {
+//         session_regenerate_id(true);
+//         $_SESSION['initiated'] = true;
+//     }
     
-    // Periodically regenerate the session ID (e.g., every 5 minutes)
-    if (!isset($_SESSION['last_regenerate'])) {
-        $_SESSION['last_regenerate'] = time();
-    } elseif (time() - $_SESSION['last_regenerate'] > 300) { // 300 seconds = 5 minutes
-        session_regenerate_id(true);
-        $_SESSION['last_regenerate'] = time();
-    }
+//     // Periodically regenerate the session ID (e.g., every 5 minutes)
+//     if (!isset($_SESSION['last_regenerate'])) {
+//         $_SESSION['last_regenerate'] = time();
+//     } elseif (time() - $_SESSION['last_regenerate'] > 300) { // 300 seconds = 5 minutes
+//         session_regenerate_id(true);
+//         $_SESSION['last_regenerate'] = time();
+//     }
     
     // Redirect to login if the user is not authenticated
     if (!isset($_SESSION['user_id']) || empty($_SESSION['user_id'])) {
@@ -37,6 +37,3 @@ $stmt->bindParam(':user_id', $_SESSION['user_id'], PDO::PARAM_INT);
 $stmt->execute();
 $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-
-
-?>

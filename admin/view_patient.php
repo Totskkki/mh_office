@@ -9,35 +9,6 @@ date_default_timezone_set('Asia/Manila');
 
 $message = '';
 
-// $patientName = $middle_name = $last_name  = $suffix =  '';
-// $address  = $m_name = $f_gname = $dateBirth = $phoneNumber = '';
-// $gender = $Purok = $Province = $Nationality = $ed_att = $emp_stat = '';
-// $Blood = $Age = $date_of_birth = $phoneNumber = $civil_status = '';
-// $Sex = $m_name = $f_gname = '';
-
-
-
-// $errors = [
-//     'patient_name' => '',
-//     'last_name' => '',
-//     'address' => '',
-//     'date_of_birth' => '',
-//     'phone_number' => '',
-//     'gender' => '',
-//     'Purok' => '',
-//     'Province' => '',
-//     'Purok' => '',
-//     'civil_status' => '',
-//     'Nationality' => '',
-//     'Blood' => '',
-//     'Age' => '',
-//     'Sex' => '',
-//     'mother' => '',
-//     'father' => '',
-//     'philhealth' => ''
-
-// ];
-
 if (isset($_POST['submit_update'])) {
     // var_dump($_POST);
 
@@ -111,8 +82,10 @@ if (isset($_POST['submit_update'])) {
     // $ps_mem = isset($_POST['ps_mem']) ? json_encode($_POST['ps_mem']) : '[]';
     $ps_mem = trim($_POST['MemCat']);
 
-    $m_name = trim($_POST['m_name']);
-    $f_gname = trim($_POST['f_gname']);
+    // $m_name = trim($_POST['m_name']);
+    $placeofBirth = trim($_POST['placeofBirth']);
+     $religion = trim($_POST['religion']);
+    
 
     try {
         $con->beginTransaction();
@@ -126,25 +99,29 @@ if (isset($_POST['submit_update'])) {
 
             if (!$existingFamily) {
                 // Insert new family address
-                $insertFamilyQuery = "INSERT INTO tbl_familyAddress (famID, brgy, purok, province) VALUES (:familyId, :address, :Purok, :province)";
+                $insertFamilyQuery = "INSERT INTO tbl_familyAddress (famID, brgy, purok, province,place_of_birth) VALUES (:familyId, :address, :Purok, :province,:placeofBirth)";
                 $stmtInsertFamily = $con->prepare($insertFamilyQuery);
                 $stmtInsertFamily->execute([
                     ':familyId' => $editfamID,
                     ':address' => $address,
                     ':Purok' => $Purok,
-                    ':province' => $Province
+                    ':province' => $Province,
+                    ':placeofBirth' => $placeofBirth,
+                    
                 ]);
                 // If inserted, get the last inserted ID
                 $familyID = $con->lastInsertId();
             } else {
                 // Update existing family address
-                $updateFamilyQuery = "UPDATE tbl_familyAddress SET brgy = :address, purok = :Purok, province = :province WHERE famID = :familyId";
+                $updateFamilyQuery = "UPDATE tbl_familyAddress SET brgy = :address, purok = :Purok, province = :province,place_of_birth =:placeofBirth WHERE famID = :familyId";
                 $stmtFamily = $con->prepare($updateFamilyQuery);
                 $stmtFamily->execute([
                     ':address' => $address,
                     ':Purok' => $Purok,
                     ':province' => $Province,
+                     ':placeofBirth' => $placeofBirth,
                     ':familyId' => $editfamID
+                   
                 ]);
                 // Use the existing ID
                 $familyID = $editfamID;
@@ -204,8 +181,6 @@ if (isset($_POST['submit_update'])) {
         middle_name = :middle_name,
         last_name = :last_name,
         suffix = :suffix,
-        father_guardian_name = :f_gname,
-        mother_name = :m_name,
         cnic = :cnic,
         date_of_birth = :dateBirth,
         age = :Age,
@@ -215,6 +190,7 @@ if (isset($_POST['submit_update'])) {
         blood_type = :Blood,
         ed_at = :ed_att,
         emp_stat = :emp_stat,
+         religion = :religion,
         Nationality = :Nationality
         WHERE patientID = :patientID";
 
@@ -227,8 +203,6 @@ if (isset($_POST['submit_update'])) {
             ':middle_name' => $middle_name,
             ':last_name' => $last_name,
             ':suffix' => $suffix,
-            ':f_gname' => $f_gname,
-            ':m_name' => $m_name,
             ':cnic' => $cnic,
             ':dateBirth' => $dateBirth,
             ':Age' => $Age,
@@ -237,10 +211,37 @@ if (isset($_POST['submit_update'])) {
             ':civil_status' => $status,
             ':Blood' => $Blood,
             ':ed_att' => $ed_att,
+            ':religion' => $religion,
             ':emp_stat' => $emp_stat,
             ':Nationality' => $Nationality,
             ':patientID' => $editpatientID
         ]);
+        
+        
+      // Update family member details
+            $name = $_POST['emergencyname'];
+            $member_id = $_POST['editmember'];
+            $address = $_POST['memberAddress'];
+            $contact = $_POST['memberContact'];
+            $relationship = $_POST['relationship'];
+            
+            $updateMemberQuery = "UPDATE `tbl_family_members` 
+                SET `name` = :name, 
+                    `relationship` = :relationship, 
+                    `contact` = :contact, 
+                    `address` = :address, 
+                    `patient_id` = :patient_id 
+                WHERE patient_id = :member_id";
+            
+            $stmtMember = $con->prepare($updateMemberQuery);
+            $stmtMember->execute([
+                ':name' => $name,
+                ':relationship' => $relationship,
+                ':contact' => $contact,
+                ':address' => $address,
+                ':patient_id' => $editpatientID,
+                ':member_id' => $member_id,
+            ]);
 
  
         $affectedRecordName = getAffectedRecordName('tbl_patients', $editpatientID, $con);
@@ -277,8 +278,8 @@ if (isset($_GET['id'])) {
 
     // Define the query
     $query = "SELECT 
-                pat.*, fam.*, mem.*, com.*,
-                fam.famID AS famID, 
+                pat.*, fam.*, mem.*, com.*,m.*,m.name as emername,
+                fam.famID AS famID,     
                 mem.membershipID AS membershipID,
                 CONCAT(pat.`patient_name`, ' ', pat.`middle_name`, ' ', pat.`last_name`, ' ', pat.`suffix`) AS `name`,
                 DATE_FORMAT(pat.`date_of_birth`, '%m/%d/%Y') AS `date_of_birth`
@@ -288,8 +289,12 @@ if (isset($_GET['id'])) {
                 `tbl_familyAddress` AS fam ON pat.`family_address` = fam.`famID`
                 LEFT JOIN 
                 `tbl_membership_info` AS mem ON pat.`membership_info` = mem.`membershipID`
+                  LEFT JOIN 
+                `tbl_family_members` AS m ON m.`patient_id` = pat.`patientID`
                 LEFT JOIN 
                 `tbl_complaints` AS com ON pat.`patientID` = com.`patient_id`
+              
+               
             WHERE 
                 pat.`patientID` = :id";
 
@@ -305,6 +310,7 @@ if (isset($_GET['id'])) {
     // Fetch the data
     $patientData = $stmt->fetch(PDO::FETCH_ASSOC);
 
+
     // Check if patient data was found
     if ($patientData) {
         // Extract data if found
@@ -316,6 +322,9 @@ if (isset($_GET['id'])) {
         $ed_at = $patientData['ed_at'] ?? '';
         $phil_membership = $patientData['phil_membership'] ?? '';
         $phil = $patientData['phil_mem'] ?? '';
+        $religion = $patientData['religion'] ?? '';
+        
+        $emergency = $patientData['relationship'] ?? '';
 
         // Decode the JSON for phil_mem, handle cases where it might be NULL or empty
         // $phil_mem = !empty($patientData['ps_mem']) ? json_decode($patientData['ps_mem'], true) : [];
@@ -348,30 +357,6 @@ $stmt = $con->prepare($sqlbite);
 $stmt->bindParam(':patient_id', $id, PDO::PARAM_INT);
 $stmt->execute();
 $animalbites = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-$sqlVaccination = "SELECT i.*, p.* 
-                    FROM `tbl_immunization_records` i
-                    LEFT JOIN `tbl_patients` p on p.patientID = i.patient_id
-                    WHERE i.`patient_id` = :patient_id 
-                    GROUP BY i.patient_id
-                    ORDER BY i.`immunization_date` DESC";
-
-$stmt = $con->prepare($sqlVaccination);
-$stmt->bindParam(':patient_id', $id, PDO::PARAM_INT);
-$stmt->execute();
-$Vaccination = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-// Check the age based on the patient's date of birth
-if (!empty($Vaccination[0]['date_of_birth'])) {  // Assuming only one patient is returned
-    $birthdate = new DateTime($Vaccination[0]['date_of_birth']);
-    $today = new DateTime(); // current date
-    $age = $birthdate->diff($today)->y; // age in years
-} else {
-    $age = 0; 
-}
-
-// Determine the immunization record type based on age
-$redirectTo = $age < 2 ? 'controller/child_immunization_record.php' : 'controller/adult_immunization_record.php';
 
 
 $sqlbirhting = "SELECT * FROM `tbl_birth_info`
@@ -587,114 +572,100 @@ function displayPSMemCheckboxes($phil_mem)
                                                     </div>
                                                 </div>
 
-
-
-                                                <div class="col-xl-4 col-sm-6 col-12">
-                                                    <div class="card mb-4 card-outline rounded-0 shadow">
-                                                        <div class="card-header  rounded-1 shadow ">
-                                                            <h5 class="card-title">Prenatal</h5>
-
-                                                        </div>
-                                                        <div class="card-body">
-                                                        <?php if (!empty($prenatal)) { ?>
-                                                                <div class="scroll300 os-host os-theme-dark os-host-overflow os-host-overflow-y os-host-resize-disabled os-host-scrollbar-horizontal-hidden os-host-transition">
-                                                                    <div class="os-resize-observer-host observed">
-                                                                        <div class="os-resize-observer" style="left: 0px; right: auto;"></div>
-                                                                    </div>
-                                                                    <div class="os-size-auto-observer observed" style="height: calc(100% + 1px); float: left;">
-                                                                        <div class="os-resize-observer"></div>
-                                                                    </div>
-                                                                    <div class="os-content-glue" style="margin: 0px; width: 301px; height: 299px;"></div>
-                                                                    <div class="os-padding">
-                                                                        <div class="os-viewport os-viewport-native-scrollbars-invisible" style="overflow-y: scroll;">
-                                                                            <div class="os-content" style="padding: 0px; height: 100%; width: 100%;">
-                                                                                <ul class="statistics m-0 p-0">
-
-                                                                                    <?php foreach ($prenatal as $pre) { ?>
-                                                                                        <li>
-
-                                                                                            <a href="controller/view_prenatal_form.php?id=<?php echo $pre['prenatalID'] ?>" class="btn btn-primary">
-                                                                                                <?php echo htmlspecialchars(date('M d, Y, h:i A', strtotime($pre['date']))); ?>
-
-                                                                                            </a>
-
-                                                                                        </li>
-                                                                                    <?php } ?>
-                                                                                </ul>
+                                                <?php
+                                                // Fetch the gender of the patient first
+                                                $query = "SELECT gender FROM tbl_patients WHERE patientID = :id";
+                                                $stmt = $con->prepare($query);
+                                                $stmt->bindParam(':id', $id, PDO::PARAM_INT);
+                                                $stmt->execute();
+                                                $patient = $stmt->fetch(PDO::FETCH_ASSOC);
+                                                
+                                                // Check if gender is Male
+                                                $isMale = ($patient['gender'] == 'Male' || $patient['gender'] == 'Other');
+                                                ?>
+                                                
+                                                <!-- Prenatal Card -->
+                                                <?php if (!$isMale): ?>
+                                                    <div class="col-xl-4 col-sm-6 col-12">
+                                                        <div class="card mb-4 card-outline rounded-0 shadow">
+                                                            <div class="card-header rounded-1 shadow">
+                                                                <h5 class="card-title">Prenatal</h5>
+                                                            </div>
+                                                            <div class="card-body">
+                                                                <?php if (!empty($prenatal)) { ?>
+                                                                    <div class="scroll300 os-host os-theme-dark os-host-overflow os-host-overflow-y os-host-resize-disabled os-host-scrollbar-horizontal-hidden os-host-transition">
+                                                                        <div class="os-resize-observer-host observed">
+                                                                            <div class="os-resize-observer" style="left: 0px; right: auto;"></div>
+                                                                        </div>
+                                                                        <div class="os-size-auto-observer observed" style="height: calc(100% + 1px); float: left;">
+                                                                            <div class="os-resize-observer"></div>
+                                                                        </div>
+                                                                        <div class="os-content-glue" style="margin: 0px; width: 301px; height: 299px;"></div>
+                                                                        <div class="os-padding">
+                                                                            <div class="os-viewport os-viewport-native-scrollbars-invisible" style="overflow-y: scroll;">
+                                                                                <div class="os-content" style="padding: 0px; height: 100%; width: 100%;">
+                                                                                    <ul class="statistics m-0 p-0">
+                                                                                        <?php foreach ($prenatal as $pre) { ?>
+                                                                                            <li>
+                                                                                                <a href="controller/view_prenatal_form.php?id=<?php echo $pre['prenatalID'] ?>" class="btn btn-primary">
+                                                                                                    <?php echo htmlspecialchars(date('M d, Y, h:i A', strtotime($pre['date']))); ?>
+                                                                                                </a>
+                                                                                            </li>
+                                                                                        <?php } ?>
+                                                                                    </ul>
+                                                                                </div>
                                                                             </div>
                                                                         </div>
                                                                     </div>
-                                                                    <div class="os-scrollbar os-scrollbar-horizontal os-scrollbar-unusable os-scrollbar-auto-hidden">
-                                                                        <div class="os-scrollbar-track os-scrollbar-track-off">
-                                                                            <div class="os-scrollbar-handle" style="width: 100%; transform: translate(0px, 0px);"></div>
-                                                                        </div>
-                                                                    </div>
-                                                                    <div class="os-scrollbar os-scrollbar-vertical os-scrollbar-auto-hidden">
-                                                                        <div class="os-scrollbar-track os-scrollbar-track-off">
-                                                                            <div class="os-scrollbar-handle" style="height: 49.3421%; transform: translate(0px, 0px);"></div>
-                                                                        </div>
-                                                                    </div>
-                                                                    <div class="os-scrollbar-corner"></div>
-                                                                </div>
-                                                            <?php } else { ?>
-                                                                <p>No Prenatal records found.</p>
-                                                            <?php } ?>
+                                                                <?php } else { ?>
+                                                                    <p>No Prenatal records found.</p>
+                                                                <?php } ?>
+                                                            </div>
                                                         </div>
                                                     </div>
-                                                </div>
-                                                <div class="col-xl-4 col-sm-6 col-12">
-                                                    <div class="card mb-4 card-outline rounded-0 shadow">
-                                                        <div class="card-header  rounded-1 shadow ">
-                                                            <h5 class="card-title"> Birthing</h5>
-
-                                                        </div>
-                                                        <div class="card-body">
-                                                        <?php if (!empty($birthing)) { ?>
-                                                                <div class="scroll300 os-host os-theme-dark os-host-overflow os-host-overflow-y os-host-resize-disabled os-host-scrollbar-horizontal-hidden os-host-transition">
-                                                                    <div class="os-resize-observer-host observed">
-                                                                        <div class="os-resize-observer" style="left: 0px; right: auto;"></div>
-                                                                    </div>
-                                                                    <div class="os-size-auto-observer observed" style="height: calc(100% + 1px); float: left;">
-                                                                        <div class="os-resize-observer"></div>
-                                                                    </div>
-                                                                    <div class="os-content-glue" style="margin: 0px; width: 301px; height: 299px;"></div>
-                                                                    <div class="os-padding">
-                                                                        <div class="os-viewport os-viewport-native-scrollbars-invisible" style="overflow-y: scroll;">
-                                                                            <div class="os-content" style="padding: 0px; height: 100%; width: 100%;">
-                                                                                <ul class="statistics m-0 p-0">
-
-                                                                                    <?php foreach ($birthing as $birth) { ?>
-                                                                                        <li>
-
-                                                                                            <a href="controller/view_birth-info.php?id=<?php echo $birth['birth_info_id'] ?>" class="btn btn-primary">
-                                                                                                <?php echo htmlspecialchars(date('M d, Y, h:i A', strtotime($birth['date']))); ?>
-
-                                                                                            </a>
-
-                                                                                        </li>
-                                                                                    <?php } ?>
-                                                                                </ul>
+                                                <?php endif; ?>
+                                                
+                                                <!-- Birthing Card -->
+                                                <?php if (!$isMale): ?>
+                                                    <div class="col-xl-4 col-sm-6 col-12">
+                                                        <div class="card mb-4 card-outline rounded-0 shadow">
+                                                            <div class="card-header rounded-1 shadow">
+                                                                <h5 class="card-title">Birthing</h5>
+                                                            </div>
+                                                            <div class="card-body">
+                                                                <?php if (!empty($birthing)) { ?>
+                                                                    <div class="scroll300 os-host os-theme-dark os-host-overflow os-host-overflow-y os-host-resize-disabled os-host-scrollbar-horizontal-hidden os-host-transition">
+                                                                        <div class="os-resize-observer-host observed">
+                                                                            <div class="os-resize-observer" style="left: 0px; right: auto;"></div>
+                                                                        </div>
+                                                                        <div class="os-size-auto-observer observed" style="height: calc(100% + 1px); float: left;">
+                                                                            <div class="os-resize-observer"></div>
+                                                                        </div>
+                                                                        <div class="os-content-glue" style="margin: 0px; width: 301px; height: 299px;"></div>
+                                                                        <div class="os-padding">
+                                                                            <div class="os-viewport os-viewport-native-scrollbars-invisible" style="overflow-y: scroll;">
+                                                                                <div class="os-content" style="padding: 0px; height: 100%; width: 100%;">
+                                                                                    <ul class="statistics m-0 p-0">
+                                                                                        <?php foreach ($birthing as $birth) { ?>
+                                                                                            <li>
+                                                                                                <a href="controller/view_birth-info.php?id=<?php echo $birth['birth_info_id'] ?>" class="btn btn-primary">
+                                                                                                    <?php echo htmlspecialchars(date('M d, Y, h:i A', strtotime($birth['date']))); ?>
+                                                                                                </a>
+                                                                                            </li>
+                                                                                        <?php } ?>
+                                                                                    </ul>
+                                                                                </div>
                                                                             </div>
                                                                         </div>
                                                                     </div>
-                                                                    <div class="os-scrollbar os-scrollbar-horizontal os-scrollbar-unusable os-scrollbar-auto-hidden">
-                                                                        <div class="os-scrollbar-track os-scrollbar-track-off">
-                                                                            <div class="os-scrollbar-handle" style="width: 100%; transform: translate(0px, 0px);"></div>
-                                                                        </div>
-                                                                    </div>
-                                                                    <div class="os-scrollbar os-scrollbar-vertical os-scrollbar-auto-hidden">
-                                                                        <div class="os-scrollbar-track os-scrollbar-track-off">
-                                                                            <div class="os-scrollbar-handle" style="height: 49.3421%; transform: translate(0px, 0px);"></div>
-                                                                        </div>
-                                                                    </div>
-                                                                    <div class="os-scrollbar-corner"></div>
-                                                                </div>
-                                                            <?php } else { ?>
-                                                                <p>No birthing records found.</p>
-                                                            <?php } ?>
+                                                                <?php } else { ?>
+                                                                    <p>No Birthing records found.</p>
+                                                                <?php } ?>
+                                                            </div>
                                                         </div>
                                                     </div>
-                                                </div>
+                                                <?php endif; ?>
+
 
 
                                                 <div class="col-xl-4 col-sm-6 col-12">
@@ -762,6 +733,36 @@ function displayPSMemCheckboxes($phil_mem)
         <div class="card-header rounded-1 shadow">
             <h5 class="card-title">Vaccination & Immunization</h5>
         </div>
+        
+        <?php 
+        
+$sqlVaccination = "SELECT i.*,i.immunID, p.* 
+                    FROM `tbl_immunization_records` i
+                    LEFT JOIN `tbl_patients` p on p.patientID = i.patient_id
+                    WHERE i.`patient_id` = :patient_id 
+                    GROUP BY i.patient_id
+                    ORDER BY i.`immunization_date` DESC";
+
+$stmt = $con->prepare($sqlVaccination);
+$stmt->bindParam(':patient_id', $id, PDO::PARAM_INT);
+$stmt->execute();
+$Vaccination = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+// Check the age based on the patient's date of birth
+if (!empty($Vaccination[0]['date_of_birth'])) {  // Assuming only one patient is returned
+    $birthdate = new DateTime($Vaccination[0]['date_of_birth']);
+    $today = new DateTime(); // current date
+    $age = $birthdate->diff($today)->y; // age in years
+} else {
+    $age = 0; 
+}
+
+// Determine the immunization record type based on age
+$redirectTo = $age < 2 ? 'controller/child_immunization_record.php' : 'controller/adult_immunization_record.php';
+
+        
+        
+        ?>
         <div class="card-body">
             <?php if (!empty($Vaccination)) { ?>
                 <div class="scroll300 os-host os-theme-dark os-host-overflow os-host-overflow-y os-host-resize-disabled os-host-scrollbar-horizontal-hidden os-host-transition">
@@ -886,6 +887,7 @@ function displayPSMemCheckboxes($phil_mem)
                                             <input type="hidden" id="editpatientID" name="editpatientID" value="<?php echo htmlspecialchars($patientData['patientID']); ?>">
                                             <input type="hidden" id="editfamID" name="editfamID" value="<?php echo htmlspecialchars($patientData['famID']); ?>">
                                             <input type="hidden" id="editmemID" name="editmemID" value="<?php echo htmlspecialchars($patientData['membershipID']); ?>">
+                                            <input type="hidden"  name="editmember" value="<?php echo htmlspecialchars($patientData['member_id']); ?>">
 
                                             <div class="row">
                                                 <div class="col-lg-2 col-sm-2 col-12">
@@ -909,43 +911,43 @@ function displayPSMemCheckboxes($phil_mem)
                                                         <div class="mb-3">
                                                             <label class="form-label" for="abc">First Name: <span class="text-danger">*</span></label>
 
-                                                            <input type="text" class="form-control form-control-sm rounded-0" value="<?php echo htmlspecialchars(ucwords($patientData['patient_name'])); ?>" id="patient_name" name="patient_name" />
+                                                            <input type="text" class="form-control " value="<?php echo htmlspecialchars(ucwords($patientData['patient_name'])); ?>" id="patient_name" name="patient_name" />
 
                                                         </div>
                                                     </div>
                                                     <div class="col-lg-3 col-sm-4 col-12">
                                                         <div class="mb-3">
                                                             <label class="form-label" for="abc1">Middle Name</label>
-                                                            <input type="text" class="form-control form-control-sm rounded-0" value="<?php echo htmlspecialchars(ucwords($patientData['middle_name'])); ?>" id="middle_name" name="middle_name" />
+                                                            <input type="text" class="form-control " value="<?php echo htmlspecialchars(ucwords($patientData['middle_name'])); ?>" id="middle_name" name="middle_name" />
                                                         </div>
                                                     </div>
                                                     <div class="col-lg-3 col-sm-4 col-12">
                                                         <div class="mb-3">
                                                             <label class="form-label" for="abc2">Last Name: <span class="text-danger">*</span></label>
-                                                            <input type="text" class="form-control form-control-sm rounded-0" value="<?php echo htmlspecialchars(ucwords($patientData['last_name'])); ?>" id=" last_name" name="last_name" />
+                                                            <input type="text" class="form-control " value="<?php echo htmlspecialchars(ucwords($patientData['last_name'])); ?>" id=" last_name" name="last_name" />
 
                                                         </div>
                                                     </div>
                                                     <div class="col-lg-3 col-sm-4 col-12">
                                                         <div class="mb-3">
                                                             <label class="form-label" for="abc3">Suffix</label>
-                                                            <input type="text" class="form-control form-control-sm rounded-0" value="<?php echo htmlspecialchars(ucwords($patientData['suffix'])); ?>" id="suffix" name="suffix" />
+                                                            <input type="text" class="form-control " value="<?php echo htmlspecialchars(ucwords($patientData['suffix'])); ?>" id="suffix" name="suffix" />
                                                         </div>
                                                     </div>
                                                     <div class="col-lg-3 col-sm-4 col-12">
                                                         <div class="mb-3">
                                                             <label class="form-label" for="abc5">Purok: <span class="text-danger">*</span></label>
 
-                                                            <textarea class="form-control form-control-sm rounded-0" id="Purok" name="Purok" cols="30" rows="1"><?php echo htmlspecialchars(ucwords($patientData['purok'])); ?></textarea>
+                                                            <textarea class="form-control " id="Purok" name="Purok" cols="30" rows="1"><?php echo htmlspecialchars(ucwords($patientData['purok'])); ?></textarea>
 
 
                                                         </div>
                                                     </div>
                                                     <div class="col-lg-3 col-sm-4 col-12">
                                                         <div class="mb-3">
-                                                            <label class="form-label " for="abc6">Address: <span class="text-danger">*</span></label>
+                                                            <label class="form-label " for="abc6">Barangay: <span class="text-danger">*</span></label>
 
-                                                            <select class="form-control form-control-sm rounded-0" id="address" name="address" value="<?php echo htmlspecialchars(ucwords($patientData['brgy'])); ?>">
+                                                            <select class="form-control " id="address" name="address" value="<?php echo htmlspecialchars(ucwords($patientData['brgy'])); ?>">
                                                                 <?php echo getbrgy($brgy); ?>
                                                             </select>
 
@@ -954,9 +956,19 @@ function displayPSMemCheckboxes($phil_mem)
                                                     <div class="col-lg-3 col-sm-4 col-12">
                                                         <div class="mb-3">
                                                             <label class="form-label" for="abc5">Province: <span class="text-danger">*</span></label>
-                                                            <input type="text" class="form-control form-control-sm rounded-0" id="Province" name="Province" value="<?php echo htmlspecialchars(ucwords($patientData['province'])); ?>" />
+                                                            <input type="text" class="form-control " id="Province" name="Province" value="<?php echo htmlspecialchars(ucwords($patientData['province'])); ?>" />
 
 
+                                                        </div>
+
+                                                    </div>
+                                                      <div class="col-lg-3 col-sm-4 col-12">
+                                                        <div class="mb-3">
+                                                            <label class="form-label" for="abc3">Place of Birth:<span class="text-danger">*</span></label>
+                                                            <input type="text" class="form-control " name="placeofBirth" required  value="<?php echo htmlspecialchars(ucwords($patientData['place_of_birth'])); ?>"/>
+                                                            <div class="invalid-feedback">
+                                                                Place of Birth is required.
+                                                            </div>
                                                         </div>
 
                                                     </div>
@@ -970,9 +982,9 @@ function displayPSMemCheckboxes($phil_mem)
                                                         <label class="form-label" for="abc7">Date of Birth: <span class="text-danger">*</span></label>
 
                                                         <div class="input-group date" id="date_of_birth" data-target-input="nearest">
-                                                            <input type="text" class="form-control form-control-sm rounded-0 datetimepicker-input" value="<?php echo htmlspecialchars(ucwords($patientData['date_of_birth'])); ?>" data-target="#date_of_birth" name="date_of_birth" data-toggle="datetimepicker" autocomplete="off" />
+                                                            <input type="text" class="form-control datetimepicker-input" value="<?php echo htmlspecialchars(ucwords($patientData['date_of_birth'])); ?>" data-target="#date_of_birth" name="date_of_birth" data-toggle="datetimepicker" autocomplete="off" />
                                                             <div class="input-group-append" data-target="#date_of_birth" data-toggle="datetimepicker">
-                                                                <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                                                                <div class="input-group-text" style="height: 100%;"><i class="fa fa-calendar" style="height: 100%;"></i></div>
                                                             </div>
 
                                                         </div>
@@ -982,7 +994,7 @@ function displayPSMemCheckboxes($phil_mem)
                                                 <div class="col-lg-3 col-sm-4 col-12">
                                                     <div class="mb-3">
                                                         <label class="form-label" for="abc6">Age</label>
-                                                        <input type="text" min="0" max="999" class="form-control form-control-sm rounded-0" id="Age" value="<?php echo htmlspecialchars(ucwords($patientData['age'])); ?>" name="Age" readonly />
+                                                        <input type="text" min="0" max="999" class="form-control " id="Age" value="<?php echo htmlspecialchars(ucwords($patientData['age'])); ?>" name="Age" readonly />
 
                                                     </div>
 
@@ -1004,15 +1016,15 @@ function displayPSMemCheckboxes($phil_mem)
                                                 </div>
                                                 <div class="col-lg-3 col-sm-4 col-12">
                                                     <div class="mb-1">
-                                                        <label class="form-label" for="abc6">Contact number: <span class="text-danger">*</span></label>
-                                                        <input type="text" inputmode="text" class="form-control form-control-sm rounded-0" value="<?php echo htmlspecialchars(ucwords($patientData['phone_number'])); ?>" name="phone_number" value="+639" />
+                                                        <label class="form-label" for="abc6">Phone number: <span class="text-danger">*</span></label>
+                                                        <input type="text" inputmode="text" class="form-control " value="<?php echo htmlspecialchars(ucwords($patientData['phone_number'])); ?>" name="phone_number" value="+639" />
 
                                                     </div>
                                                 </div>
                                                 <div class="col-lg-3 col-sm-4 col-12">
                                                     <div class="mb-1">
                                                         <label class="form-label" for="abc6">Civis Status: <span class="text-danger">*</span></label>
-                                                        <select class="form-control form-control-sm rounded-0" id="Status" name="Status" value="<?php echo htmlspecialchars(ucwords($patientData['civil_status'])); ?>">
+                                                        <select class="form-control " id="Status" name="Status" value="<?php echo htmlspecialchars(ucwords($patientData['civil_status'])); ?>">
                                                             <?php
                                                             echo  getstat($civilstatus);
                                                             ?>
@@ -1024,31 +1036,18 @@ function displayPSMemCheckboxes($phil_mem)
                                                 <div class="col-lg-3 col-sm-4 col-12">
                                                     <div class="mb-1">
                                                         <label class="form-label" for="abc6">Blood Type: <span class="text-danger">*</span></label>
-                                                        <select class="form-control form-control-sm rounded-0" id="Blood" name="Blood" value="<?php echo htmlspecialchars(ucwords($patientData['blood_type'])); ?>">
+                                                        <select class="form-control " id="Blood" name="Blood" value="<?php echo htmlspecialchars(ucwords($patientData['blood_type'])); ?>">
                                                             <?php
                                                             echo  getblood($blood);
                                                             ?>
                                                         </select>
                                                     </div>
                                                 </div>
-                                                <div class="col-lg-3 col-sm-4 col-12">
-                                                    <div class="mb-3">
-                                                        <label class="form-label" for="abc6">Mothers Name : <span class="text-danger">*</span></label>
-                                                        <input type="text" class="form-control form-control-sm rounded-0" id="m_name" name="m_name" value="<?php echo htmlspecialchars(ucwords($patientData['mother_name'])); ?>" />
-
-                                                    </div>
-                                                </div>
-                                                <div class="col-lg-3 col-sm-4 col-12">
-                                                    <div class="mb-3">
-                                                        <label class="form-label" for="abc6">Fathers Name/Guardian: <span class="text-danger">*</span></label>
-                                                        <input type="text" class="form-control form-control-sm rounded-0" id="f_gname" name="f_gname" value="<?php echo htmlspecialchars(ucwords($patientData['father_guardian_name'])); ?>" />
-
-                                                    </div>
-                                                </div>
+                                           
                                                 <div class="col-lg-3 col-sm-4 col-12">
                                                     <div class="mb-3">
                                                         <label class="form-label" for="abc6">Nationality Type: <span class="text-danger">*</span></label>
-                                                        <select class="form-control form-control-sm rounded-0" id="Nationality" name="Nationality" value="<?php echo htmlspecialchars(ucwords($patientData['Nationality'])); ?>">
+                                                        <select class="form-control " id="Nationality" name="Nationality" value="<?php echo htmlspecialchars(ucwords($patientData['Nationality'])); ?>">
                                                             <?php
                                                             echo  getnationality($nationality);
                                                             ?>
@@ -1059,7 +1058,7 @@ function displayPSMemCheckboxes($phil_mem)
                                                 <div class="col-lg-3 col-sm-4 col-12">
                                                     <div class="mb-3">
                                                         <label class="form-label" for="abc6">Educational Attainment</label>
-                                                        <select class="form-control form-control-sm rounded-0" id="ed_att" name="ed_att" value="<?php echo htmlspecialchars(ucwords($patientData['ed_at'])); ?>">
+                                                        <select class="form-control " id="ed_att" name="ed_att" value="<?php echo htmlspecialchars(ucwords($patientData['ed_at'])); ?>">
                                                             <?php
                                                             echo  geteducation($ed_at);
                                                             ?>
@@ -1068,13 +1067,77 @@ function displayPSMemCheckboxes($phil_mem)
                                                 </div>
                                                 <div class="col-lg-3 col-sm-4 col-12">
                                                     <div class="mb-3">
-                                                        <label class="form-label" for="abc6">Employement Status</label>
-                                                        <input type="text" inputmode="text" class="form-control form-control-sm rounded-0" id="emp_stat" name="emp_stat" value="<?php echo htmlspecialchars(ucwords($patientData['emp_stat'])); ?>" />
+                                                        <label class="form-label" for="abc6">Occupation</label>
+                                                        <input type="text" inputmode="text" class="form-control " id="emp_stat" name="emp_stat" value="<?php echo htmlspecialchars(ucwords($patientData['emp_stat'])); ?>" />
                                                     </div>
                                                 </div>
+                                               <div class="col-lg-3 col-sm-4 col-12">
+                                                        <div class="mb-3">
+                                                            <label class="form-label" for="abc6">Religion:</label>
+                                                            <select name="religion"  class="form-select " value="<?php echo htmlspecialchars(ucwords($patientData['religion'])); ?>">
+                                                                
+                                                                  <?php echo getreligion($religion); ?>
 
 
 
+
+                                                            </select>
+                                                        </div>
+                                                    </div>
+
+                                            <hr style="width: 100%;" />
+                                                      <div class="row">
+                                                    <u><i>
+                                                            <h3>Emergency Contact</h3>
+                                                        </i></u>
+                                                        <br/>
+                                                </div>
+                                                    <div class="col-lg-3 col-sm-4 col-12">
+                                                        <div class="mb-3">
+                                                            <label class="form-label" for="abc6">Contact Name : <span class="text-danger">*</span></label>
+                                                            <input type="text" class="form-control " value="<?php echo htmlspecialchars(ucwords($patientData['emername'])); ?>"  name="emergencyname" placeholder="First Name   Middle Name   Last Name" style="width: 100%; padding: 8px;"
+
+                                                                title="Mothers Name  is required and contain only letters." required pattern="[a-zA-ZñÑ\s\.]+"/>
+                                                            <div class="invalid-feedback">
+                                                                Contact Name is required "
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-lg-3 col-sm-4 col-12">
+                                                        <div class="mb-3">
+                                                            <label class="form-label" for="abc6">Relationship to Patient: <span class="text-danger">*</span></label>
+                                                            <select name="relationship" class="form-select" required value="<?php echo htmlspecialchars(ucwords($patientData['relationship'])); ?>">
+                                                                 
+                                                                   <?php echo getEmergency($emergency); ?>
+
+                                                                 
+
+                                                                </select>
+                                                            <div class="invalid-feedback">
+                                                                Relationship to Patient is required "
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-lg-3 col-sm-4 col-12">
+                                                        <div class="mb-3">
+                                                            <label class="form-label" for="abc6">Address: <span class="text-danger">*</span></label>
+                                                            <textarea name="memberAddress" class="form-control" required><?php echo htmlspecialchars(ucwords($patientData['address'])); ?></textarea>
+
+                                                            <div class="invalid-feedback">
+                                                                Address is required.
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                <div class="col-lg-3 col-sm-4 col-12">
+                                                    <div class="mb-3">
+                                                        <label class="form-label" for="abc6">Contact number: <span class="text-danger">*</span></label>
+                                                        <input type="text" class="form-control" value="<?php echo htmlspecialchars(ucwords($patientData['contact'])); ?>"  name="memberContact" required pattern="\d+" title="Please enter only numbers." />
+                                                        <div class="invalid-feedback">
+                                                            Contact number is required and must contain only numbers.
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                              
 
                                             </div>
                                             <hr style="width: 75%;" />
@@ -1243,109 +1306,96 @@ function displayPSMemCheckboxes($phil_mem)
     </script>
 
 
-    <!-- <script>
-        $(document).ready(function() {
-            function calculateAge(birthdate) {
-                console.log("Birthdate:", birthdate);
 
-                var parts = birthdate.split('/');
-                var dob = new Date(parts[2], parts[1] - 1, parts[0]);
-                if (isNaN(dob)) {
-                    console.error("Invalid date format:", birthdate);
-                    return;
-                }
-                console.log("Parsed Date:", dob);
-                var today = new Date();
-                var age = today.getFullYear() - dob.getFullYear();
-                var monthDiff = today.getMonth() - dob.getMonth();
-                if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dob.getDate())) {
-                    age--;
-                }
-                console.log("Calculated Age:", age);
-                return age;
-            }
-
-            $('#date_of_birth').on('change.datetimepicker', function(e) {
-                var dob = $(this).find('input').val();
-                $('#Age').val(calculateAge(dob));
-            });
-        });
-    </script> -->
-
-
-    <script>
-        $(document).ready(function() {
-            $('#phone_number').inputmask('+639999999999');
+<script>
+    $(document).ready(function () {
+        $('#phone_number').inputmask('+639999999999');
             $('#date_of_birth').datetimepicker({
                 format: 'L',
                 maxDate: new Date()
             });
-
-
-            function calculateAge(birthdate) {
-                var dob = moment(birthdate, 'L'); // Parse date with moment.js using the 'L' format
-                if (!dob.isValid()) {
-                    console.error("Invalid date format:", birthdate);
-                    return;
-                }
-
-                var today = moment();
-                var age = today.diff(dob, 'years'); // Calculate age using moment.js
-                var months = today.diff(dob, 'months') % 12;
-
-                if (age === 0 && months === 1) {
-                    return months + " month";
-                } else if (age === 1 && months === 0) {
-                    return age + " year";
-                } else if (age === 1 && months > 0) {
-                    return age + " year and " + months + " months";
-                } else if (age === 0) {
-                    return months + " months";
-                } else {
-                    return age + " years";
-                }
+        function calculateAge(birthdate) {
+            // Parse the birthdate using moment.js
+            var dob = moment(birthdate, 'L');
+            if (!dob.isValid()) {
+                console.error("Invalid date format:", birthdate);
+                return "Invalid date";
             }
 
-            $('#date_of_birth').on('change.datetimepicker', function(e) {
-                var dob = $(this).find('input').val();
-                var age = calculateAge(dob);
-                $('#Age').val(age);
-            });
+            var today = moment();
+            var years = today.diff(dob, 'years'); // Calculate age in years
+            var months = today.diff(dob, 'months') % 12; // Remaining months
 
-        });
-        // var dob = new Date(parseInt(parts[2], 10), parseInt(parts[1], 10) - 1, parseInt(parts[0], 10));
-        // if (isNaN(dob.getTime())) {
-        //     console.error("Invalid date format:", birthdate);
-        //     return;
-        // }
-        // var today = new Date();
-        // var age = today.getFullYear() - dob.getFullYear();
-        // var monthDiff = today.getMonth() - dob.getMonth();
-        // if (monthDiff < 0 || (monthDiff === 0 && today.getDate() <script dob.getDate())) {
-        //     age--;
-        // }
-    </script>
-    <!-- <script>
-      $(document).ready(function() {
-        // Function to calculate age based on date of birth
-        function calculateAge(birthdate) {
-          var today = new Date();
-          var dob = new Date(birthdate);
-          var age = today.getFullYear() - dob.getFullYear();
-          var monthDiff = today.getMonth() - dob.getMonth();
-          if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dob.getDate())) {
-            age--;
-          }
-          return age;
+            // Check if the age is less than 1 month
+            if (today.diff(dob, 'days') < 30) {
+                return "Newborn";
+            }
+
+            // Return formatted age string based on conditions
+            if (years === 0 && months === 1) {
+                return "1 month"; // Singular form for 1 month
+            } else if (years === 0 && months > 1) {
+                return months + " months" + " old"; // Plural form for months
+            } else if (years === 1 && months === 0) {
+                return "1 year"; // Singular form for 1 year
+            
+            } else {
+                return years + " year" + (years > 1 ? "s" : ""); // Only years
+            }
         }
 
-        // Listen for changes in the date of birth input field
-        $('#date_of_birth').on('change.datetimepicker', function(e) {
-          var dob = $(this).find('input').val();
-          $('#Age').val(calculateAge(dob));
+        // Trigger calculation on date change
+        $('#date_of_birth').on('change.datetimepicker', function (e) {
+            var dob = $(this).find('input').val(); // Get the selected date
+            var age = calculateAge(dob); // Calculate age
+            $('#Age').val(age); // Set the calculated age in the target field
         });
-      });
-    </script> -->
+    });
+</script>
+
+    <!--<script>-->
+    <!--    $(document).ready(function() {-->
+    <!--        $('#phone_number').inputmask('+639999999999');-->
+    <!--        $('#date_of_birth').datetimepicker({-->
+    <!--            format: 'L',-->
+    <!--            maxDate: new Date()-->
+    <!--        });-->
+
+
+    <!--        function calculateAge(birthdate) {-->
+                var dob = moment(birthdate, 'L'); // Parse date with moment.js using the 'L' format
+    <!--            if (!dob.isValid()) {-->
+    <!--                console.error("Invalid date format:", birthdate);-->
+    <!--                return;-->
+    <!--            }-->
+
+    <!--            var today = moment();-->
+                var age = today.diff(dob, 'years'); // Calculate age using moment.js
+    <!--            var months = today.diff(dob, 'months') % 12;-->
+
+    <!--            if (age === 0 && months === 1) {-->
+    <!--                return months + " month";-->
+    <!--            } else if (age === 1 && months === 0) {-->
+    <!--                return age + " year";-->
+    <!--            } else if (age === 1 && months > 0) {-->
+    <!--                return age + " year and " + months + " months";-->
+    <!--            } else if (age === 0) {-->
+    <!--                return months + " months";-->
+    <!--            } else {-->
+    <!--                return age + " years";-->
+    <!--            }-->
+    <!--        }-->
+
+    <!--        $('#date_of_birth').on('change.datetimepicker', function(e) {-->
+    <!--            var dob = $(this).find('input').val();-->
+    <!--            var age = calculateAge(dob);-->
+    <!--            $('#Age').val(age);-->
+    <!--        });-->
+
+    <!--    });-->
+       
+    <!--</script>-->
+   
     <script>
         $(document).ready(function() {
             $('#date_of_birth').datetimepicker({
@@ -1381,47 +1431,39 @@ function displayPSMemCheckboxes($phil_mem)
         });
     </script>
     <script>
-        $(document).ready(function() {
-
-            $("#patient_name").blur(function() {
-
-                var message = '<?php echo $message; ?>';
-
-                if (message !== '') {
-                    showCustomMessage(message);
-                }
-
-
-                var patientName = $(this).val().trim();
-                // var householdNo = $("#household_no").val().trim();
-                $(this).val(patientName);
-
-                if (patient_name !== '') {
+        $(document).ready(function () {
+                 $("#patient_name, #middle_name, #last_name").blur(function () {
+                var patientName = $("#patient_name").val().trim();
+                var middleName = $("#middle_name").val().trim();
+                var lastName = $("#last_name").val().trim();
+        
+                if (patientName !== '' && middleName !== '' && lastName !== '') {
                     $.ajax({
                         url: "ajax/check_patient.php",
                         type: 'GET',
                         data: {
-                            'patient_name': patientName
-                            // 'household_no': householdNo
+                            'patient_name': patientName,
+                            'middle_name': middleName,
+                            'last_name': lastName,
                         },
                         cache: false,
                         async: true,
-                        success: function(count, status, xhr) {
+                        success: function (count) {
                             if (parseInt(count) > 0) {
-                                showCustomMessage("This patient name has already been saved. Please choose another name");
+                                showCustomMessage("This patient already exists. Please check the name, middle name, and last name.");
                                 $("#save_Patient").attr("disabled", "disabled");
                             } else {
                                 $("#save_Patient").removeAttr("disabled");
                             }
                         },
-                        error: function(jqXhr, textStatus, errorMessage) {
+                        error: function (jqXhr, textStatus, errorMessage) {
                             showCustomMessage(errorMessage);
                         }
                     });
                 }
-
             });
         });
+
     </script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {

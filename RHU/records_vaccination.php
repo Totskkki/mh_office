@@ -130,24 +130,37 @@ include './common_service/common_functions.php';
                                                         <th class="text-center">Action</th>
                                                         <?php
                                                         try {
-                                                        $query = "SELECT users.*, complaints.*, users.date_of_birth, family.brgy, family.purok, family.province, mem.*, i.*
-                                                                    FROM tbl_patients AS users 
-                                                                    LEFT JOIN tbl_familyAddress AS family ON users.family_address = family.famID 
-                                                                    LEFT JOIN tbl_membership_info AS mem ON users.Membership_Info = mem.membershipID
-                                                                    LEFT JOIN (
-                                                                        SELECT * FROM tbl_complaints AS c
-                                                                        WHERE c.status = 'Done' 
-                                                                        AND c.consultation_purpose = 'Vaccination and Immunization'
-                                                                        AND c.created_at = (
-                                                                            SELECT MAX(c2.created_at) 
-                                                                            FROM tbl_complaints AS c2 
-                                                                            WHERE c2.patient_id = c.patient_id
-                                                                        )
-                                                                    ) AS complaints ON users.patientID = complaints.patient_id
-                                                                    LEFT JOIN tbl_immunization_records AS i ON users.patientID = i.patient_id
-                                                                    WHERE complaints.patient_id IS NOT NULL
-                                                                    GROUP BY users.patientID 
-                                                                    ORDER BY users.patientID DESC";
+                                                    //   $query = "SELECT users.*, complaints.*, users.date_of_birth, family.brgy, family.purok, family.province, mem.*, i.*
+                                                    //           FROM tbl_patients AS users 
+                                                    //           LEFT JOIN tbl_familyAddress AS family ON users.family_address = family.famID 
+                                                    //           LEFT JOIN tbl_membership_info AS mem ON users.Membership_Info = mem.membershipID
+                                                    //           LEFT JOIN (
+                                                    //               SELECT * FROM tbl_complaints AS c
+                                                    //               WHERE c.status = 'Done' 
+                                                    //               AND c.consultation_purpose = 'Vaccination and Immunization'
+                                                    //               AND c.created_at = (
+                                                    //                   SELECT MAX(c2.created_at) 
+                                                    //                   FROM tbl_complaints AS c2 
+                                                    //                   WHERE c2.patient_id = c.patient_id
+                                                    //               )
+                                                    //           ) AS complaints ON users.patientID = complaints.patient_id
+                                                    //           LEFT JOIN tbl_immunization_records AS i ON users.patientID = i.patient_id
+                                                    //           WHERE i.immunID IS NOT NULL
+                                                    //           GROUP BY users.patientID, i.immunID
+                                                    //           ORDER BY i.immunID DESC";
+                                                      $query = "SELECT users.*, complaints.*, i.*
+                                                                FROM tbl_patients AS users
+                                                                LEFT JOIN tbl_complaints AS complaints ON users.patientID = complaints.patient_id
+                                                                LEFT JOIN tbl_immunization_records AS i ON users.patientID = i.patient_id
+                                                                INNER JOIN (
+                                                                    SELECT patient_id, MAX(DATE(immunization_date)) AS latest_immunization_date
+                                                                    FROM tbl_immunization_records
+                                                                    GROUP BY patient_id
+                                                                ) AS latest ON i.patient_id = latest.patient_id AND DATE(i.immunization_date) = latest.latest_immunization_date
+                                                                WHERE complaints.status = 'Done' AND complaints.consultation_purpose = 'Vaccination and Immunization'
+                                                                GROUP BY i.patient_id
+                                                                ORDER BY i.immunization_date DESC;
+                                                                ";
 
                                                         $stmtUsers = $con->prepare($query);
                                                         $stmtUsers->execute();
@@ -215,8 +228,8 @@ include './common_service/common_functions.php';
 
                                                                 $redirectUrl = $age < 2 ? 'controller/child_immunization_record.php' : 'controller/adult_immunization_record.php';
                                                                 ?>
-                                                                <a href="<?php echo $redirectUrl . '?id=' . $row['complaintID']; ?>" class="btn btn-outline-info btn-sm" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-custom-class="custom-tooltip-primary" data-bs-title="View">
-                                                                    <i class="icon-eye"></i>
+                                                                <a href="<?php echo $redirectUrl . '?id=' . $row['immunID']; ?>" class="btn btn-outline-info btn-sm" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-custom-class="custom-tooltip-primary" data-bs-title="View">
+                                                                    <i class="icon-eye"></i>    
                                                                 </a>
                                                             </td>
 

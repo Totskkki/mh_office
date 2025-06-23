@@ -241,12 +241,12 @@ include './common_service/common_functions.php';
 
   <script>
     $(document).ready(function() {
-      $("#all_patients").DataTable({
-        "responsive": true,
-        "lengthChange": true,
+     $("#all_patients").DataTable({
+         "responsive": true,
+         "lengthChange": true,
         "autoWidth": false,
-        "dom": '<"row"<"col-md-6 text-left"l><"col-md-6 text-right"B>>rt<"bottom"ip><"clear">',
-        "buttons": ["copy", "csv", "excel", "pdf", "print"],
+         "dom": '<"row"<"col-md-6 text-left"l><"col-md-6 text-right"B>>rt<"bottom"ip><"clear">',
+         "buttons": ["copy", "csv", "excel", "pdf", "print"],
         "lengthMenu": [10, 20, 50, 100],
       });
 
@@ -255,8 +255,20 @@ include './common_service/common_functions.php';
 
       // Adjust length menu alignment
       $('#length_menu').append($('.dataTables_length'));
-    });
+     });
   </script>
+  
+  <!-- <script>-->
+  <!--  $(document).ready(function() {-->
+  <!--    $("#all_patients").DataTable({-->
+  <!--      "responsive": true,-->
+  <!--      "lengthChange": true,-->
+  <!--      "autoWidth": false,-->
+  <!--      "dom": '<"row"<"col-md-6 text-left"l><"col-md-6 text-right"f>>rt<"bottom"ip><"clear">',-->
+  <!--      "lengthMenu": [10, 20, 50, 100],-->
+  <!--    });-->
+  <!--  });-->
+  <!--</script>-->
   <script>
     $(document).ready(function() {
       $("#search_patient").on("input", function() {
@@ -265,7 +277,7 @@ include './common_service/common_functions.php';
         // Make an AJAX request to fetch filtered patient data
         $.ajax({
           type: "POST",
-          url: "ajax/searchpatients.php",
+          url: "ajax/searchPatients.php",
           data: {
             searchTerm: searchTerm
           },

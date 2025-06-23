@@ -47,7 +47,7 @@ $query = "SELECT
         JOIN 
           tbl_patient_visits AS pv ON pv.patient_id = pat.patientID 
         JOIN 
-          tbl_familyaddress AS fam ON pat.family_address = fam.famID
+          tbl_familyAddress AS fam ON pat.family_address = fam.famID
         WHERE 
           pv.visit_date BETWEEN '$fromMysql' AND '$toMysql'
           AND pv.disease LIKE ('%$disease%')
@@ -71,4 +71,4 @@ while ($r = $stmt->fetch(PDO::FETCH_ASSOC)) {
     $pdf->AddRow($data);
 }
 ob_clean();
-$pdf->Output('print_patient_diseases.pdf', 'D');
+$pdf->Output('print_patient_diseases.pdf', 'I');

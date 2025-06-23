@@ -64,7 +64,7 @@
                     <div class="mb-3 row">
                         <label for="Address" class="col-sm-3 col-form-label text-center">Address  <span class="text-danger">*</span></label>
                         <div class="col-sm-8">
-                            <input type="text" id="Address" name="Address" class="form-control" required>
+                            <textarea type="text" id="Address" name="Address" class="form-control" required> </textarea>
                             <div class="invalid-feedback">Address is required.</div>
                         </div>
                     </div>
@@ -193,7 +193,7 @@
                     <div class="mb-3 row">
                         <label for="text" class="col-sm-3 col-form-label text-center">Address  <span class="text-danger">*</span></label>
                         <div class="col-sm-8">
-                            <input type="text" id="address" name="address" class="form-control" required>
+                            <textarea type="text" id="address" name="address" class="form-control" required></textarea>
                             <div class="invalid-feedback">Address  is required.</div>
                         </div>
                     </div>

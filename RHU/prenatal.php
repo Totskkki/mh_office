@@ -184,23 +184,13 @@ include './common_service/common_functions.php';
                                 }
                                 ?>
                               </td>
-                              <td class="text-center">
-                                <?php
-                               
-                                $redirectUrl = '';
-                                if ($row['consultation_purpose'] == 'Prenatal') {
-                                  $redirectUrl = 'form_prenatal.php';
-                                } elseif ($row['consultation_purpose'] == 'Birthing') {
-                                  $redirectUrl = 'form_birthing.php';
-                                }
-
-                                if (!empty($redirectUrl)) {
-                                  echo '<a href="' . $redirectUrl . '?id=' . $row['complaintID'] . '" class="btn btn-info btn-sm">consult</a>';
-                                } else {
-                                  echo '<span class="btn btn-info btn-sm disabled">Not Applicable</span>';
-                                }
-                                ?>
-                              </td>
+                              
+                                <td class="text-center">
+                                  <a href="form_prenatal.php?id=<?php echo $row['complaintID']?>" class="btn btn-info btn-sm btn-flat btn-request">
+                                    <i class="icon-feather"> consult</i>
+                                  </a>
+                                  </td>
+                             
 
                             </tr>
                           <?php
@@ -220,6 +210,24 @@ include './common_service/common_functions.php';
           <!-- Row end -->
 
 
+
+
+                <div class="modal fade" id="confirmationModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
+                      <div class="modal-dialog">
+                        <div class="modal-content">
+                          <div class="modal-header">
+                            <h5 class="modal-title" id="confirmationModalLabel">Confirm Prenatal</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                          </div>
+
+                          
+                          <div class="modal-footer">
+                            <button type="button" class="btn btn-danger" data-bs-dismiss="modal">No</button>
+                            <button type="button" class="btn btn-info" id="confirmRequest">Yes</button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
 
 
 
@@ -254,6 +262,22 @@ include './common_service/common_functions.php';
   <?php include './config/site_js_links.php'; ?>
   <?php include './config/data_tables_js.php'; ?>
 
+
+<script>
+    $(document).ready(function() {
+      var requestUrl;
+
+      $('.btn-request').on('click', function(e) {
+        e.preventDefault();
+        requestUrl = $(this).attr('href');
+        $('#confirmationModal').modal('show');
+      });
+
+      $('#confirmRequest').on('click', function() {
+        window.location.href = requestUrl;
+      });
+    });
+  </script>
 
   <script>
     $(document).ready(function() {

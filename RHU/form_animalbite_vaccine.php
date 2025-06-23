@@ -256,7 +256,7 @@ $medicines = getvaccine($con);
                                         <div class="col-lg-5 col-sm-2 col-12 mb-3">
 
                                         <div class="col-lg-12">
-                                        <label for="vaccineSelect" class="form-label">Search and Select Vaccine</label>
+                                        <label for="vaccineSelect" class="form-label">Search and Select Vaccine <span class="text-danger">*</span></label>
                                         <select id="vaccineSelect" name="vaccineSelect" class="form-control">
                                             <?php echo $medicines; ?>
                                         </select>
@@ -268,7 +268,7 @@ $medicines = getvaccine($con);
                                         </div>
                                         <div class="col-lg-5 col-sm-2 col-12 mb-3">
                                             <div class="form-group">
-                                                <label class="form-label">Date Vaccinated</label>
+                                                <label class="form-label">Date Vaccinated <span class="text-danger">*</span></label>
                                                 <div class="input-group date" id="visit_date" data-target-input="nearest">
                                                     <input type="text" class="form-control form-control-sm datetimepicker-input" data-target="#visit_date" name="visit_date" data-toggle="datetimepicker" autocomplete="off" required />
                                                     <div class="input-group-append" data-target="#visit_date" data-toggle="datetimepicker">
@@ -279,12 +279,12 @@ $medicines = getvaccine($con);
                                         </div>
                                        
                                         <div class="col-lg-5 col-sm-2 col-12 mb-3">
-                                            <label class="form-label"> Dose Quantity</label>
-                                            <input type="number" name="dose_number" class="form-control form-control-sm" min="0" required>
+                                            <label class="form-label"> Dose Quantity <span class="text-danger">*</span></label>
+                                            <input type="number" name="dose_number" class="form-control form-control-sm" min="1" required>
                                         </div>
                                         <div class="col-lg-5 col-sm-2 col-12 mb-3">
                                             <div class="form-group">
-                                                <label class="form-label">Next Schedule Vaccination</label>
+                                                <label class="form-label">Next Schedule Vaccination <span class="text-danger">*</span></label>
                                                 <div class="input-group date" id="next_visit_date" data-target-input="nearest">
                                                     <input type="text" class="form-control form-control-sm datetimepicker-input" data-target="#next_visit_date" name="next_visit_date" data-toggle="datetimepicker" autocomplete="off" required />
                                                     <div class="input-group-append" data-target="#next_visit_date" data-toggle="datetimepicker">
@@ -380,7 +380,6 @@ $medicines = getvaccine($con);
 </script>
    
 
-   
    
 
 

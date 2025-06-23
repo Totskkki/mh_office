@@ -8,14 +8,16 @@ if (isset($_POST['save_complaints'])) {
   $patientid = trim($_POST['hidden_id']);
   $Complaint = trim($_POST['Complaint']);
   $remarks = trim($_POST['remarks']);
-  $bp = trim($_POST['bp']);
+    $bp_systolic = trim($_POST['bp_systolic']);
+    $bp_diastolic = trim($_POST['bp_diastolic']);
+    $bp = $bp_systolic . '/' . $bp_diastolic; 
   $hr = trim($_POST['hr']);
   $weight = trim($_POST['weight'] . "kg");
   $rr = trim($_POST['rr']);
   $Temp = $_POST['Temp'] . "°C";
   $Height = trim($_POST['Height']);
   $PR = trim($_POST['PR']);
-    
+
   $Nature_visit = trim($_POST['Nature_visit']);
   $cp_visit = trim($_POST['cp_visit']);
   $Refferred = trim($_POST['Refferred']);
@@ -38,7 +40,7 @@ if (isset($_POST['save_complaints'])) {
           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?, 'Pending',?)";
     $con->beginTransaction();
     $stmt = $con->prepare($query);
-    $stmt->execute([$patientid, $Complaint, $remarks, $bp, $hr, $weight, $rr, $Temp, $Height, $Nature_visit, $cp_visit, $Refferred,$reason,$PR]);
+    $stmt->execute([$patientid, $Complaint, $remarks, $bp, $hr, $weight, $rr, $Temp, $Height, $Nature_visit, $cp_visit, $Refferred, $reason, $PR]);
     $con->commit();
     $_SESSION['status'] = "Patient complaint added successfully.";
     $_SESSION['status_code'] = "success";
@@ -46,9 +48,7 @@ if (isset($_POST['save_complaints'])) {
     exit;
   }
 
-  // // Redirect back to the same page to show messages or refresh the form
-  // header("Location: individual_treatment.php?id=" . $patientid);
-  // exit;
+ 
 }
 
 
@@ -119,9 +119,7 @@ if (isset($_GET['complaintID'])) {
 
         <!-- App brand starts -->
         <div class="app-brand px-3 py-2 d-flex align-items-center">
-          <a href="index.html">
-            <img src="assets/images/logo.svg" class="logo" alt="Bootstrap Gallery" />
-          </a>
+
         </div>
         <!-- App brand ends -->
 
@@ -187,7 +185,7 @@ if (isset($_GET['complaintID'])) {
                     <h3 class="profile-username text-center"></h3>
 
 
-                    <form method="post">
+                    <form method="post" novalidate id="oldpatient">
 
                       <p class="text-muted text-center"></p>
                       <ul class="list-group list-group-unbordered mb-3">
@@ -268,108 +266,98 @@ if (isset($_GET['complaintID'])) {
                           </style>
 
                           <div class="row">
+ <div class="col-lg-2 col-sm-4 col-12">
+                                                                    <div class="mb-3">
+                                                                        <h6 for="bp" class="">Blood Pressure</h6>
+                                                                        <div class="d-flex align-items-center">
+                                                                            <input type="text" style="width: 50%;" class="form-control form-control-sm rounded-0 blue-placeholder me-2" id="bp_systolic" name="bp_systolic" required placeholder="" />
+                                                                            <span class="mx-1">/</span>
+                                                                            <input type="text" style="width: 50%;" class="form-control form-control-sm rounded-0 blue-placeholder" id="bp_diastolic" name="bp_diastolic" required placeholder="" />
+                                                                       
+                                                                              <div class="invalid-feedback">
+                                                                            Blood Pressure is required.
+                                                                        </div>
+                                                                        </div>
+                                                                       
+                                                                        <p class="mt-1">Systolic/Diastolic</p>
+                                                                       
+                                                                    </div>
+                                                                </div>
 
-                            <div class="col-lg-2 col-sm-4 col-12">
-                              <div class="mb-3">
-                                <h6 for="bp" class="">Blood Pressure</h6>
-                                <input type="text" class="form-control form-control-sm rounded-0 blue-placeholder" placeholder="0 / 0" id="bp" name="bp" required />
-                                <p>Systolic/Diastolic</p>
-                              </div>
-                            </div>
-                            <div class="col-lg-2 col-sm-4 col-12">
-                              <div class="mb-3">
-                                <h6 for="hr" class="">Heart Rate</h6>
 
-                                <input type="text" class="form-control form-control-sm rounded-0 blue-placeholder" placeholder="0" id="hr" name="hr" required />
-                                <p>Beats per Minute</p>
-                              </div>
-                            </div>
-                            <div class="col-lg-1 col-sm-4 col-12">
-                              <div class="mb-3">
-                                <h6 for="weight" class="">Weight</h6>
-                                <input type="number" min="0" max="999" class="form-control form-control-sm rounded-0 blue-placeholder" placeholder="0" id="weight" name="weight" required />
-                                <p>Kilograms</p>
-                              </div>
-                            </div>
-                            <div class="col-lg-1 col-sm-4 col-12">
-                              <div class="mb-3">
-                                <h6 for="Height" class="">Height</h6>
-                                <input type="number" min="0" max="999" class="form-control form-control-sm rounded-0 blue-placeholder" placeholder="0" id="Height" name="Height" required />
-                                <p>Centimeters</p>
-                              </div>
-                            </div>
-                          
-                            <div class="col-lg-1 col-sm-4 col-12">
-                              <div class="mb-3">
-                                <h6 for="Temp" class="">Temp</h6>
-                                <input type="number" min="0" max="999" class="form-control form-control-sm rounded-0 blue-placeholder" placeholder="0" id="Temp" name="Temp" required />
-                                <p>Celsius</p>
-                              </div>
-                            </div>
-                            <div class="col-lg-1 col-sm-4 col-12">
+                                                            <div class="col-lg-2 col-sm-4 col-12">
                                                                 <div class="mb-3">
-                                                                    <h6 for="Temp" class="">PR</h6>
-                                                                    <input type="number" min="0" max="999" class="form-control form-control-sm rounded-0 blue-placeholder" placeholder="0" id="PR" name="PR" required />
-                                                                    <p>bpm</p>
+                                                                    <h6 for="hr" class="">Heart Rate</h6>
+                                                                    <input type="text" class="form-control form-control-sm rounded-0 blue-placeholder" placeholder="0" id="hr" name="hr" required min="0" max="300" />
+                                                                    <p>Beats per Minute</p>
+                                                                    <div class="invalid-feedback">
+                                                                        Heart Rate is required and must be between 0 and 300.
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-lg-1 col-sm-4 col-12">
+                                                                <div class="mb-3">
+                                                                    <h6 for="weight" class="">Weight</h6>
+                                                                    <input type="text" class="form-control form-control-sm rounded-0 blue-placeholder" placeholder="0" id="weight" name="weight" required min="0" max="999" />
+                                                                    <p>Kilograms</p>
+                                                                    <div class="invalid-feedback">
+                                                                        Weight is required and must be between 0 and 999 kg.
+                                                                    </div>
                                                                 </div>
                                                             </div>
                                                             <div class="col-lg-2 col-sm-4 col-12">
-                              <div class="mb-3">
-                                <h6 for="rr" class="">Respiratory rate</h6>
-                                <input type="text" class="form-control form-control-sm rounded-0 blue-placeholder" placeholder="0" id="rr" name="rr" />
-                                <p>Breaths per Minute</p>
-                              </div>
-                            </div>
+                                                                <div class="mb-3">
+                                                                    <h6 for="Height" class="">Height</h6>
+                                                                    <input type="text" class="form-control form-control-sm rounded-0 blue-placeholder" placeholder="0" id="Height" name="Height" required min="0" max="500" step="0.01" />
+                                                                    <p>Centimeters</p>
+                                                                    <div class="invalid-feedback">
+                                                                        Height is required and must be between 0 and 999 cm.
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-lg-1 col-sm-4 col-12">
+                                                                <div class="mb-3">
+                                                                    <h6 for="Temp" class="">Temp</h6>
+                                                                    <input type="text" class="form-control form-control-sm rounded-0 blue-placeholder" placeholder="0" id="Temp" name="Temp" required min="0" max="100" step="0.1" />
+                                                                    <p>Celsius</p>
+                                                                    <div class="invalid-feedback">
+                                                                        Temperature is required and must be between 0 and 100°C.
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-lg-1 col-sm-4 col-12">
+                                                                <div class="mb-3">
+                                                                    <h6 for="PR" class="">PR</h6>
+                                                                    <input type="text" class="form-control form-control-sm rounded-0 blue-placeholder" placeholder="0" id="PR" name="PR" required min="0" max="300" />
+                                                                    <p>bpm</p>
+                                                                    <div class="invalid-feedback">
+                                                                        PR is required and must be between 0 and 300 bpm.
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                           
+                                                            <div class="col-lg-2 col-sm-4 col-12">
+                                                                <div class="mb-3">
+                                                                    <h6 for="rr" class="">Respiratory rate</h6>
+                                                                    <input type="text" class="form-control form-control-sm rounded-0 blue-placeholder" placeholder="0" id="rr" name="rr" required min="0" max="100" />
+                                                                    <p>Breaths per Minute</p>
+                                                                    <div class="invalid-feedback">
+                                                                        Respiratory rate is required and must be between 0 and 100.
+                                                                    </div>
+                                                                </div>
+                                                               </div>
 
                           </div>
-                          <!-- <div class="row">
 
-                            <div class="col-lg-2 col-sm-4 col-12">
-                              <div class="mb-3">
-                                <label for="text" class="">Blood Pressure</label>
-                                <input type="text" class="form-control form-control-sm rounded-0" required id="bp" name="bp" />
-                              </div>
-                            </div>
-                            <div class="col-lg-2 col-sm-4 col-12">
-                              <div class="mb-3">
-                                <label for="text" class="">Heart Rate</label>
-                                <input type="text" class="form-control form-control-sm rounded-0" required id="hr" name="hr" />
-                              </div>
-                            </div>
-                            <div class="col-lg-2 col-sm-4 col-12">
-                              <div class="mb-3">
-                                <label for="text" class="">Weight</label>
-                                <input type="number" min="0" max="999" class="form-control form-control-sm rounded-0" required id="weight" name="weight" />
-                              </div>
-                            </div>
-                            <div class="col-lg-2 col-sm-4 col-12">
-                              <div class="mb-3">
-                                <label for="text" class="">Height</label>
-                                <input type="number" min="0" max="999" class="form-control form-control-sm rounded-0" id="Height" name="Height" required />
-                              </div>
-                            </div>
-                            <div class="col-lg-2 col-sm-4 col-12">
-                              <div class="mb-3">
-                                <label for="text" class="">Respiratory rate</label>
-                                <input type="text" class="form-control form-control-sm rounded-0" id="rr" name="rr" required />
-                              </div>
-                            </div>
-                            <div class="col-lg-2 col-sm-4 col-12">
-                              <div class="mb-3">
-                                <label for="text" class="">Temp</label>
-                                <input type="number" min="0" max="999" class="form-control form-control-sm rounded-0" id="Temp" name="Temp" required />
-
-                              </div>
-                            </div>
-
-
-                          </div> -->
                           <div class="col-lg-5 col-12">
                             <div class="mb-3">
                               <label for="visit" class="form-label">Nature of Visit</label>
                               <select id="Nature_visit" name="Nature_visit" class="form-control form-control-sm rounded-0" required="required">
                                 <?php echo getnature(); ?>
                               </select>
+                              <div class="invalid-feedback">
+                                Nature of Visit is required.
+                              </div>
                             </div>
                           </div>
 
@@ -384,21 +372,26 @@ if (isset($_GET['complaintID'])) {
                                 <?php echo getconsulpurpose(); ?>
 
                               </select>
+                              <div class="invalid-feedback">
+                                Type of consultation is required.
+                              </div>
                             </div>
                           </div>
 
                           <div class="col-lg-5 col-12">
                             <div class="mb-3">
                               <label for="text" class="">Refferred by:</label>
-                              <input type="text" class="form-control form-control-sm rounded-0" value="<?php echo $user['first_name'] . ' ' . $user['lastname']; ?>"  id="Refferred" name="Refferred"  readonly/>
+                              <input type="text" class="form-control form-control-sm rounded-0" value="<?php echo $user['first_name'] . ' ' . $user['lastname']; ?>" id="Refferred" name="Refferred" readonly />
 
                             </div>
                           </div>
                           <div class="col-lg-5 col-12">
                             <div class="mb-3">
                               <label for="text" class="">Reason for referral:</label>
-                              <input type="text" class="form-control form-control-sm rounded-0" id="reason" name="reason" />
-
+                              <input type="text" class="form-control form-control-sm rounded-0" id="reason" name="reason"  required/>
+                              <!--<div class="invalid-feedback">-->
+                              <!--  Reason for referral is required.-->
+                              <!--</div>-->
                             </div>
                           </div>
 
@@ -415,11 +408,11 @@ if (isset($_GET['complaintID'])) {
                           <button type="submit" class="btn btn-info" id="save_complaints" name="save_complaints">Submit</button>
                         </div>
                       </div>
-                      <?php 
+                      <?php
                       // require 'controller/add_patient_complaint.php'; 
                       ?>
                     </form>
-                 
+
 
 
 
@@ -460,9 +453,50 @@ if (isset($_GET['complaintID'])) {
 
 
 
-<script>
-      Inputmask("999 / 999").mask("#bp");
+  <!--<script>-->
+  <!--  Inputmask("999 / 999").mask("#bp");-->
+  <!--</script>-->
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      var form = document.getElementById('oldpatient');
+
+
+
+      form.addEventListener('submit', function(event) {
+        if (!form.checkValidity()) {
+          event.preventDefault();
+          event.stopPropagation();
+        }
+        form.classList.add('was-validated');
+      }, false);
+
+
+    });
   </script>
+   <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const inputs = document.querySelectorAll('input');
+            inputs.forEach(input => {
+                input.addEventListener('input', function() {
+                    const value = parseFloat(this.value);
+                    const min = parseFloat(this.min);
+                    const max = parseFloat(this.max);
+                    const invalidFeedback = this.nextElementSibling;
+
+                    {
+                        if (isNaN(value) || value < min || value > max) {
+                            invalidFeedback.style.display = 'block';
+                            this.classList.add('is-invalid');
+                        } else {
+                            invalidFeedback.style.display = 'none';
+                            this.classList.remove('is-invalid');
+                        }
+                    }
+                });
+            });
+        });
+    </script>
 </body>
 
 

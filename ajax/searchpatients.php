@@ -1,5 +1,8 @@
 <?php
 include '../config/connection.php';
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 
 if (isset($_POST['search'])) {
     $searchTerm = $_POST['search'];
@@ -27,7 +30,7 @@ if (isset($_POST['search'])) {
         echo '<div class="search-item">No results found</div>';
     }
 }
-?>
+
 
 
 

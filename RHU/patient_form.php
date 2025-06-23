@@ -117,8 +117,12 @@ if (isset($_POST['save_Patient'])) {
 
 
 
-    $m_name = trim($_POST['m_name']);
-    $f_gname = trim($_POST['f_gname']);
+
+      $m_name = trim($_POST['m_name']);
+    $relation = trim($_POST['relationship']);
+    
+    // $m_name = trim($_POST['m_name']);
+    // $f_gname = trim($_POST['f_gname']);
     $memberContact = trim($_POST['memberContact']);
     $memberAddress = trim($_POST['memberAddress']);
 
@@ -126,12 +130,11 @@ if (isset($_POST['save_Patient'])) {
     $con->beginTransaction();
     try {
 
-        $insertFamilyQuery = "INSERT INTO tbl_familyaddress (brgy, purok,city_municipality, province,place_of_birth) VALUES (:address, :Purok, :city_municipality,:province,:place_of_birth)";
+        $insertFamilyQuery = "INSERT INTO tbl_familyAddress (brgy, purok, province,place_of_birth) VALUES (:address, :Purok,:province,:place_of_birth)";
         $stmtFamily = $con->prepare($insertFamilyQuery);
         $stmtFamily->execute([
             ':address' => $address,
             ':Purok' => $Purok,
-            ':city_municipality' => $city_municipality,
             ':province' => $Province,
             ':place_of_birth' => $placeofBirth,
 
@@ -192,28 +195,19 @@ if (isset($_POST['save_Patient'])) {
         $lastInsertId = $con->lastInsertId();
 
 
-        $insertFatherGuardianQuery = "INSERT INTO tbl_family_members (name, relationship, contact, address,patient_id) 
+        
+
+        $insertFatherGuardianQuery = "INSERT INTO tbl_family_members (name, relationship,contact, address, patient_id) 
                             VALUES (:name,:relationship, :contact, :address, :patient_id)";
         $stmtFatherGuardian = $con->prepare($insertFatherGuardianQuery);
         $stmtFatherGuardian->execute([
-            ':name' => $f_gname,
-            ':relationship' => 'Father',
-            ':contact' => $memberContact,
-            ':address' => $memberAddress,
-            ':patient_id' => $lastInsertId,
-        ]);
-
-        // Insert mother's details into tbl_family_members
-        $insertMotherQuery = "INSERT INTO tbl_family_members (name, relationship,contact, address, patient_id) 
-                    VALUES (:name,:relationship, :contact, :address, :patient_id)";
-        $stmtMother = $con->prepare($insertMotherQuery);
-        $stmtMother->execute([
             ':name' => $m_name,
-            ':relationship' => 'Mother',
+            ':relationship' => $relation,
             ':contact' => $memberContact,
             ':address' => $memberAddress,
             ':patient_id' => $lastInsertId,
         ]);
+        
 
         $affectedName = getAffectedRecordName('tbl_patients', $lastInsertId, $con);
 
@@ -452,61 +446,38 @@ if (isset($_POST['save_Patient'])) {
 
                                                         </div>
                                                     </div>
-                                                    <div class="col-lg-3 col-sm-4 col-12">
+                                                   <div class="col-lg-3 col-sm-4 col-12">
                                                         <div class="mb-3">
-                                                            <label class="form-label">Region<span class="text-danger">*</span></label>
-                                                            <select name="text" class="form-control form-control-md" id="region"></select>
-                                                            <input type="hidden" class="form-control form-control-md" name="region_text" id="region-text" required>
-                                                            <div class="invalid-feedback">
-                                                                Region is required.
-                                                            </div>
+                                                            <label class="form-label" for="abc5">Purok: <span class="text-danger">*</span></label>
+
+                                                            <textarea class="form-control "  name="Purok" cols="30" rows="1" required><?php echo htmlspecialchars(ucwords($patientData['purok'])); ?></textarea>
+
 
                                                         </div>
-
                                                     </div>
                                                     <div class="col-lg-3 col-sm-4 col-12">
                                                         <div class="mb-3">
-                                                            <label class="form-label">Province<span class="text-danger">*</span></label>
-                                                            <select name="province" class="form-control form-control-md" id="province"></select>
-                                                            <input type="hidden" class="form-control form-control-md" name="Province" id="province-text" required>
-                                                            <div class="invalid-feedback">
-                                                                Province is required.
-                                                            </div>
-                                                        </div>
+                                                            <label class="form-label " for="abc6">Barangay: <span class="text-danger">*</span></label>
 
-                                                    </div>
-                                                    <div class="col-lg-3 col-sm-4 col-12">
-                                                        <div class="mb-3">
-                                                            <label class="form-label">City / Municipality <span class="text-danger">*</span></label>
-                                                            <select name="city" class="form-control form-control-md" id="city"></select>
-                                                            <input type="hidden" class="form-control " name="city_municipality" id="city-text" required>
-                                                            <div class="invalid-feedback">
-                                                                City / Municipality is required.
-                                                            </div>
-
-                                                        </div>
-
-                                                    </div>
-
-                                                    <div class="col-lg-3 col-sm-4 col-12">
-                                                        <div class="mb-3">
-                                                            <label class="form-label">Barangay <span class="text-danger">*</span></label>
-                                                            <select name="barangay" class="form-control " id="barangay"></select>
-                                                            <input type="hidden" class="form-control " name="address" id="barangay-text" required>
-                                                            <div class="invalid-feedback">
+                                                            <select class="form-control "required  name="address" value="<?php echo htmlspecialchars(ucwords($patientData['brgy'])); ?>">
+                                                                <?php echo getbrgy($brgy); ?>
+                                                            </select>
+                                                        <div class="invalid-feedback">
                                                                 Barangay is required.
                                                             </div>
+
                                                         </div>
                                                     </div>
-
                                                     <div class="col-lg-3 col-sm-4 col-12">
                                                         <div class="mb-3">
-                                                            <label class="form-label" for="abc5">Street (Optional): </label>
-
-                                                            <textarea class="form-control " id="Purok" name="Purok" cols="30" rows="1"></textarea>
-
+                                                            <label class="form-label" for="abc5">Province: <span class="text-danger">*</span></label>
+                                                            <input type="text" class="form-control "  name="Province" value="Sultan Kudarat"  readonly/>
+                                                        <div class="invalid-feedback">
+                                                                Province is required.
+                                                            </div>
 
                                                         </div>
+
                                                     </div>
 
 
@@ -566,14 +537,15 @@ if (isset($_POST['save_Patient'])) {
 
                                                     </div>
                                                     <div class="col-lg-3 col-sm-4 col-12">
-                                                        <div class="mb-1">
-                                                            <label class="form-label" for="abc6">Contact number: <span class="text-danger">*</span></label>
-                                                            <input type="text" inputmode="text" class="form-control " id="phone_number" name="phone_number" required />
+                                                        <div class="mb-3">
+                                                            <label class="form-label" for="abc6">Phone number: <span class="text-danger">*</span></label>
+                                                            <input type="text" class="form-control" id="phone_number" name="phone_number" required />
                                                             <div class="invalid-feedback">
-                                                                Contact number is required.
+                                                                Phone number is required and must contain only numbers.
                                                             </div>
                                                         </div>
                                                     </div>
+
                                                     <div class="col-lg-3 col-sm-4 col-12">
                                                         <div class="mb-1">
                                                             <label class="form-label" for="abc6">Civis Status: <span class="text-danger">*</span></label>
@@ -659,47 +631,69 @@ if (isset($_POST['save_Patient'])) {
                                                             </select>
                                                         </div>
                                                     </div>
+                                                   <hr style="width: 100%;" />
+                                                      <div class="row">
+                                                    <u><i>
+                                                            <h3>Emergency Contact</h3>
+                                                        </i></u>
+                                                        <br/>
+                                                </div>
                                                     <div class="col-lg-3 col-sm-4 col-12">
                                                         <div class="mb-3">
-                                                            <label class="form-label" for="abc6">Mothers Name : <span class="text-danger">*</span></label>
+                                                            <label class="form-label" for="abc6">Contact Name : <span class="text-danger">*</span></label>
                                                             <input type="text" class="form-control " id="m_name" name="m_name" placeholder="First Name   Middle Name   Last Name" style="width: 100%; padding: 8px;"
 
-                                                                title="Mothers Name  should be at least 2 characters and contain only letters." required pattern="[a-zA-Z\s\.]+" />
+                                                                title="Mothers Name  is required and contain only letters." required pattern="[a-zA-ZñÑ\s\.]+"/>
                                                             <div class="invalid-feedback">
-                                                                Mother's Name is required .
+                                                                Contact Name is required "
                                                             </div>
                                                         </div>
                                                     </div>
                                                     <div class="col-lg-3 col-sm-4 col-12">
                                                         <div class="mb-3">
-                                                            <label class="form-label" for="abc6">Fathers Name/Guardian: <span class="text-danger">*</span></label>
-                                                            <input type="text" class="form-control " id="f_gname" name="f_gname" placeholder="First Name   Middle Name   Last Name" style="width: 100%; padding: 8px;"
+                                                            <label class="form-label" for="abc6">Relationship to Patient: <span class="text-danger">*</span></label>
+                                                            <select name="relationship" class="form-select" required>
+                                                                    <option value="">-Select-</option>
+                                                                    <option value="Mother">Mother</option>
+                                                                    <option value="Father">Father</option>
+                                                                    <option value="Son">Son</option>
+                                                                    <option value="Daugther">Daugther</option>
+                                                                    <option value="Grand Father">Grand Father</option>
+                                                                    <option value="Grand Mother">Grand Mother</option>
+                                                                    <option value="Sibling">Sibling</option>
+                                                                    <option value="Uncle">Uncle</option>
+                                                                    <option value="Aunt">Aunt</option>
+                                                                    <option value="Guardian">Guardian</option>
+                                                                     <option value="Employer">Employer</option>
+                                                                      <option value="Husband">Husband</option>
+                                                                       <option value="Wife">Wife</option>
 
-                                                                title="Mothers Name  should be at least 2 characters and contain only letters." required pattern="[a-zA-Z\s\.]+" />
+                                                                </select>
                                                             <div class="invalid-feedback">
-                                                                Fathers Name/Guardian is required .
+                                                                Relationship to Patient is required "
                                                             </div>
                                                         </div>
                                                     </div>
                                                     <div class="col-lg-3 col-sm-4 col-12">
                                                         <div class="mb-3">
                                                             <label class="form-label" for="abc6">Address: <span class="text-danger">*</span></label>
-                                                            <textarea name="memberAddress" class="form-control " required> </textarea>
+                                                            <textarea name="memberAddress" class="form-control" required></textarea>
 
                                                             <div class="invalid-feedback">
                                                                 Address is required.
                                                             </div>
                                                         </div>
                                                     </div>
-                                                    <div class="col-lg-3 col-sm-4 col-12">
-                                                        <div class="mb-3">
-                                                            <label class="form-label" for="abc6">Contact number: <span class="text-danger">*</span></label>
-                                                            <input type="text" class="form-control " name="memberContact" id="memberContact" />
-                                                            <div class="invalid-feedback">
-                                                                Contact number is required.
-                                                            </div>
+                                                <div class="col-lg-3 col-sm-4 col-12">
+                                                    <div class="mb-3">
+                                                        <label class="form-label" for="abc6">Contact number: <span class="text-danger">*</span></label>
+                                                        <input type="text" class="form-control" id="memberContact" name="memberContact" required pattern="\d+" title="Please enter only numbers." />
+                                                        <div class="invalid-feedback">
+                                                            Contact number is required and must contain only numbers.
                                                         </div>
                                                     </div>
+                                                </div>
+                                              
 
 
 
@@ -822,6 +816,27 @@ if (isset($_POST['save_Patient'])) {
 
     <script src="../assets/ph-address-selector.js"></script>
 
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Select both input fields
+        const inputs = document.querySelectorAll('#memberContact, #phone_number');
+
+        // Add event listeners to both inputs
+        inputs.forEach(input => {
+            input.addEventListener('input', function() {
+                const value = this.value;
+                if (/^\d+$/.test(value)) {
+                    this.classList.remove('is-invalid');
+                    this.classList.add('is-valid');
+                } else {
+                    this.classList.remove('is-valid');
+                    this.classList.add('is-invalid');
+                }
+            });
+        });
+    });
+</script>
+
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -887,50 +902,95 @@ if (isset($_POST['save_Patient'])) {
         });
     </script>
 
-    <script>
-        $(document).ready(function() {
+    <!--<script>-->
+    <!--    $(document).ready(function() {-->
             // $('#phone_number').inputmask('+639999999999');
             // $('#Phil_no').inputmask('99-999999999-9');
 
+    <!--        $('#date_of_birth').datetimepicker({-->
+    <!--            format: 'L',-->
+    <!--            maxDate: new Date()-->
+    <!--        });-->
+
+
+    <!--        function calculateAge(birthdate) {-->
+    <!--            var dob = moment(birthdate, 'L');-->
+    <!--            if (!dob.isValid()) {-->
+    <!--                console.error("Invalid date format:", birthdate);-->
+    <!--                return;-->
+    <!--            }-->
+
+    <!--            var today = moment();-->
+                var age = today.diff(dob, 'years'); // Calculate age using moment.js
+    <!--            var months = today.diff(dob, 'months') % 12;-->
+
+    <!--            if (age === 0 && months === 1) {-->
+    <!--                return months + " month";-->
+    <!--            } else if (age === 1 && months === 0) {-->
+    <!--                return age + " year";-->
+    <!--            } else if (age === 1 && months > 0) {-->
+    <!--                return age + " year and " + months + " months";-->
+    <!--            } else if (age === 0) {-->
+    <!--                return months + " months";-->
+    <!--            } else {-->
+    <!--                return age + " years";-->
+    <!--            }-->
+    <!--        }-->
+
+    <!--        $('#date_of_birth').on('change.datetimepicker', function(e) {-->
+    <!--            var dob = $(this).find('input').val();-->
+    <!--            var age = calculateAge(dob);-->
+    <!--            $('#Age').val(age);-->
+    <!--        });-->
+
+    <!--    });-->
+    <!--</script>-->
+
+<script>
+    $(document).ready(function () {
+        $('#phone_number').inputmask('+639999999999');
             $('#date_of_birth').datetimepicker({
                 format: 'L',
                 maxDate: new Date()
             });
-
-
-            function calculateAge(birthdate) {
-                var dob = moment(birthdate, 'L');
-                if (!dob.isValid()) {
-                    console.error("Invalid date format:", birthdate);
-                    return;
-                }
-
-                var today = moment();
-                var age = today.diff(dob, 'years'); // Calculate age using moment.js
-                var months = today.diff(dob, 'months') % 12;
-
-                if (age === 0 && months === 1) {
-                    return months + " month";
-                } else if (age === 1 && months === 0) {
-                    return age + " year";
-                } else if (age === 1 && months > 0) {
-                    return age + " year and " + months + " months";
-                } else if (age === 0) {
-                    return months + " months";
-                } else {
-                    return age + " years";
-                }
+        function calculateAge(birthdate) {
+            // Parse the birthdate using moment.js
+            var dob = moment(birthdate, 'L');
+            if (!dob.isValid()) {
+                console.error("Invalid date format:", birthdate);
+                return "Invalid date";
             }
 
-            $('#date_of_birth').on('change.datetimepicker', function(e) {
-                var dob = $(this).find('input').val();
-                var age = calculateAge(dob);
-                $('#Age').val(age);
-            });
+            var today = moment();
+            var years = today.diff(dob, 'years'); // Calculate age in years
+            var months = today.diff(dob, 'months') % 12; // Remaining months
 
+            // Check if the age is less than 1 month
+            if (today.diff(dob, 'days') < 30) {
+                return "Newborn";
+            }
+
+            // Return formatted age string based on conditions
+            if (years === 0 && months === 1) {
+                return "1 month"; // Singular form for 1 month
+            } else if (years === 0 && months > 1) {
+                return months + " months" + " old"; // Plural form for months
+            } else if (years === 1 && months === 0) {
+                return "1 year"; // Singular form for 1 year
+            
+            } else {
+                return years + " year" + (years > 1 ? "s" : ""); // Only years
+            }
+        }
+
+        // Trigger calculation on date change
+        $('#date_of_birth').on('change.datetimepicker', function (e) {
+            var dob = $(this).find('input').val(); // Get the selected date
+            var age = calculateAge(dob); // Calculate age
+            $('#Age').val(age); // Set the calculated age in the target field
         });
-    </script>
-
+    });
+</script>
 
 
     <script>
@@ -940,12 +1000,12 @@ if (isset($_POST['save_Patient'])) {
             var philNoInput = document.getElementById("Phil_no");
 
             // Apply input mask
-            $('#phone_number').inputmask('+639999999999', {
-                autoUnmask: true
-            });
-            $('#memberContact').inputmask('+639999999999', {
-                autoUnmask: true
-            });
+            // $('#phone_number').inputmask('+639999999999', {
+            //     autoUnmask: true
+            // });
+            // $('#memberContact').inputmask('+639999999999', {
+            //     autoUnmask: true
+            // });
 
 
             $('#Phil_no').inputmask('99-999999999-9', {
@@ -982,78 +1042,40 @@ if (isset($_POST['save_Patient'])) {
         });
     </script>
     <script>
-        // $(document).ready(function() {
-
-        //     $("#patient_name").blur(function() {
-
-        //         var message = '<?php echo $message; ?>';
-
-        //         if (message !== '') {
-        //             showCustomMessage(message);
-        //         }
-
-
-        //         var patientName = $(this).val().trim();
-        //         // var householdNo = $("#household_no").val().trim();
-        //         $(this).val(patientName);
-
-        //         if (patient_name !== '') {
-        //             $.ajax({
-        //                 url: "ajax/check_patient.php",
-        //                 type: 'GET',
-        //                 data: {
-        //                     'patient_name': patientName
-
-        //                 },
-        //                 cache: false,
-        //                 async: true,
-        //                 success: function(count, status, xhr) {
-        //                     if (parseInt(count) > 0) {
-        //                         showCustomMessage("This patient name has already been saved. Please choose another name");
-        //                         $("#save_Patient").attr("disabled", "disabled");
-        //                     } else {
-        //                         $("#save_Patient").removeAttr("disabled");
-        //                     }
-        //                 },
-        //                 error: function(jqXhr, textStatus, errorMessage) {
-        //                     showCustomMessage(errorMessage);
-        //                 }
-        //             });
-        //         }
-
-        //     });
-        // });
-        $(document).ready(function() {
-
-            $("#patient_name, #last_name").blur(function() {
+     
+                $(document).ready(function () {
+                 $("#patient_name, #middle_name, #last_name").blur(function () {
                 var patientName = $("#patient_name").val().trim();
+                var middleName = $("#middle_name").val().trim();
                 var lastName = $("#last_name").val().trim();
-
-                if (patientName !== '' && lastName !== '') {
+        
+                if (patientName !== '' && middleName !== '' && lastName !== '') {
                     $.ajax({
                         url: "ajax/check_patient.php",
                         type: 'GET',
                         data: {
                             'patient_name': patientName,
-                            'last_name': lastName
+                            'middle_name': middleName,
+                            'last_name': lastName,
                         },
                         cache: false,
                         async: true,
-                        success: function(count, status, xhr) {
+                        success: function (count) {
                             if (parseInt(count) > 0) {
-                                showCustomMessage("This patient already exists. Please check the name and last name.");
+                                showCustomMessage("This patient already exists. Please check the name, middle name, and last name.");
                                 $("#save_Patient").attr("disabled", "disabled");
                             } else {
                                 $("#save_Patient").removeAttr("disabled");
                             }
                         },
-                        error: function(jqXhr, textStatus, errorMessage) {
+                        error: function (jqXhr, textStatus, errorMessage) {
                             showCustomMessage(errorMessage);
                         }
                     });
                 }
             });
         });
+
     </script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {

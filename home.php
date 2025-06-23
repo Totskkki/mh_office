@@ -17,15 +17,17 @@ if ($userType == 'BHW') {
 		$stmt->execute();
 		$result = $stmt->fetch(PDO::FETCH_ASSOC);
 
-		$homeImage = $result['home_img'] ?? 'default.jpg';
+		$homeImage = $result['home_img'] ?? 'default.png';
 	} catch (PDOException $e) {
 		echo "Error: " . $e->getMessage();
-		$homeImage = 'default.jpg';
+		$homeImage = 'default.png';
 	}
 } else {
-	$homeImage = 'default.jpg';
+	$homeImage = 'default.png';
 }
 ?>
+
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -39,66 +41,98 @@ if ($userType == 'BHW') {
 	<link href='./assets/fullcalendar/main.min.css' rel='stylesheet' />
 
 	<style>
+	.container {
+		display: flex;
+		flex-wrap: wrap; /* Allow elements to wrap on smaller screens */
+		max-width: 100%;
+		width: 100%;
+		margin: 20px;
+	}
+
+	#calendar {
+		width: 70%;
+		margin-right: 20px;
+		background-color: #fff;
+		border-radius: 8px;
+		padding: 20px;
+		box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+	}
+
+	.event-details {
+		width: 30%;
+		padding: 20px;
+		background-color: #fff;
+		border-radius: 8px;
+		box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+		height: fit-content;
+	}
+
+	.event-details h3 {
+		margin-top: 0;
+	}
+
+	.event-details ul {
+		list-style: none;
+		padding: 0;
+	}
+
+	.event-details ul li {
+		margin: 10px 0;
+		display: flex;
+		align-items: center;
+	}
+
+	.event-details ul li span {
+		width: 10px;
+		height: 10px;
+		border-radius: 50%;
+		display: inline-block;
+		margin-right: 10px;
+	}
+
+	.event-details ul li .blue {
+		background-color: #007bff;
+	}
+
+	.event-details ul li .red {
+		background-color: #dc3545;
+	}
+
+	.event-details ul li .yellow {
+		background-color: #ffc107;
+	}
+
+	/* Media Queries for responsiveness */
+	@media (max-width: 768px) {
 		.container {
-			display: flex;
-			max-width: 900px;
-			width: 100%;
-			margin: 20px;
+			flex-direction: column; /* Stack the items vertically */
 		}
 
 		#calendar {
-			width: 70%;
-			margin-right: 20px;
-			background-color: #fff;
-			border-radius: 8px;
-			padding: 20px;
-			box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+			width: 100%; /* Calendar takes full width on small screens */
+			margin-right: 0;
 		}
 
 		.event-details {
-			width: 30%;
-			padding: 20px;
-			background-color: #fff;
-			border-radius: 8px;
-			box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-			height: fit-content;
+			width: 100%; /* Event details takes full width on small screens */
+			margin-top: 20px;
 		}
+	}
 
-		.event-details h3 {
-			margin-top: 0;
+	@media (max-width: 576px) {
+		/* For very small screens, adjust the event details */
+		.event-details {
+			padding: 15px;
 		}
+	}
 
-		.event-details ul {
-			list-style: none;
-			padding: 0;
-		}
+	/* Style the image to be responsive */
+	img {
+		width: 100%;
+		height: auto;
+	}
+</style>
 
-		.event-details ul li {
-			margin: 10px 0;
-			display: flex;
-			align-items: center;
-		}
-
-		.event-details ul li span {
-			width: 10px;
-			height: 10px;
-			border-radius: 50%;
-			display: inline-block;
-			margin-right: 10px;
-		}
-
-		.event-details ul li .blue {
-			background-color: #007bff;
-		}
-
-		.event-details ul li .red {
-			background-color: #dc3545;
-		}
-
-		.event-details ul li .yellow {
-			background-color: #ffc107;
-		}
-	</style>
 
 </head>
 
@@ -114,9 +148,7 @@ if ($userType == 'BHW') {
 
 				<!-- App brand starts -->
 				<div class="app-brand px-3 py-2 d-flex align-items-center">
-					<a href="index.html">
-						<img src="assets/images/logo.svg" class="logo" alt="Bootstrap Gallery" />
-					</a>
+				
 				</div>
 				<!-- App brand ends -->
 
@@ -159,7 +191,7 @@ if ($userType == 'BHW') {
 								<!-- Breadcrumb start -->
 								<ol class="breadcrumb mb-1">
 									<li class="breadcrumb-item">
-										<a href="dashboard.php">Home</a>
+										<a href="home.php">Home</a>
 
 									</li>
 									<li class=" breadcrumb-active">
@@ -186,7 +218,8 @@ if ($userType == 'BHW') {
 
 
 
-										<img src="logo/<?php echo htmlspecialchars($homeImage); ?>" style="height: 40%; width: 100%" alt="Home Image">
+										<!--<img src="logo/<?php echo htmlspecialchars($homeImage); ?>" style="height: 40%; width: 100%" alt="Home Image">-->
+									<img src="<?php echo htmlspecialchars(empty($homeImage) ? 'logo/default.png' : 'logo/' . $homeImage); ?>" style="height: 40%; width: 100%" alt="Home Image">
 
 
 									</div>
@@ -276,51 +309,7 @@ if ($userType == 'BHW') {
 	<?php include './config/site_js_links.php'; ?>
 	<script src='./assets/fullcalendar/main.min.js'></script>
 
-	<!-- <script>
-		document.addEventListener('DOMContentLoaded', function() {
-			var calendarEl = document.getElementById('calendar');
 
-			// Fetch the PHP-generated JSON for events
-			var calendarEvents = <?php echo $calendarEventsJson; ?>;
-
-			// Get the current date
-			var today = new Date().toISOString().split('T')[0];
-
-			var calendar = new FullCalendar.Calendar(calendarEl, {
-				initialView: 'dayGridMonth',
-				events: calendarEvents, // Load events from PHP data
-				validRange: {
-					start: today // Disable past dates
-				},
-				dateClick: function(info) {
-					var eventListEl = document.getElementById('event-list');
-					var eventDateEl = document.getElementById('event-date');
-
-					// Update the right panel with the clicked date
-					eventDateEl.textContent = info.dateStr;
-					eventListEl.innerHTML = '';
-
-					// Filter events for the clicked date
-					var eventsForDay = calendarEvents.filter(event => event.start === info.dateStr);
-
-					if (eventsForDay.length > 0) {
-						eventsForDay.forEach(function(event) {
-							var listItem = document.createElement('li');
-							var colorSpan = document.createElement('span');
-							colorSpan.style.backgroundColor = '#007bff'; // Set a default color, you can add logic to change it
-							listItem.appendChild(colorSpan);
-							listItem.appendChild(document.createTextNode(event.title + ' - ' + event.description));
-							eventListEl.appendChild(listItem);
-						});
-					} else {
-						eventListEl.innerHTML = '<li>No events for this day</li>';
-					}
-				}
-			});
-
-			calendar.render();
-		});
-	</script> -->
 
 
 

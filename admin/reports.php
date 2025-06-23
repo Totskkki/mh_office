@@ -34,7 +34,7 @@ include './common_service/common_functions.php';
 
         <!-- App brand starts -->
         <div class="app-brand px-3 py-2 d-flex align-items-center">
-          
+
         </div>
         <!-- App brand ends -->
 
@@ -130,66 +130,118 @@ include './common_service/common_functions.php';
                   <!-- /.card-body -->
 
                   <!-- /.card-footer-->
-           
-                <!-- /.card -->
+
+                  <!-- /.card -->
 
 
 
 
-                <div class="card card-outline card-primary rounded-0 shadow">
-                  <div class="card-header">
-                    <h3 class="card-title">Illness Based Report Between </h3>
+                  <div class="card card-outline card-primary rounded-0 shadow">
+                    <div class="card-header">
+                      <h3 class="card-title">Illness Based Report Between </h3>
 
 
-                  </div>
+                    </div>
 
-                  <?php
+                    <?php
 
-                  $query = "SELECT DISTINCT disease FROM tbl_patient_visits";
-                  $stmt = $con->prepare($query);
-                  $stmt->execute();
-                  $diseases = $stmt->fetchAll(PDO::FETCH_ASSOC);
-                  ?>
-                  <div class="card-body">
-                    <div class="row">
-                      <div class="col-md-3">
-                        <label class="form-label">Health issue</label>
-                        <!-- <input id="disease" class="form-control " required/> -->
-                        <select id="disease" class="form-control" required>
-                          <option value="">Select Health Issue</option>
-                          <?php foreach ($diseases as $disease) : ?>
-                            <option value="<?= $disease['disease'] ?>"><?= $disease['disease'] ?></option>
-                          <?php endforeach; ?>
-                        </select>
-                        <span id="disease-error" style="color: red; display: none;">Health issue is required.</span>
-                      </div>
-                      <div class="col-md-3 mb-3">
-                        <label class="form-label">Health issue</label>
-                        <select id="barangay" class="form-control">
-                          <?php echo getbrgy(); ?>
-
-                        </select>
-                        <span id="barangay-error" style="color: red; display: none;">Barangay is required.</span>
-                      </div>
-                      <?php
-                      echo getDateTextBox('From', 'disease_from');
-
-                      echo getDateTextBox('To', 'disease_to');
-                      ?>
-
+                    $query = "SELECT DISTINCT disease FROM tbl_patient_visits";
+                    $stmt = $con->prepare($query);
+                    $stmt->execute();
+                    $diseases = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                    ?>
+                    <div class="card-body">
                       <div class="row">
-                        <div class="mb-3">
-                          <button type="submit" class="btn btn-info   float-end" id="print_diseases">Generate </button>
+                        <div class="col-md-3">
+                          <label class="form-label">Health issue</label>
+                          <!-- <input id="disease" class="form-control " required/> -->
+                          <select id="disease" class="form-control" required>
+                            <option value="">Select Health Issue</option>
+                            <?php foreach ($diseases as $disease) : ?>
+                              <option value="<?= $disease['disease'] ?>"><?= $disease['disease'] ?></option>
+                            <?php endforeach; ?>
+                          </select>
+                          <span id="disease-error" style="color: red; display: none;">Health issue is required.</span>
                         </div>
-                      </div>
+                        <div class="col-md-3 mb-3">
+                          <label class="form-label">Barangay</label>
+                          <select id="barangay" class="form-control">
+                            <?php echo getbrgy(); ?>
 
+                          </select>
+                          <span id="barangay-error" style="color: red; display: none;">Barangay is required.</span>
+                        </div>
+                        <?php
+                        echo getDateTextBox('From', 'disease_from');
+
+                        echo getDateTextBox('To', 'disease_to');
+                        ?>
+
+                        <div class="row">
+                          <div class="mb-3">
+                            <button type="submit" class="btn btn-info   float-end" id="print_diseases">Generate </button>
+                          </div>
+                        </div>
+
+                      </div>
+                    </div>
+                  </div>
+                  <div class="card card-outline card-primary rounded-0 shadow">
+                    <div class="card-header">
+                      <h3 class="card-title">Doctors Reports</h3>
+
+
+                    </div>
+
+                    <?php
+                    $sql = "SELECT user.*, personnel.*, position.*,
+                          CONCAT(personnel.first_name, ' ', personnel.middlename, ' ', personnel.lastname) AS `name`
+                          FROM `tbl_users` AS user
+                          INNER JOIN `tbl_personnel` AS personnel ON user.personnel_id = personnel.personnel_id
+                          INNER JOIN `tbl_position` AS position ON position.position_id = user.position_id
+                          WHERE user.`UserType` = 'Doctor'";
+
+                    $stmt = $con->prepare($sql);
+                    $stmt->execute();
+                    $doctor = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                    ?>
+                    <div class="card-body">
+                      <div class="row">
+                        <div class="col-md-3">
+                          <label class="form-label">Doctor</label>
+                          <select id="doctor" class="form-control" required>
+                            <option value="">Select Doctor</option>
+                            <?php foreach ($doctor as $doctors) : ?>
+                              <option value="<?= htmlspecialchars($doctors['name'], ENT_QUOTES, 'UTF-8') ?>">
+                                <?= htmlspecialchars($doctors['name'], ENT_QUOTES, 'UTF-8') ?>
+                              </option>
+                            <?php endforeach; ?>
+                          </select>
+                          <span id="doctor-error" style="color: red; display: none;">Doctor is required.</span>
+                        </div>
+
+
+
+
+                        <?php
+                        echo getDateTextBox('From', 'patient_from');
+
+                        echo getDateTextBox('To', 'patient_to');
+                        ?>
+
+                        <div class="row">
+                          <div class="mb-3">
+                            <button type="submit" class="btn btn-info   float-end" id="print_doctor">Generate </button>
+                          </div>
+                        </div>
+
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
 
+              </div>
             </div>
-          </div>
           </div>
           <!-- Container ends -->
 
@@ -222,56 +274,13 @@ include './common_service/common_functions.php';
 
 
 
-  <!-- 
   <script>
-
-
     $(document).ready(function() {
       $('#patients_from, #patients_to, #disease_from, #disease_to').datetimepicker({
         format: 'L',
-        maxDate: new Date
+        maxDate: new Date()
       });
-
-      $("#print_visits").click(function() {
-        var from = $("#patients_from").val();
-        var to = $("#patients_to").val();
-
-        if (from !== '' && to !== '') {
-          var win = window.open("print_patients_visits.php?from=" + from +
-            "&to=" + to, "_blank");
-          if (win) {
-            win.focus();
-          } else {
-            showCustomMessage('Please allow popups.');
-          }
-        }
-      });
-
-
-
-      $("#print_diseases").click(function() {
-      var from = $("#disease_from").val();
-      var to = $("#disease_to").val();
-      var disease = $("#disease").val().trim();
-
-      if (from === '' || to === '' || disease === '') {
-        
-      
-      var win = window.open("print_diseases.php?from=" + from +
-        "&to=" + to + "&disease=" + disease, "_blank");
-      if (win) {
-        win.focus();
-      } else {
-        showCustomMessage('Please allow popups.');
-      }
-    }
-    });
-  });
-  </script> -->
-
-  <script>
-    $(document).ready(function() {
-      $('#patients_from, #patients_to, #disease_from, #disease_to').datetimepicker({
+      $('#patient_from, #patient_to').datetimepicker({
         format: 'L',
         maxDate: new Date()
       });
@@ -334,24 +343,27 @@ include './common_service/common_functions.php';
           // showCustomMessage('invalid fields.');
         }
       });
+      $("#print_doctor").click(function() {
+        var from = $("#patient_from").val();
+        var to = $("#patient_to").val();
+        var doctor = $("#doctor").val();
 
-      // $("#print_diseases").click(function() {
-      //   var from = $("#disease_from").val();
-      //   var to = $("#disease_to").val();
+        if (doctor !== "" && from !== "" && to !== "") {
+          var win = window.open(
+            "print_doctors.php?from=" + from + "&to=" + to + "&doctor=" + encodeURIComponent(doctor),
+            "_blank"
+          );
+          if (win) {
+            win.focus();
+          } else {
+            alert("Please allow popups.");
+          }
+        } else {
+          alert("Please fill in all fields.");
+        }
+      });
 
-      //   if (validateHealthIssue() && from !== '' && to !== '') {
-      //     var disease = $("#disease").val().trim();
-      //     var win = window.open("print_diseases.php?from=" + from +
-      //       "&to=" + to + "&disease=" + disease, "_blank");
-      //     if (win) {
-      //       win.focus();
-      //     } else {
-      //       showCustomMessage('Please allow popups.');
-      //     }
-      //   } else {
 
-      //   }
-      // });
     });
   </script>
 

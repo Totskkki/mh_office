@@ -49,4 +49,8 @@
 <link rel="stylesheet" href="../assets/select2/css/select2.min.css">
 <link rel="stylesheet" href="../assets/select2-bootstrap4-theme/select2-bootstrap4.min.css">
 
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastr@latest/toastr.min.css" />
+
+
+
 

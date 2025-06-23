@@ -7,15 +7,14 @@ ini_set('memory_limit', '2048M');
 date_default_timezone_set('Asia/Manila');
 
 $message = '';
-
 function backupDatabaseTables($dbHost, $dbUsername, $dbPassword, $dbName, $tables = '*')
 {
-
   $conn = new mysqli($dbHost, $dbUsername, $dbPassword, $dbName);
   if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
   }
 
+  // Fetch tables
   if ($tables == '*') {
     $tables = array();
     $result = $conn->query('SHOW TABLES');
@@ -42,11 +41,7 @@ function backupDatabaseTables($dbHost, $dbUsername, $dbPassword, $dbName, $table
         for ($j = 0; $j < $numColumns; $j++) {
           $row[$j] = addslashes($row[$j]);
           $row[$j] = preg_replace("/\n/", "\\n", $row[$j]);
-          if (isset($row[$j])) {
-            $return .= '"' . $row[$j] . '"';
-          } else {
-            $return .= '""';
-          }
+          $return .= isset($row[$j]) ? '"' . $row[$j] . '"' : '""';
           if ($j < ($numColumns - 1)) {
             $return .= ',';
           }
@@ -57,159 +52,115 @@ function backupDatabaseTables($dbHost, $dbUsername, $dbPassword, $dbName, $table
     $return .= "\n\n\n";
   }
 
-  $backupDir = 'backups/';
-  if (!file_exists($backupDir)) {
-      mkdir($backupDir, 0777, true); 
-  }
+  // Create backup file content
+  $backupFile = 'db-backup-' . date('YmdHis') . '.sql';
 
+  // Set headers for file download
+  header('Content-Type: application/sql');
+  header('Content-Disposition: attachment; filename="' . $backupFile . '"');
 
-  $backupFile = $backupDir . 'db-backup-' . date('YmdHis') . '.sql';
-  $handle = fopen($backupFile, 'w+');
-  fwrite($handle, $return);
-  fclose($handle);
+  // Output the SQL script
+  echo $return;
 
-  $_SESSION['status'] = "Backup Database successfully. " . $backupFile;
-  $_SESSION['status_code'] = "success";
-  header('Location: backup.php');
+  // Close the connection
+  $conn->close();
   exit();
 }
 
-// Call the function
+// Trigger backup process
 if (isset($_POST['backup'])) {
   backupDatabaseTables('localhost', 'root', '', 'mh_office');
 }
-
-
-
-// if (isset($_POST['restore'])) {
-//   if (isset($_FILES['database']['error']) && $_FILES['database']['error'] == UPLOAD_ERR_OK) {
-//     $dbHost = 'localhost';
-//     $dbUsername = 'root';
-//     $dbPassword = '';
-//     $dbName = 'mh_office';
-
-//     $conn = new mysqli($dbHost, $dbUsername, $dbPassword, $dbName);
-//     if ($conn->connect_error) {
-//       die("Connection failed: " . $conn->connect_error);
-//     }
-
-
-//     $sqlFile = $_FILES['database']['tmp_name'];
-//     $fileContent = file_get_contents($sqlFile);
-
-
-//     $conn->query('SET FOREIGN_KEY_CHECKS=0');
-
-
-//     $query = '';
-//     foreach (explode("\n", $fileContent) as $line) {
-//       $startWith = substr(trim($line), 0, 2);
-//       $endWith = substr(trim($line), -1, 1);
-
-//       if (empty($line) || $startWith == '--' || $startWith == '/*' || $startWith == '//') {
-//         continue;
-//       }
-
-//       $query = $query . $line;
-//       if ($endWith == ';') {
-//         if (!$conn->query($query)) {
-//           echo 'Error performing query \'<strong>' . $query . '\': ' . $conn->error . '<br /><br />';
-//         }
-//         $query = '';
-//       }
-//     }
-
-
-//     $conn->query('SET FOREIGN_KEY_CHECKS=1');
-
-//     $conn->close();
-
-//     $_SESSION['status'] = "Database restored successfully!";
-//     $_SESSION['status_code'] = "success";
-//     header('location: backup.php');
-//     exit();
-//     // echo "Database restored successfully!";
-//   } else {
-//     // echo "Error in file upload!";
-//     $_SESSION['status'] = "Error in file upload!";
-//     $_SESSION['status_code'] = "error";
-//     header('location: backup.php');
-//     exit();
-//   }
-// }
-
 if (isset($_POST['restore'])) {
-  $backupDirectory = 'backups/';
-  $latestBackupFile = null;
-  $latestCtime = 0;
+  if (isset($_FILES['backupFile']) && $_FILES['backupFile']['error'] === UPLOAD_ERR_OK) {
+    $uploadDirectory = 'uploads/';
+    $fileTmpPath = $_FILES['backupFile']['tmp_name'];
+    $fileName = basename($_FILES['backupFile']['name']);
+    $fileExtension = pathinfo($fileName, PATHINFO_EXTENSION);
 
-  $files = glob($backupDirectory . '*.sql');
-  foreach ($files as $file) {
-      if (is_file($file) && filectime($file) > $latestCtime) {
-          $latestBackupFile = $file;
-          $latestCtime = filectime($file);
+    // Check if the file is a .sql file
+    if (strtolower($fileExtension) === 'sql') {
+      // Ensure the uploads directory exists
+      if (!is_dir($uploadDirectory)) {
+        mkdir($uploadDirectory, 0755, true);
       }
-  }
 
-  if ($latestBackupFile) {
-      restoreDatabase($latestBackupFile);
-  } else {
-      $_SESSION['status'] = "No backup file found.";
+      // Move the uploaded file to the uploads directory
+      $filePath = $uploadDirectory . $fileName;
+      if (move_uploaded_file($fileTmpPath, $filePath)) {
+        restoreDatabase($filePath); // Call the restore function
+      } else {
+        $_SESSION['status'] = "Failed to upload the backup file.";
+        $_SESSION['status_code'] = "error";
+        header('Location: backup.php');
+        exit();
+      }
+    } else {
+      $_SESSION['status'] = "Invalid file type. Only .sql files are allowed.";
       $_SESSION['status_code'] = "error";
       header('Location: backup.php');
       exit();
+    }
+  } else {
+    // Error during file upload
+    if ($_FILES['backupFile']['error'] !== UPLOAD_ERR_NO_FILE) {
+      $_SESSION['status'] = "Error uploading file. Error Code: " . $_FILES['backupFile']['error'];
+    } else {
+      $_SESSION['status'] = "No file selected. Please upload a .sql file.";
+    }
+    $_SESSION['status_code'] = "error";
+    header('Location: backup.php');
+    exit();
   }
 }
-function restoreDatabase($filePath) {
-  $dbHost = 'localhost';
+
+
+function restoreDatabase($filePath)
+{
+   $dbHost = 'localhost';
   $dbUsername = 'root';
   $dbPassword = '';
   $dbName = 'mh_office';
 
-
   $conn = new mysqli($dbHost, $dbUsername, $dbPassword, $dbName);
   if ($conn->connect_error) {
-      $_SESSION['status'] = "Connection failed: " . $conn->connect_error;
-      $_SESSION['status_code'] = "error";
-      header('Location: backup.php');
-      exit();
+    $_SESSION['status'] = "Database connection failed: " . $conn->connect_error;
+    $_SESSION['status_code'] = "error";
+    header('Location: backup.php');
+    exit();
   }
-
 
   $sql = file_get_contents($filePath);
   if ($sql === false) {
-      $_SESSION['status'] = "Failed to read backup file.";
-      $_SESSION['status_code'] = "error";
-      header('Location: backup.php');
-      exit();
+    $_SESSION['status'] = "Failed to read the backup file.";
+    $_SESSION['status_code'] = "error";
+    header('Location: backup.php');
+    exit();
   }
 
- 
   $conn->query('SET FOREIGN_KEY_CHECKS=0');
 
- 
   if ($conn->multi_query($sql)) {
-      do {
-          if ($result = $conn->store_result()) {
-              $result->free();
-          }
-      } while ($conn->more_results() && $conn->next_result()); 
+    do {
+      if ($result = $conn->store_result()) {
+        $result->free();
+      }
+    } while ($conn->more_results() && $conn->next_result());
 
-      $_SESSION['status'] = "Database restored successfully from $filePath!";
-      $_SESSION['status_code'] = "success";
+    $_SESSION['status'] = "Database successfully restored from the backup file: $filePath.";
+    $_SESSION['status_code'] = "success";
   } else {
-      $_SESSION['status'] = "Error restoring database: " . $conn->error;
-      $_SESSION['status_code'] = "error";
+    $_SESSION['status'] = "Error during restoration: " . $conn->error;
+    $_SESSION['status_code'] = "error";
   }
 
- 
   $conn->query('SET FOREIGN_KEY_CHECKS=1');
-
- 
   $conn->close();
+
   header('Location: backup.php');
   exit();
 }
+
 
 ?>
 
@@ -270,7 +221,7 @@ function restoreDatabase($filePath) {
 
         <!-- App brand starts -->
         <div class="app-brand px-3 py-2 d-flex align-items-center">
-          
+
         </div>
         <!-- App brand ends -->
 
@@ -327,33 +278,7 @@ function restoreDatabase($filePath) {
                 </h6>
               </div>
             </div>
-            <!-- Row end -->
 
-            <!-- Row start -->
-
-            <!-- Row start -->
-            <!-- <div class="row">
-              <div class="col-12">
-                <div class="card mb-4">
-                  <div class="card-header">
-                    <h5 class="card-title">Backup System</h5>
-                  </div>
-                  <div class="card-body">
-                    <center>
-                    <div class="col-lg-4 col-sm-4 col-12 text-center">
-                      <button type="button" class="btn btn-lg btn-info mb-3">
-                        Backup System
-                      </button>
-
-                    </div>
-                    </center>
-                    <div class="row">
-                      
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div> -->
             <!-- Row start -->
             <div class="loading-overlay" id="loadingOverlay">
               <div class="loading-message">
@@ -370,8 +295,8 @@ function restoreDatabase($filePath) {
                     <h5 class="card-title">Backup System</h5>
                   </div>
                   <div class="card-body">
+                    <!-- Backup Button -->
                     <form method="post">
-                      <!-- Use Bootstrap offset to center the button column -->
                       <div class="col-sm-3 offset-sm-4 col-12 mb-4">
                         <button type="submit" id="backup" name="backup" class="form-control btn btn-info">
                           Backup Database
@@ -379,19 +304,25 @@ function restoreDatabase($filePath) {
                       </div>
                     </form>
 
-                    <form method="post" >
-                     
+                    <!-- Restore Button with File Upload -->
+                    <form method="post" enctype="multipart/form-data">
+                      <div class="col-sm-3 offset-sm-4 col-12 mb-3">
+                        <div class="form-group mb-3">
+                          <label for="backupFile">Select Backup File:</label>
+                          <input type="file" name="backupFile" id="backupFile" class="form-control" accept=".sql" required>
+                        </div>
+                      </div>
                       <div class="col-sm-3 offset-sm-4 col-12 mb-3">
                         <button type="submit" id="restore" name="restore" class="form-control btn btn-success">
                           Restore Database
                         </button>
                       </div>
-
                     </form>
                   </div>
                 </div>
               </div>
             </div>
+
 
 
 
@@ -446,24 +377,43 @@ function restoreDatabase($filePath) {
   ?>
 
   <script>
-    document.getElementById('restore').addEventListener('click', function() {
-      document.getElementById('loadingOverlay').style.display = 'flex';
-      document.querySelector('.card').classList.add('blur-effect');
-      animateProgressBar();
-    });
+   document.getElementById('restore').addEventListener('click', function(event) {
+  const fileInput = document.getElementById('backupFile');
+  
+  // Check if a file is selected
+  if (fileInput.files.length === 0) {
+    alert('Please select a backup file before proceeding.');
+    event.preventDefault(); // Prevent form submission
+    return;
+  }
 
-    function animateProgressBar() {
-      var progress = 0;
-      var interval = setInterval(function() {
-        progress += 5;
-        document.getElementById('progressBar').style.width = progress + '%';
-        document.getElementById('progressBar').setAttribute('aria-valuenow', progress);
-        if (progress >= 100) {
-          clearInterval(interval);
+  // Check if the selected file is a .sql file
+  const fileName = fileInput.files[0].name;
+  const fileExtension = fileName.split('.').pop().toLowerCase();
+  if (fileExtension !== 'sql') {
+    alert('Invalid file type. Please upload a .sql file.');
+    event.preventDefault(); // Prevent form submission
+    return;
+  }
 
-        }
-      }, 200);
+  // Show the loading overlay if file validation passes
+  document.getElementById('loadingOverlay').style.display = 'flex';
+  document.querySelector('.card').classList.add('blur-effect');
+  animateProgressBar();
+});
+
+function animateProgressBar() {
+  let progress = 0;
+  const interval = setInterval(function() {
+    progress += 5;
+    document.getElementById('progressBar').style.width = progress + '%';
+    document.getElementById('progressBar').setAttribute('aria-valuenow', progress);
+    if (progress >= 100) {
+      clearInterval(interval);
     }
+  }, 200);
+}
+
   </script>
 
 

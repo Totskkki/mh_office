@@ -33,6 +33,8 @@
 <script src="../assets/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js"></script>
 <script src="../assets/inputmask/jquery.inputmask.min.js"></script>
 <script src="../assets/jquery-ui.js"></script>
+<!--<script src="../assets/sync.js"></script>-->
+<script src="https://cdn.jsdelivr.net/npm/toastr@latest/toastr.min.js"></script>
 
 
 
@@ -42,7 +44,7 @@
         toast: true,
         position: 'top-end',
         showConfirmButton: false,
-        timer: 3000,
+        timer: 5000,
         customClass: {
             popup: 'toast-popup-class',
             title: 'toast-title-class'
@@ -73,3 +75,49 @@
         window.onpageshow = function(evt) { if (evt.persisted) disableBack() }
     });
 </script> -->
+
+<script>
+    let notificationInterval;
+
+function checkNotifications() {
+    // Check if notifications have already been shown in the current session
+    if (sessionStorage.getItem('notificationsShown') === 'true') {
+        return; // Exit the function if notifications have already been shown
+    }
+
+    $.ajax({
+        url: 'ajax/check_notifications.php',
+        method: 'GET',
+        dataType: 'json',
+        success: function(response) {
+            if (response.success && response.count > 0) {
+                toastr.info(`You have ${response.count} new notifications!`, 'New Notifications', {
+                    closeButton: true,
+                    progressBar: true,
+                    timeOut: 5000,
+                });
+
+                // Set a flag in session storage to indicate that notifications have been shown
+                sessionStorage.setItem('notificationsShown', 'true');
+            }
+        },
+        error: function(xhr, status, error) {
+            console.error('Error fetching notifications:', error);
+        }
+    });
+}
+
+$(document).ready(function() {
+    // Initial check on page load
+    checkNotifications();
+
+    // Start interval for checking notifications every 2 minutes
+    notificationInterval = setInterval(checkNotifications, 120000);
+
+    // Stop interval when the page is refreshing or unloading
+    window.onbeforeunload = function () {
+        clearInterval(notificationInterval);
+    };
+});
+
+</script>

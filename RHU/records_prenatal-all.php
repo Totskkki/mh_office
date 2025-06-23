@@ -43,7 +43,7 @@ include './common_service/common_functions.php';
                                              CONCAT(fam.brgy, ' ', fam.purok, ' ', fam.province) AS address
                                       FROM tbl_prenatal AS a
                                       JOIN tbl_patients AS pat ON a.patient_id = pat.patientID
-                                      JOIN tbl_familyaddress AS fam ON pat.family_address = fam.famID
+                                      JOIN tbl_familyAddress AS fam ON pat.family_address = fam.famID
                                      
                                       WHERE a.patient_id = :patientID";
 

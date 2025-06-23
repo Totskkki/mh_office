@@ -14,7 +14,7 @@ if (isset($_GET['id'])) {
     CONCAT(ad.brgy, ' ', ad.city_municipality, ' ', ad.province) AS address
     FROM tbl_animal_bite_vaccination av
     LEFT JOIN tbl_patients p ON p.patientID = av.patient_id
-    LEFT JOIN tbl_familyaddress ad ON ad.famID = p.family_address
+    LEFT JOIN tbl_familyAddress ad ON ad.famID = p.family_address
     LEFT JOIN tbl_animal_bite_care ab ON ab.animal_biteID = av.bite_status  
     WHERE av.patient_id = (
         SELECT patient_id FROM tbl_animal_bite_vaccination 

@@ -12,7 +12,7 @@ if (isset($_POST['dischargedID'])) {
                   CONCAT(p.patient_name, ' ', p.middle_name, ' ', p.last_name, ' ', p.suffix) AS name,
                   CONCAT(a.brgy, ' ', a.purok, ' ', a.province) AS address
                   FROM tbl_patients p    
-                  LEFT JOIN tbl_familyaddress a ON a.famID = p.family_address
+                  LEFT JOIN tbl_familyAddress a ON a.famID = p.family_address
                   LEFT JOIN tbl_birth_info bm on bm.patient_id = p.patientID
                 
                   WHERE p.patientID = :recordId order by bm.birth_info_id desc";

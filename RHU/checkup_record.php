@@ -188,8 +188,8 @@ include './common_service/common_functions.php';
                                                                 <td>
                                                                 <a href="records_checkup-all.php?id=<?php echo $row['patient_id'] ?>"button class="btn btn-outline-info btn-sm" data-bs-toggle="tooltip"
 																	data-bs-placement="top" data-bs-custom-class="custom-tooltip-primary"
-																	data-bs-title="View Records">
-																	<i class="icon-folder"></i> View Records
+																	data-bs-title="All Records">
+																	<i class="icon-folder"></i> All Records
 																</a>
                                                                 </td>
                                                            

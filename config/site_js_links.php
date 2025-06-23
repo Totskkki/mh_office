@@ -31,6 +31,7 @@
 
 <script src="assets/jquery-validation/jquery.validate.min.js"></script>
 <script src="assets/jquery-validation/additional-methods.min.js"></script>
+<!--<script src="assets/sync.js"></script>-->
 
 
 <script>
@@ -39,7 +40,7 @@
             toast: true,
             position: 'top-end',
             showConfirmButton: false,
-            timer: 3000,
+            timer: 5000,
             customClass: {
                 popup: 'toast-popup-class',
                 title: 'toast-title-class'

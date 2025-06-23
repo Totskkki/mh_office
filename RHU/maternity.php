@@ -99,20 +99,34 @@ include './common_service/common_functions.php';
               <div class="col-12">
                 <div class="card mb-4">
                   <div class="card-header">
-                    <h5 class="card-title">Birthing/Prenatal</h5>
+                    <h5 class="card-title">Birthing</h5>
                   </div>
                   <div class="card-body">
-                    <div <div class="col-12">
-                      <div class="d-flex gap-2 justify-content-end mb-2">
+  <?php 
+  // SQL query to count rows where birthing_status is 'ongoing'
+  $sql = "SELECT COUNT(*) AS total_monitoring FROM tbl_birth_info WHERE birthing_status = 'ongoing'";
+  $stmt = $con->prepare($sql);
+  $stmt->execute();
+  
+  // Fetch the result
+  $totalMonitoring = 0;
+  $row = $stmt->fetch(PDO::FETCH_ASSOC); // Use fetch(PDO::FETCH_ASSOC) for PDO
+  if ($row) {
+    $totalMonitoring = $row['total_monitoring'];
+  }
+  ?>
 
-                        <a href="birthing_monitoring.php" type="button" class="btn btn-outline-info ms-1">
-                          Birhting Monitoring
-                        </a>
-                        <a href="records_birthing.php" type="button" class="btn btn-outline-success ms-1">
-                          Birthing Records
-                        </a>
-                      </div>
-                    </div>
+  <div class="col-12">
+    <div class="d-flex gap-2 justify-content-end mb-2">
+      <a href="birthing_monitoring.php" type="button" class="btn btn-outline-info ms-1">
+        Birthing Monitoring <span class="badge bg-warning"><?= htmlspecialchars($totalMonitoring) ?></span>
+      </a>
+      <a href="records_birthing.php" type="button" class="btn btn-outline-success ms-1">
+        Birthing Records
+      </a>
+    </div>
+  </div>
+
 
 
                     <!-- Confirmation Modal -->

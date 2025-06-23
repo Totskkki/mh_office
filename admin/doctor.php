@@ -71,9 +71,9 @@ if (isset($_POST['save_doctor'])) {
     if ($fname != '' && $uname != '' && $contact != '' && $email != '') {
 
         // Handle password only if the role is "Doctor"
-        if ($role === 'Doctor' && isset($_POST['pass'])) {
+         if ($role === 'Doctor' && isset($_POST['pass'])) {
             $pass = trim($_POST['pass']);
-            $bcrypt_password = password_hash($pass, PASSWORD_ARGON2ID); // Hash the password
+            $bcrypt_password = password_hash($pass, PASSWORD_BCRYPT); // Hash the password using bcrypt
         } else {
             $bcrypt_password = null; // Set password to null for non-doctor roles
         }
@@ -103,7 +103,7 @@ if (isset($_POST['save_doctor'])) {
 
             // Insert into tbl_position
             $stmtPosition = $con->prepare("INSERT INTO tbl_position (personnel_id, positionName, Specialty, ProfessionalType, LicenseNo) VALUES (?, ?, ?, ?, ?)");
-            $stmtPosition->execute([$personnelId, $positionName, $Specialty, $ProfessionalType, $LicenseNo]);
+            $stmtPosition->execute([$personnelId, $role, $Specialty, $ProfessionalType, $LicenseNo]);
             $positionId = $con->lastInsertId();
 
             // Insert into tbl_users
@@ -155,6 +155,97 @@ if (isset($_POST['save_doctor'])) {
 
 
 
+// if (isset($_POST['update_doctor'])) {
+//     // Retrieve user data from the form
+//     $user_id = trim($_POST['userid']);
+//     $persid = trim($_POST['persid']);
+//     $fname = ucwords(strtolower(trim($_POST['fname'])));
+//     $mname = ucwords(strtolower(trim($_POST['mname'])));
+//     $uname = trim($_POST['uname']);
+//     $lname = ucwords(strtolower(trim($_POST['lname'])));
+//     $role = trim($_POST['role']);
+//     $Address = trim($_POST['Address']);
+//     $pass = trim($_POST['pass']);
+//     $contact = trim($_POST['contact']);
+//     $email = trim($_POST['email']);
+//     $Position = trim($_POST['Position']);
+//     $Specialty = trim($_POST['Specialty']);
+//     $Professional = trim($_POST['Professional']);
+//     $LicenseNo = trim($_POST['LicenseNo']);
+//     $status = trim($_POST['status']);
+//     $passwordChanged = !empty($pass);
+
+//     if ($fname != '' && $uname != '' && $contact != '' && $email != '') {
+//         $con->beginTransaction();
+//         try {
+//             $stmtPersonnel = $con->prepare("
+//                 UPDATE tbl_personnel SET first_name = ?, middlename = ?, lastname = ?, address = ?, contact = ?, email = ?
+//                 WHERE personnel_id = (SELECT personnel_id FROM tbl_users WHERE userID = ?)
+//             ");
+//             $stmtPersonnel->execute([$fname, $mname, $lname, $Address, $contact, $email, $user_id]);
+
+//             $stmtPosition = $con->prepare("
+//                 UPDATE tbl_position SET personnel_id=?, PositionName=?, Specialty=?, ProfessionalType=?, LicenseNo=?
+//                 WHERE position_id = (SELECT position_id FROM tbl_users WHERE userID = ?)
+//             ");
+//             $stmtPosition->execute([$persid, $Position, $Specialty, $Professional, $LicenseNo, $user_id]);
+
+//             // Update user data
+//             $updateUserQuery = "UPDATE tbl_users SET user_name = ?, status = ?, UserType = ?";
+//             $params = [$uname, $status, $role];
+
+//             // Check if a new profile picture is uploaded
+//             if (!empty($_FILES['Profile']['name'])) {
+//                 $finalimage = $_FILES['Profile']['name'];
+//                 $updateUserQuery .= ", profile_picture = ?";
+//                 $params[] = $finalimage;
+//             }
+
+//             if ($passwordChanged) {
+//                 $bcrypt_password = password_hash($pass, PASSWORD_BCRYPT);
+//                 $updateUserQuery .= ", password = ?";
+//                 $params[] = $bcrypt_password;
+//             }
+
+//             $updateUserQuery .= " WHERE userID = ?";
+//             $params[] = $user_id;
+
+//             $stmtUsers = $con->prepare($updateUserQuery);
+//             $stmtUsers->execute($params);
+
+
+
+            
+//             $affectedRecordName = getAffectedRecordName('tbl_users', $user_id, $con);
+    
+         
+//             $userId = $_SESSION['admin_id']; 
+//             $action = "Updated Health Professional";
+//             $description = "Updated Health Professional,  $affectedRecordName";
+    
+//             logAuditTrail($userId, $action, $description, 'tbl_users', $user_id, $con);
+
+
+//             $con->commit();
+//             $_SESSION['status'] = "Doctor information successfully updated.";
+//             $_SESSION['status_code'] = "success";
+//             header('location: doctor.php');
+//             exit();
+//         } catch (Exception $e) {
+//             $con->rollBack();
+//             $_SESSION['status'] = "Something went wrong: " . $e->getMessage();
+//             $_SESSION['status_code'] = "danger";
+//             header('location: doctor.php');
+//             exit();
+//         }
+//     } else {
+//         $_SESSION['status'] = "Please fill all the required fields.";
+//         $_SESSION['status_code'] = "error";
+//         header('location: doctor.php');
+//         exit();
+//     }
+// }
+
 if (isset($_POST['update_doctor'])) {
     // Retrieve user data from the form
     $user_id = trim($_POST['userid']);
@@ -175,32 +266,54 @@ if (isset($_POST['update_doctor'])) {
     $status = trim($_POST['status']);
     $passwordChanged = !empty($pass);
 
-    if ($fname != '' && $uname != '' && $contact != '' && $email != '') {
+    if ($fname !== '' && $uname !== '' && $contact !== '' && $email !== '') {
         $con->beginTransaction();
         try {
+            // Update personnel data
             $stmtPersonnel = $con->prepare("
-                UPDATE tbl_personnel SET first_name = ?, middlename = ?, lastname = ?, address = ?, contact = ?, email = ?
+                UPDATE tbl_personnel 
+                SET first_name = ?, middlename = ?, lastname = ?, address = ?, contact = ?, email = ?
                 WHERE personnel_id = (SELECT personnel_id FROM tbl_users WHERE userID = ?)
             ");
             $stmtPersonnel->execute([$fname, $mname, $lname, $Address, $contact, $email, $user_id]);
 
+            // Update position data
             $stmtPosition = $con->prepare("
-                UPDATE tbl_position SET personnel_id=?, PositionName=?, Specialty=?, ProfessionalType=?, LicenseNo=?
+                UPDATE tbl_position 
+                SET personnel_id = ?, PositionName = ?, Specialty = ?, ProfessionalType = ?, LicenseNo = ?
                 WHERE position_id = (SELECT position_id FROM tbl_users WHERE userID = ?)
             ");
             $stmtPosition->execute([$persid, $Position, $Specialty, $Professional, $LicenseNo, $user_id]);
 
-            // Update user data
+            // Prepare user update query
             $updateUserQuery = "UPDATE tbl_users SET user_name = ?, status = ?, UserType = ?";
             $params = [$uname, $status, $role];
 
-            // Check if a new profile picture is uploaded
+            // Handle profile picture upload
             if (!empty($_FILES['Profile']['name'])) {
-                $finalimage = $_FILES['Profile']['name'];
-                $updateUserQuery .= ", profile_picture = ?";
-                $params[] = $finalimage;
+                $profilePicture = $_FILES['Profile'];
+                $allowedExtensions = ['jpg', 'jpeg', 'png', 'gif'];
+                $fileExtension = strtolower(pathinfo($profilePicture['name'], PATHINFO_EXTENSION));
+                $uploadDir = '../user_images/';
+                $newFileName = uniqid() . '.' . $fileExtension;
+
+                if (in_array($fileExtension, $allowedExtensions) && $profilePicture['size'] <= 2000000) {
+                    if (!file_exists($uploadDir)) {
+                        mkdir($uploadDir, 0777, true);
+                    }
+                    $uploadPath = $uploadDir . $newFileName;
+                    if (move_uploaded_file($profilePicture['tmp_name'], $uploadPath)) {
+                        $updateUserQuery .= ", profile_picture = ?";
+                        $params[] = $newFileName;
+                    } else {
+                        throw new Exception("Failed to upload profile picture.");
+                    }
+                } else {
+                    throw new Exception("Invalid file type or size for profile picture.");
+                }
             }
 
+            // Update password if changed
             if ($passwordChanged) {
                 $bcrypt_password = password_hash($pass, PASSWORD_BCRYPT);
                 $updateUserQuery .= ", password = ?";
@@ -210,21 +323,16 @@ if (isset($_POST['update_doctor'])) {
             $updateUserQuery .= " WHERE userID = ?";
             $params[] = $user_id;
 
+            // Execute user update query
             $stmtUsers = $con->prepare($updateUserQuery);
             $stmtUsers->execute($params);
 
-
-
-            
+            // Log audit trail
             $affectedRecordName = getAffectedRecordName('tbl_users', $user_id, $con);
-    
-         
-            $userId = $_SESSION['admin_id']; 
+            $userId = $_SESSION['admin_id'];
             $action = "Updated Health Professional";
-            $description = "Updated Health Professional,  $affectedRecordName";
-    
+            $description = "Updated Health Professional, $affectedRecordName";
             logAuditTrail($userId, $action, $description, 'tbl_users', $user_id, $con);
-
 
             $con->commit();
             $_SESSION['status'] = "Doctor information successfully updated.";
@@ -245,7 +353,6 @@ if (isset($_POST['update_doctor'])) {
         exit();
     }
 }
-
 
 
 ?>

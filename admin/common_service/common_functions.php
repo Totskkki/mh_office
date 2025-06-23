@@ -108,19 +108,20 @@ function alertmessage()
 	}
 }
 
-function getGender($selectedGender = '')
-{
-	$genders = array("Male", "Female", "Other");
-	$html = '';
-	foreach ($genders as $gender) {
-		$checked = ($selectedGender == $gender) ? 'checked' : '';
-		$html .= '<label class="gender-label">';
-		$html .= '<input type="radio" name="gender" value="' . $gender . '" ' . $checked . '>';
-		$html .= $gender;
-		$html .= '</label>&nbsp;&nbsp;&nbsp;';
-	}
-	return $html;
+
+function getGender($selectedGender = '') {
+    $genders = array("Male", "Female", "Other");
+    $html = '';
+    foreach ($genders as $gender) {
+        $checked = ($selectedGender == $gender) ? 'checked' : '';
+        $html .= '<label class="form-check-label">';
+        $html .= '<input type="radio" name="gender"class="form-check-input"value="' . $gender . '" ' . $checked . ' required>';
+        $html .= $gender;
+        $html .= '</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
+    }
+    return $html;
 }
+
 function getconsulpurpose($consulpurpose = '')
 {
 	$data = '<option value="">(Select purpose of visit)</option>';
@@ -257,23 +258,115 @@ function getnationality($stat = '')
 }
 function geteducation($stat = '')
 {
-	$data = '<option value="">Select Educational Attainment</option>';
+    $data = '<option value="">Select Educational Attainment</option>';
 
-	$arr = array("No Formal Education", "Elementary", "High School", "College Level", "College Graduate");
+    // Updated array with detailed educational attainments
+    $arr = array(
+        "No Formal Education",
+        "Elementary",
+        "High School",
+        "Undergrad",
+        "College Graduate",
+        "Master's Degree",
+        "Doctoral Degree",
+        "Postdoctoral Fellow",
+        "Ph.D.",
+        "MBA",
+        "MFA",
+        "MSc",
+        "MA",
+        "JD",
+        "MD",
+        "DVM"
+    );
 
-	$i = 0;
-	$size = sizeof($arr);
+    $size = sizeof($arr);
 
-	for ($i = 0; $i < $size; $i++) {
-		if ($stat == $arr[$i]) {
-			$data = $data . '<option selected="selected" value="' . $arr[$i] . '">' . $arr[$i] . '</option>';
-		} else {
-			$data = $data . '<option value="' . $arr[$i] . '">' . $arr[$i] . '</option>';
-		}
-	}
+    for ($i = 0; $i < $size; $i++) {
+        if ($stat == $arr[$i]) {
+            $data = $data . '<option selected="selected" value="' . $arr[$i] . '">' . $arr[$i] . '</option>';
+        } else {
+            $data = $data . '<option value="' . $arr[$i] . '">' . $arr[$i] . '</option>';
+        }
+    }
 
-	return $data;
+    return $data;
 }
+
+function getEmergency($stat = '')
+{
+    $data = '<option value="">Select </option>';
+
+    // Updated array with detailed educational attainments
+    $arr = array(
+        "Mother",
+        "Father",
+        "Son",
+        "Daugther",
+        "Grand Father",
+        "Grand Mother",
+        "Sibling",
+        "Uncle",
+        "Aunt",
+        "Guardian",
+        "Employer",
+        "Husband",
+        "Wife"
+       
+    );
+    
+     
+
+    $size = sizeof($arr);
+
+    for ($i = 0; $i < $size; $i++) {
+        if ($stat == $arr[$i]) {
+            $data = $data . '<option selected="selected" value="' . $arr[$i] . '">' . $arr[$i] . '</option>';
+        } else {
+            $data = $data . '<option value="' . $arr[$i] . '">' . $arr[$i] . '</option>';
+        }
+    }
+
+    return $data;
+}
+
+function getreligion($stat = '')
+{
+    $data = '<option value="">Select</option>';
+
+    // Updated array with detailed educational attainments
+    $arr = array(
+        "Islam",
+        "Roman Catholic",
+        "Iglesia ni Cristo(INC)",
+        "Seventh-day Adventist Church",
+        "Animism and Indigenous Beliefs",
+        "Jehovah's Witnesses",
+        "Hinduism",
+        "Philippine Independent Church (Aglipayan Church)",
+        "Baptists",
+        "Methodists",
+        "Lutherans",
+        "Kingdom of Jesus Christ, The Name Above Every Name(KOJIC) ",
+        "Church of Jesus Christ of Latter-day Saints (LDS)"
+       
+    );
+    
+
+    $size = sizeof($arr);
+
+    for ($i = 0; $i < $size; $i++) {
+        if ($stat == $arr[$i]) {
+            $data = $data . '<option selected="selected" value="' . $arr[$i] . '">' . $arr[$i] . '</option>';
+        } else {
+            $data = $data . '<option value="' . $arr[$i] . '">' . $arr[$i] . '</option>';
+        }
+    }
+
+    return $data;
+}
+
+
 function getblood($blood = '')
 {
 	$data = '<option value="">Select Blood Group</option>';
@@ -523,7 +616,7 @@ function getDoctorSchedule($con)
               FROM `tbl_users` AS user
               INNER JOIN `tbl_personnel` AS personnel ON user.personnel_id = personnel.personnel_id
               INNER JOIN `tbl_position` AS position ON personnel.personnel_id = position.personnel_id
-              WHERE user.UserType = 'Doctor'";
+              WHERE user.UserType = 'Doctor' AND status !='inactive'";
 
 	$stmt = $con->prepare($query);
 	try {

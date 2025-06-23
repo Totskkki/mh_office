@@ -233,6 +233,20 @@ if (isset($_POST['savebirth'])) {
             ':birthing_status' => $birthing_status,
 
         ]);
+        
+        
+        $immuneId = $con->lastInsertId();
+  
+ 
+         $stmt = $con->prepare("insert into tbl_patient_visits(`visit_date`, `visit_counts`) VALUES (:visitdate,:visit_counts)");
+        $stmt->execute([
+              
+                ':visitdate' => $dateb,
+                ':visit_counts' => $immuneId,
+                
+         ]);
+        
+        
         $con->commit();
 
 

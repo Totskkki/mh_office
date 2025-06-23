@@ -224,6 +224,7 @@ if (isset($_POST['save_meds'])) {
                                             <button type="button" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#medicine">
                                                 <i class="icon-plus"></i> Add
                                             </button>
+                                           
 
                                         </div>
                                     </div>
@@ -305,23 +306,33 @@ if (isset($_POST['save_meds'])) {
                                                     $count = 0;
                                                     while ($row = $stmtmeds->fetch(PDO::FETCH_ASSOC)) {
                                                         $count++;
+                                                         $currentDate = date('Y-m-d');
+                                                        $expirationDate = $row['ex_date'];
+                                                
+                                                        // Determine if the medicine is expired
+                                                        $isExpired = strtotime($expirationDate) < strtotime($currentDate);
                                                     ?>
 
                                                         <tr>
                                                             <td><?php echo $count; ?></td>
                                                             <td class="medicine-info">
-                                                                <b><?php echo $row['medicine_name']; ?></b><br>
+                                                            <b><?php echo $row['medicine_name']; ?></b><br>
+                                                            <div class="info-line">
+                                                                <span class="info-label">Manufacturer</span>
+                                                                <span class="info-label2">:</span>
+                                                                <span class="info-value"><?php echo $row['manufacturer']; ?></span>
+                                                            </div>
+                                                            <div class="info-line">
+                                                                <span class="info-label">Expiration Date</span>
+                                                                <span class="info-label2">:</span>
+                                                                <span class="info-value"><?php echo $expirationDate; ?></span>
+                                                            </div>
+                                                            <?php if ($isExpired): ?>
                                                                 <div class="info-line">
-                                                                    <span class="info-label">Manufacturer</span>
-                                                                    <span class="info-label2">:</span>
-                                                                    <span class="info-value"><?php echo $row['manufacturer']; ?></span>
+                                                                    <span class="text-danger"><b>Expired</b></span>
                                                                 </div>
-                                                                <div class="info-line">
-                                                                    <span class="info-label">Supplier:</span>
-                                                                    <span class="info-label2">:</span>
-                                                                    <span class="info-value"><?php echo $row['supplier']; ?></span>
-                                                                </div>
-                                                            </td>
+                                                            <?php endif; ?>
+                                                        </td>
                                                             <td><?php echo $row['description']; ?></td>
                                                             <td><?php echo $row['category']; ?></td>
 
@@ -331,6 +342,7 @@ if (isset($_POST['save_meds'])) {
                                                                     <label class="form-check-label" for="statusToggle<?php echo $row['medicineID']; ?>">
                                                                         <?php echo ($row['status'] == 1) ? 'Active' : 'Inactive'; ?>
                                                                     </label>
+                                                                   
                                                                 </div>
                                                             </td>
 
@@ -366,7 +378,11 @@ if (isset($_POST['save_meds'])) {
                                                     ?>
                                                 </tbody>
                                             </table>
+                                           
                                         </div>
+                                         <div class="row text-info">
+                                          <small>* You can deactivate medicines that are out of stock <br/> and activate if available.</small>
+                                            </div>
                                     </div>
                                 </div>
                             </div>
@@ -375,6 +391,50 @@ if (isset($_POST['save_meds'])) {
 
 
 
+ <?php
+                // Fetch expired medicines
+                $sql = "SELECT * FROM tbl_medicines WHERE ex_date <= :today";
+                $stmt = $con->prepare($sql);
+                $stmt->execute([':today' => date('Y-m-d')]);
+
+                // Display results in the list
+                if ($stmt->rowCount() > 0) {
+                   
+
+                    // Get the count of expired medicines for the toast
+                    $expiredCount = $stmt->rowCount();
+                } else {
+                    echo "<p>No expired medicines found.</p>";
+                    $expiredCount = 0;
+                }
+
+                // Add toast notification script
+                echo "<script>
+                    document.addEventListener('DOMContentLoaded', function() {
+                        let expiredCount = {$expiredCount};
+                        if (expiredCount > 0) {
+                            document.getElementById('toast-body').innerHTML = 'There are ' + expiredCount + ' expired medicines!';
+                            let toastEl = document.getElementById('medicine-toast');
+                            let toast = new bootstrap.Toast(toastEl);
+                            toast.show();
+                        }
+                    });
+                </script>";
+                ?>
+
+
+  <!-- Toast Notification -->
+                        <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1055;">
+                            <div id="medicine-toast" class="toast bg-danger text-white" role="alert" aria-live="assertive" aria-atomic="true">
+                                <div class="toast-header bg-danger text-white">
+                                    <strong class="me-auto">Expired Medicines Alert</strong>
+                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
+                                </div>
+                                <div class="toast-body" id="toast-body">
+                                    <!-- Content dynamically added -->
+                                </div>
+                            </div>
+                        </div>
 
 
 

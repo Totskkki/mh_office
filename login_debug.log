@@ -1,0 +1,308 @@
+Login attempt started: 2024-12-03 11:06:36
+User details: Array
+(
+    [userID] => 5
+    [failed_attempts] => 0
+    [last_attempt_time] => 2024-12-03 11:06:36
+    [current_time] => 2024-12-03 11:06:36
+    [user_status] => Active
+)
+
+Login successful for userID: 5
+Login attempt started: 2024-12-03 11:06:46
+User details: Array
+(
+    [userID] => 5
+    [failed_attempts] => 0
+    [last_attempt_time] => 2024-12-03 11:06:46
+    [current_time] => 2024-12-03 11:06:46
+    [user_status] => Active
+)
+
+Failed login attempt for userID: 5, failed_attempts: 1
+Login attempt started: 2024-12-03 11:06:48
+User details: Array
+(
+    [userID] => 5
+    [failed_attempts] => 1
+    [last_attempt_time] => 2024-12-03 03:06:46
+    [current_time] => 2024-12-03 11:06:48
+    [user_status] => Active
+)
+
+Failed login attempt for userID: 5, failed_attempts: 2
+Login attempt started: 2024-12-03 11:06:49
+User details: Array
+(
+    [userID] => 5
+    [failed_attempts] => 2
+    [last_attempt_time] => 2024-12-03 03:06:48
+    [current_time] => 2024-12-03 11:06:49
+    [user_status] => Active
+)
+
+Failed login attempt for userID: 5, failed_attempts: 3
+Login attempt started: 2024-12-03 11:06:52
+User details: Array
+(
+    [userID] => 5
+    [failed_attempts] => 3
+    [last_attempt_time] => 2024-12-03 03:06:49
+    [current_time] => 2024-12-03 11:06:52
+    [user_status] => Active
+)
+
+Login successful for userID: 5
+Login attempt started: 2024-12-03 11:06:57
+User details: Array
+(
+    [userID] => 5
+    [failed_attempts] => 0
+    [last_attempt_time] => 2024-12-03 11:06:57
+    [current_time] => 2024-12-03 11:06:57
+    [user_status] => Active
+)
+
+Login successful for userID: 5
+Login attempt started: 2024-12-03 11:07:01
+User details: Array
+(
+    [userID] => 5
+    [failed_attempts] => 0
+    [last_attempt_time] => 2024-12-03 11:07:01
+    [current_time] => 2024-12-03 11:07:01
+    [user_status] => Active
+)
+
+Failed login attempt for userID: 5, failed_attempts: 1
+Login attempt started: 2024-12-03 11:07:04
+User details: Array
+(
+    [userID] => 5
+    [failed_attempts] => 1
+    [last_attempt_time] => 2024-12-03 03:07:01
+    [current_time] => 2024-12-03 11:07:04
+    [user_status] => Active
+)
+
+Failed login attempt for userID: 5, failed_attempts: 2
+Login attempt started: 2024-12-03 11:07:05
+User details: Array
+(
+    [userID] => 5
+    [failed_attempts] => 2
+    [last_attempt_time] => 2024-12-03 03:07:04
+    [current_time] => 2024-12-03 11:07:05
+    [user_status] => Active
+)
+
+Failed login attempt for userID: 5, failed_attempts: 3
+Login attempt started: 2024-12-03 11:07:07
+User details: Array
+(
+    [userID] => 5
+    [failed_attempts] => 3
+    [last_attempt_time] => 2024-12-03 03:07:05
+    [current_time] => 2024-12-03 11:07:07
+    [user_status] => Active
+)
+
+Failed login attempt for userID: 5, failed_attempts: 4
+Login attempt started: 2024-12-03 11:07:09
+User details: Array
+(
+    [userID] => 5
+    [failed_attempts] => 4
+    [last_attempt_time] => 2024-12-03 03:07:07
+    [current_time] => 2024-12-03 11:07:09
+    [user_status] => Active
+)
+
+Failed login attempt for userID: 5, failed_attempts: 5
+Login attempt started: 2024-12-03 11:07:17
+User details: Array
+(
+    [userID] => 5
+    [failed_attempts] => 5
+    [last_attempt_time] => 2024-12-03 03:07:09
+    [current_time] => 2024-12-03 11:07:17
+    [user_status] => Active
+)
+
+Login successful for userID: 5
+Login attempt started: 2024-12-03 11:09:37
+User details: Array
+(
+    [userID] => 5
+    [failed_attempts] => 0
+    [last_attempt_time] => 2024-12-03 11:09:37
+    [current_time] => 2024-12-03 11:09:37
+    [user_status] => Active
+)
+
+Failed login attempt for userID: 5, failed_attempts: 1
+Login attempt started: 2024-12-03 11:09:39
+User details: Array
+(
+    [userID] => 5
+    [failed_attempts] => 1
+    [last_attempt_time] => 2024-12-03 03:09:37
+    [current_time] => 2024-12-03 11:09:39
+    [user_status] => Active
+)
+
+Failed login attempt for userID: 5, failed_attempts: 2
+Login attempt started: 2024-12-03 11:09:40
+User details: Array
+(
+    [userID] => 5
+    [failed_attempts] => 2
+    [last_attempt_time] => 2024-12-03 03:09:39
+    [current_time] => 2024-12-03 11:09:40
+    [user_status] => Active
+)
+
+Failed login attempt for userID: 5, failed_attempts: 3
+Login attempt started: 2024-12-03 11:09:46
+User details: Array
+(
+    [userID] => 5
+    [failed_attempts] => 3
+    [last_attempt_time] => 2024-12-03 03:09:40
+    [current_time] => 2024-12-03 11:09:46
+    [user_status] => Active
+)
+
+Login successful for userID: 5
+Login attempt started: 2024-12-03 11:13:29
+User details: Array
+(
+    [userID] => 5
+    [failed_attempts] => 0
+    [last_attempt_time] => 2024-12-03 11:13:29
+    [current_time] => 2024-12-03 11:13:29
+    [user_status] => Active
+)
+
+Failed login attempt for userID: 5, failed_attempts: 1
+Login attempt started: 2024-12-03 11:13:31
+User details: Array
+(
+    [userID] => 5
+    [failed_attempts] => 1
+    [last_attempt_time] => 2024-12-03 03:13:29
+    [current_time] => 2024-12-03 11:13:31
+    [user_status] => Active
+)
+
+Failed login attempt for userID: 5, failed_attempts: 2
+Login attempt started: 2024-12-03 11:13:32
+User details: Array
+(
+    [userID] => 5
+    [failed_attempts] => 2
+    [last_attempt_time] => 2024-12-03 03:13:31
+    [current_time] => 2024-12-03 11:13:32
+    [user_status] => Active
+)
+
+Failed login attempt for userID: 5, failed_attempts: 3
+Login attempt started: 2024-12-03 11:31:00
+User details: Array
+(
+    [userID] => 5
+    [failed_attempts] => 0
+    [last_attempt_time] => 2024-12-03 03:14:31
+    [current_time] => 2024-12-03 11:31:00
+    [user_status] => Active
+)
+
+Failed login attempt for userID: 5, failed_attempts: 1
+Login attempt started: 2024-12-03 11:31:01
+User details: Array
+(
+    [userID] => 5
+    [failed_attempts] => 1
+    [last_attempt_time] => 2024-12-03 03:31:00
+    [current_time] => 2024-12-03 11:31:01
+    [user_status] => Active
+)
+
+Failed login attempt for userID: 5, failed_attempts: 2
+Login attempt started: 2024-12-03 11:31:03
+User details: Array
+(
+    [userID] => 5
+    [failed_attempts] => 2
+    [last_attempt_time] => 2024-12-03 03:31:01
+    [current_time] => 2024-12-03 11:31:03
+    [user_status] => Active
+)
+
+Failed login attempt for userID: 5, failed_attempts: 3
+Login attempt started: 2024-12-03 11:31:08
+User details: Array
+(
+    [userID] => 5
+    [failed_attempts] => 3
+    [last_attempt_time] => 2024-12-03 03:31:03
+    [current_time] => 2024-12-03 11:31:08
+    [user_status] => Active
+)
+
+Login successful for userID: 5
+Login attempt started: 2024-12-03 11:32:57
+User details: Array
+(
+    [userID] => 5
+    [failed_attempts] => 0
+    [last_attempt_time] => 2024-12-03 11:32:57
+    [current_time] => 2024-12-03 11:32:57
+    [user_status] => Active
+)
+
+Failed login attempt for userID: 5, failed_attempts: 1
+Login attempt started: 2024-12-03 11:32:59
+User details: Array
+(
+    [userID] => 5
+    [failed_attempts] => 1
+    [last_attempt_time] => 2024-12-03 03:32:57
+    [current_time] => 2024-12-03 11:32:59
+    [user_status] => Active
+)
+
+Failed login attempt for userID: 5, failed_attempts: 2
+Login attempt started: 2024-12-03 11:33:00
+User details: Array
+(
+    [userID] => 5
+    [failed_attempts] => 2
+    [last_attempt_time] => 2024-12-03 03:32:59
+    [current_time] => 2024-12-03 11:33:00
+    [user_status] => Active
+)
+
+Failed login attempt for userID: 5, failed_attempts: 3
+Login attempt started: 2024-12-03 11:33:04
+User details: Array
+(
+    [userID] => 5
+    [failed_attempts] => 3
+    [last_attempt_time] => 2024-12-03 03:33:00
+    [current_time] => 2024-12-03 11:33:04
+    [user_status] => Active
+)
+
+Failed login attempt for userID: 5, failed_attempts: 4
+Login attempt started: 2024-12-03 11:33:06
+User details: Array
+(
+    [userID] => 5
+    [failed_attempts] => 4
+    [last_attempt_time] => 2024-12-03 03:33:04
+    [current_time] => 2024-12-03 11:33:06
+    [user_status] => Active
+)
+
+Login successful for userID: 5

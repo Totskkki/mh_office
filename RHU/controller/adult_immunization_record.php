@@ -13,7 +13,7 @@ if (isset($_GET['id'])) {
               i.immunization_date, i.remarks
               FROM tbl_complaints AS com 
               JOIN tbl_patients AS pat ON com.patient_id = pat.patientID
-              JOIN tbl_familyaddress AS fam ON pat.family_address = fam.famID
+              JOIN tbl_familyAddress AS fam ON pat.family_address = fam.famID
               LEFT JOIN tbl_immunization_records AS i ON pat.patientID = i.patient_id
               WHERE com.complaintID = :complaintID
               GROUP BY pat.patientID, i.vaccine, i.immunization_date, i.remarks
@@ -195,10 +195,7 @@ if (isset($_GET['id'])) {
         <!-- App body starts -->
         <div class="app-body">
 
-            <a href="../records_vaccination.php" class="btn btn-primary">
-                <i class="icon-chevron-left"></i> Back</i>
-            </a>
-
+            <button onclick="window.history.back()" class="btn btn-primary"><i class="icon-chevron-left"></i>Back</button>
 
 
 
@@ -297,33 +294,8 @@ if (isset($_GET['id'])) {
     </div>
     <!-- Page wrapper end -->
 
-    <!-- *************
-			************ JavaScript Files *************
-		************* -->
-    <!-- Required jQuery first, then Bootstrap Bundle JS -->
 
 
-
-
-    <!-- <script src="../assets/js/jquery.min.js"></script> -->
-    <!-- <script src="../assets/js/bootstrap.bundle.min.js"></script> -->
-
-    <!-- 
-<script src="dist/js/jquery_confirm/jquery-confirm.js"></script> -->
-
-    <!-- Custom JS files -->
-    <!-- <script src="../assets/js/custom.js"></script> -->
-
-
-    <!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script> -->
-
-
-    <!-- <script src="../assets/js/jquery-confirm.min.js"></script>
-
-	<script src="../assets/js/common_javascript_functions.js"></script>
-	<script src="../assets/moment/moment.min.js"></script>
-	<script src="../assets/daterangepicker/daterangepicker.js"></script>
-	<script src="../assets/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js"></script> -->
 
 
 

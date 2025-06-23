@@ -62,7 +62,7 @@
                     <div class="mb-2 row">
                         <label for="text" class="col-sm-4 col-form-label text-center">Address <span class="text-danger">*</span></label>
                         <div class="col-sm-8">
-                            <input type="text" class="form-control" id="Address" name="Address" required>
+                            <textarea type="text" class="form-control" id="Address" name="Address" required></textarea>
                             <div class="invalid-feedback">Username is required.</div>
                         </div>
                     </div>
@@ -73,22 +73,22 @@
                             <div class="invalid-feedback">Username is required.</div>
                         </div>
                     </div>
-                    <div class="mb-2 row">
-                        <label for="text" class="col-sm-4 col-form-label text-center">Position Name <span class="text-danger">*</span></label>
-                        <div class="col-sm-8">
+                    <!--<div class="mb-2 row">-->
+                    <!--    <label for="text" class="col-sm-4 col-form-label text-center">Position Name <span class="text-danger">*</span></label>-->
+                    <!--    <div class="col-sm-8">-->
 
-                            <select id="Position" name="Position" class="form-select" required>
-                                <option value="">-Select Position</option>
-                                <option value="Doctor">Doctor</option>
-                                <option value="Nurse">Nurse</option>
-                                <option value="Midwife">Midwife</option>
-                                <option value="Physician">Physician</option>
+                    <!--        <select id="Position" name="Position" class="form-select" required>-->
+                    <!--            <option value="">-Select Position</option>-->
+                    <!--            <option value="Doctor">Doctor</option>-->
+                    <!--            <option value="Nurse">Nurse</option>-->
+                    <!--            <option value="Midwife">Midwife</option>-->
+                    <!--            <option value="Physician">Physician</option>-->
 
 
-                            </select>
-                            <div class="invalid-feedback">Position is required.</div>
-                        </div>
-                    </div>
+                    <!--        </select>-->
+                    <!--        <div class="invalid-feedback">Position is required.</div>-->
+                    <!--    </div>-->
+                    <!--</div>-->
                     <div class="mb-2 row">
                         <label for="text" class="col-sm-4 col-form-label text-center">Specialty <span class="text-danger">*</span></label>
 
@@ -207,7 +207,7 @@
                     <div class="mb-3 row">
                         <label for="editAddress" class="col-sm-4 col-form-label text-center">Address<span class="text-danger">*</span></label>
                         <div class="col-sm-8">
-                            <input type="text" class="form-control" id="editAddress" name="Address" required>
+                            <textarea type="text" class="form-control" id="editAddress" name="Address" required></textarea>
                             <div class="invalid-feedback">Address is required.</div>
                         </div>
                     </div>
@@ -312,9 +312,9 @@
             </div>
             <div class="modal-body">
                 <form method="POST" action="controller/delete_doctor.php">
-                    <input type="text" id="deleteid" name="deleteid">
-                    <input type="text" id="personnelid" name="personnelid">
-                    <input type="text" id="positionid" name="positionid">
+                    <input type="hidden" id="deleteid" name="deleteid">
+                    <input type="hidden" id="personnelid" name="personnelid">
+                    <input type="hidden" id="positionid" name="positionid">
                     <h4>Are you sure you want to delete this data?</h4>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-sm" data-bs-dismiss="modal">Close</button>

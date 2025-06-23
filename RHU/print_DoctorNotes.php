@@ -61,7 +61,7 @@ if (isset($_GET['id'])) {
         // Create HTML content
         $firstRecord = $records[0]; // Get the first record
 
-        $html = '<h2 style="text-align: center;">Doctor\'s Notes</h2>';
+        $html = '<h2 style="text-align: center;">Doctor\'s Order</h2>';
 
         $html .= '<div style="margin-bottom: 20px;">';
         $html .= '<h4>';
@@ -76,7 +76,7 @@ if (isset($_GET['id'])) {
         $html .= '<tr>
                     <th>Date</th>
                     <th>Time</th>
-                    <th colspan="2">Doctor\'s Notes</th>
+                    <th colspan="2">Doctor\'s Order</th>
                   </tr>';
         $html .= '</thead>';
         $html .= '<tbody>';
@@ -99,7 +99,7 @@ if (isset($_GET['id'])) {
         // Close and output PDF document
         $pdf->Output('Doctor_notes.pdf', 'I');
     } else {
-        echo "No doctor's notes found for this patient!";
+        echo "No doctor's order found for this patient!";
     }
 } else {
     echo "Invalid request!";

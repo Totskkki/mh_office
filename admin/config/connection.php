@@ -26,10 +26,13 @@
 // // }
 date_default_timezone_set('Asia/Manila');
 
+
+
 $host = "localhost";
 $user = "root";
 $password = "";
 $db = "mh_office";
+
 
 try {
     $con = new PDO("mysql:dbname=$db;port=3306;host=$host", $user, $password);
@@ -46,21 +49,21 @@ try {
 session_start();
 
 // Set session timeout duration (in seconds)
-// $sessionTimeout = 3600; // 1 hour
+$sessionTimeout = 3600; // 1 hour
 
 
-// if (isset($_SESSION['LAST_ACTIVITY']) && (time() - $_SESSION['LAST_ACTIVITY']) > $sessionTimeout) {
-//     // Session has timed out
-//     session_unset();     
-//     session_destroy();  
-//     echo "<script>alert('Your session has expired. Please log in again.');</script>";
+if (isset($_SESSION['LAST_ACTIVITY']) && (time() - $_SESSION['LAST_ACTIVITY']) > $sessionTimeout) {
+    // Session has timed out
+    session_unset();     
+    session_destroy();  
+    echo "<script>alert('Your session has expired. Please log in again.');</script>";
 
    
-//     echo "<script>window.location = './index.php';</script>";
-//     exit;
-// }
+    echo "<script>window.location = './index.php';</script>";
+    exit;
+}
 
 
-// $_SESSION['LAST_ACTIVITY'] = time();
+$_SESSION['LAST_ACTIVITY'] = time();
 
 ?>

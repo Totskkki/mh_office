@@ -15,7 +15,7 @@ if (isset($_GET['id'])) {
   
     FROM tbl_birthing_medication b
     LEFT JOIN tbl_patients p ON p.patientID = b.patient_id
-    LEFT JOIN tbl_familyaddress a ON a.famID = p.family_address
+    LEFT JOIN tbl_familyAddress a ON a.famID = p.family_address
     LEFT JOIN tbl_vitalsigns_monitoring v on v.patient_id = b.patient_id
     WHERE b.medicationID  = :recordId";
 

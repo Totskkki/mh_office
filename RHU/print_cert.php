@@ -120,19 +120,39 @@ if (isset($_GET['id'])) {
         $stmt->bindParam(':patientID', $patientID, PDO::PARAM_INT);
         $stmt->bindParam(':filePath', $filePath, PDO::PARAM_STR);
 
+        // if ($stmt->execute()) {
+        //     // No redirect; instead, directly display the file path in a link
+        //     echo "<h3>Certificate Generated Successfully!</h3>";
+        //     echo "<p>Click below to view the generated certificate:</p>";
+        //     echo "<a href='$fileUrl' target='_blank'>View Certificate</a>";
+
+
+        // } else {
+        //     $_SESSION['status'] = "Error updating certificate record.";
+        //     $_SESSION['status_code'] = "error";
+        //     header('location: med_cert.php');
+        //     exit();
+        // }
+        
         if ($stmt->execute()) {
-            // No redirect; instead, directly display the file path in a link
-            echo "<h3>Certificate Generated Successfully!</h3>";
-            echo "<p>Click below to view the generated certificate:</p>";
-            echo "<a href='$fileUrl' target='_blank'>View Certificate</a>";
+    // File successfully saved to the database
+    echo "<h3>Certificate Generated Successfully!</h3>";
+    echo "<p>The certificate has been saved and is ready for viewing or printing.</p>";
 
+    // JavaScript to open the file in a new tab for viewing/printing
+    echo "
+    <script>
+        // Open the generated certificate in a new tab
+        window.open('$fileUrl', '_blank');
+    </script>";
+} else {
+    // Handle database save error
+    $_SESSION['status'] = "Error updating certificate record.";
+    $_SESSION['status_code'] = "error";
+    header('location: med_cert.php');
+    exit();
+}
 
-        } else {
-            $_SESSION['status'] = "Error updating certificate record.";
-            $_SESSION['status_code'] = "error";
-            header('location: med_cert.php');
-            exit();
-        }
     } else {
         echo "No patient details found.";
     }

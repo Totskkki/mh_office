@@ -7,7 +7,7 @@ if(strlen($_SESSION['admin_login'])==0)
 		$uri  = rtrim(dirname($_SERVER['PHP_SELF']), '/\\');
 		$extra="../admin.php";		
 		$_SESSION["login"]="";
-		header("Location: http://$host$uri/$extra");
+		header("Location: https://$host$uri/$extra");
 	}
 }
 ?>

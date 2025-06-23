@@ -12,8 +12,9 @@ if (isset($_GET['id'])) {
     $patientID = $_GET['id'];
     $query = "SELECT pat.*, fam.*, c.*, p.*, b.*, r.referral_date,e.*,v.cr,
           CONCAT(pat.`patient_name`, ' ', pat.`middle_name`, ' ', pat.`last_name`, ' ', pat.`suffix`) AS `name`
+          
           FROM tbl_patients AS pat
-          LEFT JOIN tbl_familyaddress AS fam ON pat.family_address = fam.famID
+          LEFT JOIN tbl_familyAddress AS fam ON pat.family_address = fam.famID
           LEFT JOIN tbl_complaints AS c ON pat.patientID = c.patient_id
           LEFT JOIN tbl_prenatal AS p ON pat.patientID = p.patient_id
           LEFT JOIN tbl_birth_info AS b ON pat.patientID = b.patient_id
@@ -188,7 +189,7 @@ if (isset($_GET['id'])) {
             <label class="form-label">Weight: <?php echo htmlspecialchars($patientData['weight']); ?></label>
         </div>
         <div style="display: flex; justify-content: space-between; margin: 10px;">
-            <label class="form-label">Address: <u> <?php echo htmlspecialchars('Purok ' . $patientData['purok'] . ', Brgy. ' . $patientData['brgy'] . ', ' . $patientData['province']); ?></u></label>
+            <label class="form-label">Address: <u> <?php echo htmlspecialchars('Purok ' . ucwords($patientData['purok']) . ', Brgy. ' . $patientData['brgy'] . ', '. $patientData['city_municipality'] . $patientData['province']); ?></u></label>
             <label class="form-label" for="abc1">Contact No.: <u><?php echo htmlspecialchars($patientData['phone_number']); ?></u></label>
 
         </div>
@@ -280,13 +281,13 @@ if (isset($_GET['id'])) {
     <div style="display: flex; justify-content: space-between; margin: 10px;">
         <div style="text-align: left; flex: 1;">
             <label class="form-label">Complete Address:</label>
-            <input class="form-input " required>
+            <input class="form-input "style="width:100%; "value=" <?php echo htmlspecialchars('Purok ' . ucwords($patientData['purok']) . ', Brgy. ' . $patientData['brgy'] . ', '. $patientData['city_municipality'] . $patientData['province']); ?>" required>
         </div>
     </div>
     <div style="display: flex; justify-content: space-between; margin: 10px;">
         <div style="text-align: left; flex: 1;">
             <label class="form-label">Name of Patient:</label>
-            <input class="form-input " required>
+            <input class="form-input "value="<?php echo htmlspecialchars(ucwords($patientData['name'])); ?>" required>
         </div>
     </div>
     <div style="display: flex; justify-content: space-between; margin: 10px;">

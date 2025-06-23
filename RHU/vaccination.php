@@ -34,7 +34,7 @@ if (isset($_POST['complaintID'])) {
    JOIN tbl_patients AS pat ON com.patient_id = pat.patientID
    JOIN tbl_membership_info as mem ON mem.membershipID  = pat.Membership_Info
   JOIN 
-  tbl_familyaddress AS fam ON pat.family_address = fam.famID
+  tbl_familyAddress AS fam ON pat.family_address = fam.famID
   WHERE com.complaintID = :id";
 
   $stmtpatients = $con->prepare($queryUsers);
@@ -70,6 +70,22 @@ if (isset($_POST['save_vaccination'])) {
             VALUES (?,?,?,?,?,?)");
 
   $stmt->execute([$patient_id, $medicine, $date_ad, $next_due, $notes, $user]);
+  
+  
+ $immuneId = $con->lastInsertId();
+  
+  
+
+  
+   $stmt = $con->prepare("insert into tbl_patient_visits(`visit_date`, `visit_counts`) VALUES (:visitdate,:visit_counts)");
+        $stmt->execute([
+              
+                ':visitdate' => $date_ad,
+                ':visit_counts' => $immuneId,
+                
+         ]);
+        
+        
 
 
 
@@ -366,10 +382,17 @@ $('.select2bs4').select2({
         "dom": '<"row"<"col-md-6 text-left"l><"col-md-6 text-right"f>>rt<"bottom"ip><"clear">',
         "lengthMenu": [10, 20, 50, 100],
       });
-      $('#date_ad, #next_due').datetimepicker({
+      $('#date_ad').datetimepicker({
+        format: 'YYYY-MM-DD',
+        minDate: new Date(),
+         maxDate: new Date()
+      });
+       $('#next_due').datetimepicker({
         format: 'YYYY-MM-DD',
         minDate: new Date()
+
       });
+      
     });
   </script>
 

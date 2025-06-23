@@ -13,7 +13,7 @@ if (isset($_GET['id'])) {
               i.vaccine, COUNT(i.vaccine) AS vaccine_count
               FROM tbl_complaints AS com 
               JOIN tbl_patients AS pat ON com.patient_id = pat.patientID
-              JOIN tbl_family AS fam ON pat.family_address = fam.famID
+              JOIN tbl_familyAddress AS fam ON pat.family_address = fam.famID
               LEFT JOIN 
               tbl_immunization_records AS i ON pat.patientID = i.patient_id
               WHERE com.complaintID = :complaintID

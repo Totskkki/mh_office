@@ -13,7 +13,7 @@ if (isset($_GET['id'])) {
               CONCAT(fam.`brgy`, ' ', fam.`purok`, ' ', fam.`province`) as` address`
               FROM tbl_complaints AS com 
               JOIN tbl_patients AS pat ON com.patient_id = pat.patientID
-              JOIN tbl_family AS fam ON pat.family_address = fam.famID
+              JOIN tbl_familyAddress AS fam ON pat.family_address = fam.famID
               LEFT JOIN tbl_checkup AS checkup ON checkup.patient_id = pat.patientID
               WHERE com.complaintID = :complaintID";
 

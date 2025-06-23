@@ -223,12 +223,107 @@ include './config/connection.php';
                                             </table>
                                         </div>
                                     </div>
+                                    
+                                </div>
+                            </div>
+                        </div>
+                        
+                      
+                    <div class="row">
+                            <!-- Expired Medicines -->
+                            <div class="col-4">
+                                <div class="card mb-4">
+                                    <div class="card-header">
+                                        <h5 class="card-title"><span class="text-danger"><i class="fs-2 icon-alert-circle"></i> </span> Expired Medicines </h5>
+                                    </div>
+                                    <div class="card-body">
+                                      <?php
+                // Fetch expired medicines
+                $sql = "SELECT * FROM tbl_medicines WHERE ex_date <= :today";
+                $stmt = $con->prepare($sql);
+                $stmt->execute([':today' => date('Y-m-d')]);
+
+                // Display results in the list
+                if ($stmt->rowCount() > 0) {
+                    echo "<ul>";
+                    while ($row = $stmt->fetch()) {
+                        // Display expired medicines in red
+                        echo "<li style='color: red;'>{$row['medicine_name']} (Expired on: {$row['ex_date']})</li>";
+                    }
+                    echo "</ul>";
+
+                    // Get the count of expired medicines for the toast
+                    $expiredCount = $stmt->rowCount();
+                } else {
+                    echo "<p>No expired medicines found.</p>";
+                    $expiredCount = 0;
+                }
+
+                // Add toast notification script
+                echo "<script>
+                    document.addEventListener('DOMContentLoaded', function() {
+                        let expiredCount = {$expiredCount};
+                        if (expiredCount > 0) {
+                            document.getElementById('toast-body').innerHTML = 'There are ' + expiredCount + ' expired medicines!';
+                            let toastEl = document.getElementById('medicine-toast');
+                            let toast = new bootstrap.Toast(toastEl);
+                            toast.show();
+                        }
+                    });
+                </script>";
+                ?>
+                                    </div>
+                                </div>
+                            </div>
+                        
+                            <!-- Upcoming Expired Medicines -->
+                            <div class="col-4">
+                                <div class="card mb-4">
+                                    <div class="card-header">
+                                        <h5 class="card-title">Upcoming Expired Medicines</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <?php
+                                        // Fetch upcoming expired medicines within 30 days
+                                        $sql = "SELECT * FROM tbl_medicines WHERE ex_date > :today AND ex_date <= :upcoming";
+                                        $stmt = $con->prepare($sql);
+                                        $stmt->execute([
+                                            ':today' => date('Y-m-d'),
+                                            ':upcoming' => date('Y-m-d', strtotime('+30 days'))
+                                        ]);
+                        
+                                        // Display results
+                                        if ($stmt->rowCount() > 0) {
+                                            echo "<ul>";
+                                            while ($row = $stmt->fetch()) {
+                                                echo "<li>{$row['medicine_name']} (Expires on: {$row['ex_date']})</li>";
+                                            }
+                                            echo "</ul>";
+                                        } else {
+                                            echo "<p>No upcoming expired medicines found.</p>";
+                                        }
+                                        ?>
+                                    </div>
                                 </div>
                             </div>
                         </div>
 
 
+                        <!-- Toast Notification -->
+                        <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1055;">
+                            <div id="medicine-toast" class="toast bg-danger text-white" role="alert" aria-live="assertive" aria-atomic="true">
+                                <div class="toast-header bg-danger text-white">
+                                    <strong class="me-auto">Expired Medicines Alert</strong>
+                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
+                                </div>
+                                <div class="toast-body" id="toast-body">
+                                    <!-- Content dynamically added -->
+                                </div>
+                            </div>
+                        </div>
+
                     </div>
+                    
                     <!-- Container ends -->
 
                 </div>
@@ -259,7 +354,7 @@ include './config/connection.php';
     <?php include './config/site_js_links.php'; ?>
     <?php include './config/data_tables_js.php'; ?>
 
-
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
    
     <script>
        $(function() {

@@ -107,7 +107,7 @@ include './common_service/common_functions.php';
                                                         <th>#</th>
                                                         <th>Username</th>
                                                         <th>Status</th>
-                                                        <th>User Ip</th>
+                                                        <!--<th>User Ip</th>-->
                                                         <th>login time</th>
                                                         <th>logout time</th>
 
@@ -141,7 +141,7 @@ include './common_service/common_functions.php';
                                                                     Failed</span>
                                                                 <?php } ?>
                                                             </td>
-                                                            <td><?php echo $row['user_ip']; ?></td>
+                                                          
                                                             <td><?php echo $row['login_time']; ?></td>
                                                             <td><?php echo $row['logout']; ?></td>
 

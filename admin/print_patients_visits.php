@@ -43,7 +43,7 @@ $query = "SELECT
           FROM 
             tbl_patients AS pat
           JOIN 
-            tbl_familyaddress AS fam ON pat.family_address = fam.famID
+            tbl_familyAddress AS fam ON pat.family_address = fam.famID
           JOIN 
             tbl_patient_visits AS pv ON pv.patient_id = pat.patientID
           JOIN 

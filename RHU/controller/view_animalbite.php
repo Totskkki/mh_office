@@ -14,7 +14,7 @@ if (isset($_GET['id'])) {
               CONCAT(fam.`brgy`, ' ', fam.`purok`, ' ', fam.`province`) as` address`
               FROM tbl_animal_bite_care AS a 
               JOIN tbl_patients AS pat ON a.patient_id = pat.patientID
-              JOIN tbl_familyaddress AS fam ON pat.family_address = fam.famID
+              JOIN tbl_familyAddress AS fam ON pat.family_address = fam.famID
               JOIN tbl_membership_info AS mem ON pat.Membership_Info = mem.membershipID    
               JOIN tbl_complaints as com on com.complaintID
               WHERE a.animal_biteID  = :complaintID";

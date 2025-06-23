@@ -107,37 +107,53 @@ if (isset($_FILES['file'])) {
         header('Location: patient.php');
         exit();
     }
+    
 }elseif (isset($_POST['export'])) {  // Handle export action
 
-  // Fetch data to export
-  $query = "SELECT household_no, patient_name, middle_name, last_name, suffix FROM tbl_patients";
-  $stmt = $con->prepare($query);
-  $stmt->execute();
-  $patients = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    // Fetch data to export
+    $query = "SELECT 
+                household_no, 
+                patient_name, 
+                middle_name, 
+                last_name, 
+                suffix, 
+                CONCAT(a.purok, ' ', a.brgy, ' ', a.city_municipality, ' ', a.province) AS Address
+              FROM tbl_patients 
+              LEFT JOIN tbl_familyAddress a ON a.famID = tbl_patients.family_address";
+    $stmt = $con->prepare($query);
+    $stmt->execute();
+    $patients = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-  if ($patients) {
-      // Set the headers to force download the file
-      header('Content-Type: text/csv; charset=utf-8');
-      header('Content-Disposition: attachment; filename=patients_export.csv');
+    if ($patients) {
+        // Set the headers to force download the file
+        header('Content-Type: text/csv; charset=utf-8');
+        header('Content-Disposition: attachment; filename=patients_export.csv');
 
-      // Open the output stream
-      $output = fopen('php://output', 'w');
+        // Open the output stream
+        $output = fopen('php://output', 'w');
 
-      // Write the headers of the CSV
-      fputcsv($output, ['Household No', 'Patient Name', 'Middle Name', 'Last Name', 'Suffix']);
+        // Write the headers of the CSV
+        fputcsv($output, ['Household No', 'Patient Name', 'Middle Name', 'Last Name', 'Suffix', 'Address']);
 
-      // Write the rows
-      foreach ($patients as $patient) {
-          fputcsv($output, $patient);
-      }
+        // Write the rows
+        foreach ($patients as $patient) {
+            fputcsv($output, [
+                $patient['household_no'],
+                $patient['patient_name'],
+                $patient['middle_name'],
+                $patient['last_name'],
+                $patient['suffix'],
+                $patient['Address']
+            ]);
+        }
 
-      // Close the output stream
-      fclose($output);
+        // Close the output stream
+        fclose($output);
 
-      exit(); 
-  } else {
-      echo "No data found to export.";
-  }
+        exit(); 
+    } else {
+        echo "No data found to export.";
+    }
 }
 
        
@@ -313,7 +329,7 @@ if (isset($_FILES['file'])) {
 
                             <tr>
                               <td><?php echo $count; ?></td>
-                              <td><?php echo ucwords($row['patient_name'] . ' ' . $row['middle_name'] . '. ' . $row['last_name'] . ' ' . $row['suffix']); ?></td>
+                              <td><?php echo ucwords($row['patient_name'] . ' ' . $row['middle_name'] . ' ' . $row['last_name'] . ' ' . $row['suffix']); ?></td>
                               <td><?php echo $row['brgy'] . ' ' . ucwords($row['purok']) . ' ' . ucwords($row['province']); ?></td>
                               <!-- <td><?php echo date('F j, Y', strtotime($row['date_of_birth'])); ?></td> -->
                               <td><?php echo $row['date_of_birth']; ?></td>

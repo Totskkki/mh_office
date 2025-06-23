@@ -5,9 +5,97 @@ include 'common_service/common_functions.php';
 include('config/checklogin.php');
 check_login();
 
+
+
+// if (isset($_POST['update_home'])) {
+//     $hiddenId = $_POST['hiddenId'];
+//     $sidebartext = trim($_POST['sidetext']);
+//     $home_img = null;
+//     $uploadSuccess = false; // Track if the image was uploaded successfully
+
+//     // Check if a file was uploaded
+//     if (isset($_FILES['homeimage']) && $_FILES['homeimage']['error'] == 0) {
+//         $target_dir = "logo/";
+//         $home_img = basename($_FILES['homeimage']['name']);
+//         $target_file = $target_dir . $home_img;
+
+//         // Move the uploaded file to the target directory
+//         if (move_uploaded_file($_FILES['homeimage']['tmp_name'], $target_file)) {
+//             echo "The file has been uploaded.";
+//             $uploadSuccess = true;
+//         } else {
+//             echo "Error: There was an issue moving the file to the target directory.";
+//             $home_img = null;
+//         }
+//     } elseif (isset($_FILES['homeimage']) && $_FILES['homeimage']['error'] !== 0) {
+//         // Additional error cases if needed
+//         echo "Error: File upload error code " . $_FILES['homeimage']['error'];
+//     }
+
+//     // Database operations
+//     try {
+//         $con->beginTransaction(); // Start transaction to ensure atomic operations
+
+//         $checkQuery = "SELECT userpageID FROM tbl_user_page WHERE userID = :id";
+//         $stmt = $con->prepare($checkQuery);
+//         $stmt->bindParam(':id', $hiddenId, PDO::PARAM_INT);
+//         $stmt->execute();
+//         $userpageRow = $stmt->fetch(PDO::FETCH_ASSOC);
+
+//         if ($userpageRow) {
+//             $updateQuery = "UPDATE tbl_user_page SET sidebar = :sidebartext, home_img = COALESCE(:homeimg, home_img) WHERE userID = :id";
+//             $stmt = $con->prepare($updateQuery);
+//             $stmt->bindParam(':sidebartext', $sidebartext);
+//             $stmt->bindParam(':homeimg', $home_img);
+//             $stmt->bindParam(':id', $hiddenId, PDO::PARAM_INT);
+            
+//             if ($stmt->execute()) {
+//                 $userpageID = $userpageRow['userpageID'];
+//             } else {
+//                 throw new Exception("Error updating tbl_user_page: " . implode(", ", $stmt->errorInfo()));
+//             }
+//         } else {
+//             $insertQuery = "INSERT INTO tbl_user_page (home_img, sidebar, userID) VALUES (:homeimg, :sidebartext, :userID)";
+//             $stmt = $con->prepare($insertQuery);
+//             $stmt->bindParam(':sidebartext', $sidebartext);
+//             $stmt->bindParam(':homeimg', $home_img);
+//             $stmt->bindParam(':userID', $hiddenId, PDO::PARAM_INT);
+            
+//             if ($stmt->execute()) {
+//                 $userpageID = $con->lastInsertId();
+//             } else {
+//                 throw new Exception("Error inserting into tbl_user_page: " . implode(", ", $stmt->errorInfo()));
+//             }
+//         }
+
+//         // Update userpageID in tbl_users
+//         $updateUserQuery = "UPDATE tbl_users SET userpageID = :userpageID WHERE userID = :id";
+//         $stmt = $con->prepare($updateUserQuery);
+//         $stmt->bindParam(':userpageID', $userpageID, PDO::PARAM_INT);
+//         $stmt->bindParam(':id', $hiddenId, PDO::PARAM_INT);
+
+//         if ($stmt->execute()) {
+//             $con->commit(); // Commit the transaction if everything is successful
+//             $_SESSION['status'] = "User page updated successfully.";
+//             $_SESSION['status_code'] = "success";
+//         } else {
+//             throw new Exception("Error updating tbl_users: " . implode(", ", $stmt->errorInfo()));
+//         }
+//     } catch (Exception $e) {
+//         $con->rollBack(); // Rollback transaction if any error occurs
+//         $_SESSION['status'] = "Error updating record: " . $e->getMessage();
+//         $_SESSION['status_code'] = "error";
+//     }
+
+//     header('Location: profile.php?id=' . urlencode($hiddenId));
+//     exit();
+// }
+
+
 if (isset($_POST['update_home'])) {
     $hiddenId = $_POST['hiddenId'];
     $sidebartext = trim($_POST['sidetext']);
+    $headerColor = trim($_POST['headerColor']);
     $home_img = null;
     $uploadSuccess = false; // Track if the image was uploaded successfully
 
@@ -31,48 +119,65 @@ if (isset($_POST['update_home'])) {
     }
 
     // Database operations
-    $checkQuery = "SELECT userpageID FROM tbl_user_page WHERE userID = :id";
-    $stmt = $con->prepare($checkQuery);
-    $stmt->bindParam(':id', $hiddenId, PDO::PARAM_INT);
-    $stmt->execute();
-    $userpageRow = $stmt->fetch(PDO::FETCH_ASSOC);
+    try {
+        $con->beginTransaction(); // Start transaction to ensure atomic operations
 
-    if ($userpageRow) {
-        $updateQuery = "UPDATE tbl_user_page SET sidebar = :sidebartext, home_img = COALESCE(:homeimg, home_img) WHERE userID = :id";
-        $stmt = $con->prepare($updateQuery);
-        $stmt->bindParam(':sidebartext', $sidebartext);
-        $stmt->bindParam(':homeimg', $home_img);
+        $checkQuery = "SELECT userpageID FROM tbl_user_page WHERE userID = :id";
+        $stmt = $con->prepare($checkQuery);
         $stmt->bindParam(':id', $hiddenId, PDO::PARAM_INT);
         $stmt->execute();
-        $userpageID = $userpageRow['userpageID'];
-    } else {
-        $insertQuery = "INSERT INTO tbl_user_page (home_img, sidebar, userID) VALUES (:homeimg, :sidebartext, :userID)";
-        $stmt = $con->prepare($insertQuery);
-        $stmt->bindParam(':sidebartext', $sidebartext);
-        $stmt->bindParam(':homeimg', $home_img);
-        $stmt->bindParam(':userID', $hiddenId, PDO::PARAM_INT);
-        $stmt->execute();
-        $userpageID = $con->lastInsertId();
-    }
+        $userpageRow = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    // Update userpageID in tbl_users
-    $updateUserQuery = "UPDATE tbl_users SET userpageID = :userpageID WHERE userID = :id";
-    $stmt = $con->prepare($updateUserQuery);
-    $stmt->bindParam(':userpageID', $userpageID, PDO::PARAM_INT);
-    $stmt->bindParam(':id', $hiddenId, PDO::PARAM_INT);
-    $stmt->execute();
+        if ($userpageRow) {
+            $updateQuery = "UPDATE tbl_user_page SET sidebar = :sidebartext, home_img = COALESCE(:homeimg, home_img), headerColor = :headerColor WHERE userID = :id";
+            $stmt = $con->prepare($updateQuery);
+            $stmt->bindParam(':sidebartext', $sidebartext);
+            $stmt->bindParam(':homeimg', $home_img);
+            $stmt->bindParam(':headerColor', $headerColor);
+            $stmt->bindParam(':id', $hiddenId, PDO::PARAM_INT);
+            
+            if ($stmt->execute()) {
+                $userpageID = $userpageRow['userpageID'];
+            } else {
+                throw new Exception("Error updating tbl_user_page: " . implode(", ", $stmt->errorInfo()));
+            }
+        } else {
+            $insertQuery = "INSERT INTO tbl_user_page (home_img, sidebar, headerColor, userID) VALUES (:homeimg, :sidebartext, :headerColor, :userID)";
+            $stmt = $con->prepare($insertQuery);
+            $stmt->bindParam(':sidebartext', $sidebartext);
+            $stmt->bindParam(':homeimg', $home_img);
+            $stmt->bindParam(':headerColor', $headerColor);
+            $stmt->bindParam(':userID', $hiddenId, PDO::PARAM_INT);
+            
+            if ($stmt->execute()) {
+                $userpageID = $con->lastInsertId();
+            } else {
+                throw new Exception("Error inserting into tbl_user_page: " . implode(", ", $stmt->errorInfo()));
+            }
+        }
 
-    if ($stmt->rowCount() > 0 || $uploadSuccess) {
-        $_SESSION['status'] = "User page updated successfully.";
-        $_SESSION['status_code'] = "success";
-    } else {
-        $_SESSION['status'] = "Error updating record.";
+        // Update userpageID in tbl_users
+        $updateUserQuery = "UPDATE tbl_users SET userpageID = :userpageID WHERE userID = :id";
+        $stmt = $con->prepare($updateUserQuery);
+        $stmt->bindParam(':userpageID', $userpageID, PDO::PARAM_INT);
+        $stmt->bindParam(':id', $hiddenId, PDO::PARAM_INT);
+
+        if ($stmt->execute()) {
+            $con->commit(); // Commit the transaction if everything is successful
+            $_SESSION['status'] = "User page updated successfully.";
+            $_SESSION['status_code'] = "success";
+        } else {
+            throw new Exception("Error updating tbl_users: " . implode(", ", $stmt->errorInfo()));
+        }
+    } catch (Exception $e) {
+        $con->rollBack(); // Rollback transaction if any error occurs
+        $_SESSION['status'] = "Error updating record: " . $e->getMessage();
         $_SESSION['status_code'] = "error";
     }
+
     header('Location: profile.php?id=' . urlencode($hiddenId));
     exit();
 }
-
 
 	
 
@@ -82,7 +187,7 @@ if (isset($_POST['update_home'])) {
 
 		// Query to fetch user details and associated page details
 		$query = "SELECT 
-                    user.*, personnel.*, position.*, p.home_img, p.sidebar
+                    user.*, personnel.*, position.*, p.home_img, p.sidebar,p.headerColor
                 FROM 
                     tbl_users AS user
                     LEFT JOIN 
@@ -225,10 +330,10 @@ if (isset($_POST['update_home'])) {
 
 																				</button>
 																				<!-- Display selected image -->
-																				<?php if (isset($row['profile_picture'])) : ?>
+																			<?php if (isset($row['profile_picture']) && !empty($row['profile_picture'])) : ?>
 																					<img id="selectedImage" src="user_images/<?php echo $row['profile_picture']; ?>" alt="Selected Image" style="max-width: 100%; max-height: 100%; cursor: pointer;" onclick="document.getElementById('imageInput').click();" />
 																				<?php else : ?>
-																					<img id="selectedImage" src="#" alt="Selected Image" style="display: none; max-width: 100%; max-height: 100%;" />
+																					<img id="selectedImage" src="user_images/profile.jpg" alt="Default Profile Picture" style="max-width: 100%; max-height: 100%; cursor: pointer;" onclick="document.getElementById('imageInput').click();" />
 																				<?php endif; ?>
 																			</div>
 																		</div>
@@ -245,22 +350,22 @@ if (isset($_POST['update_home'])) {
 																		<!-- Form Field Start -->
 
 																		<div class="mb-3">
-
-																			<label for="text" class="form-label">Full Name</label>
+ 
+																			<label for="text" class="form-label">First Name <span class="text-danger">*</span></label>
 																			<input type="text" class="form-control form-control-sm" id="first_name" name="first_name" value="<?php echo ucwords($row['first_name']) ?>" />
 																		</div>
 																		<div class="mb-3">
-																			<label for="text" class="form-label">Last Name</label>
+																			<label for="text" class="form-label">Last Name <span class="text-danger">*</span></label>
 																			<input type="text" class="form-control form-control-sm" id="last_name" name="last_name" value="<?php echo ucwords($row['lastname']) ?>" />
 																		</div>
 																		<div class="mb-3">
-																			<label for="text" class="form-label">Contact</label>
+																			<label for="text" class="form-label">Contact <span class="text-danger">*</span></label>
 																			<input type="text" min="0" class="form-control form-control-sm" id="contact" name="contact" value="<?php echo ($row['contact']) ?>" />
 																		</div>
 																		<div class="mb-3">
-																			<label for="text" class="form-label">Address</label>
-																			<input type="text" class="form-control form-control-sm" value="<?php echo ucwords($row['address']) ?>" id="address" name="address" />
-
+																			<label for="text" class="form-label">Address <span class="text-danger">*</span></label>
+																		
+                                                                                                <textarea class="form-control form-control-sm" id="address" name="address"><?php echo ucwords($row['address']) ?></textarea>
 																		</div>
 
 																	</div>
@@ -271,11 +376,11 @@ if (isset($_POST['update_home'])) {
 																			<input type="text" class="form-control form-control-sm" id="middle_name" name="middle_name" value="<?php echo ucwords($row['middlename']) ?>" />
 																		</div>
 																		<div class="mb-3">
-																			<label for="text" class="form-label">Username</label>
+																			<label for="text" class="form-label">Username <span class="text-danger">*</span></label>
 																			<input type="text" class="form-control form-control-sm" id="username" name="username" value="<?php echo ($row['user_name']) ?>" />
 																		</div>
 																		<div class="mb-3">
-																			<label for="text" class="form-label">Email</label>
+																			<label for="text" class="form-label">Email <span class="text-danger">*</span></label>
 																			<input type="email" class="form-control form-control-sm" id="Email" name="Email" value="<?php echo ($row['email']) ?>" />
 																		</div>
 																		<div class="mb-3">
@@ -323,21 +428,31 @@ if (isset($_POST['update_home'])) {
 								<div class="card mb-4">
 									<div class="card-header">
 										<h5 class="card-title">Home Setting</h5>
+										 <small class="text-danger">*provide a sidebar text before updating home setting</small>
 									</div>
+								
 
 									<div class="card-body">
 
 										<!-- Row start -->
 										<form method="POST" enctype="multipart/form-data">
 											<div class="row mb-3">
-												<label for="text" class="col-sm-3 col-form-label">Sidebar Text</label>
+												<label for="text" class="col-sm-3 col-form-label">Sidebar Text <span class="text-danger">*</span></label>
 												<div class="col-sm-4">
 													<input type="text" class="form-control" id="sidetext" name="sidetext" value="<?php echo htmlspecialchars($row['sidebar'] ?? ''); ?>">
 												</div>
 											</div>
+											 <!-- Header Color Picker -->
+                                           <div class="row mb-3">
+                                                    <label for="headerColor" class="col-sm-3 col-form-label">Header Color</label>
+                                                    <div class="col-sm-4">
+                                                        <input type="color" class="form-control" id="headerColor" name="headerColor" value="<?php echo htmlspecialchars($row['headerColor'] ?? '#3F7791'); ?>">
+                                                    </div>
+                                                </div>
+
 											<input type="hidden" id="hiddenId" name="hiddenId" value="<?php echo htmlspecialchars($row['userID']); ?>">
 											<div class="row mb-3">
-												<label for="text" class="col-sm-3 col-form-label">Home Image</label>
+												<label for="text" class="col-sm-3 col-form-label">Home Image <span class="text-danger">*</span></label>
 
 												<div class="col-sm-4 col-12">
 													<div id="update_pic" class="dropzone sm needsclick dz-clickable">

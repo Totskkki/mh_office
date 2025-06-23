@@ -181,6 +181,12 @@ try {
 			overflow-x: hidden;
 			/* Hides horizontal scrolling */
 		}
+
+		@media (max-width: 768px) {
+			.container-fluid {
+				padding: 0 15px;
+			}
+		}
 	</style>
 
 </head>
@@ -297,7 +303,7 @@ try {
 							</div>
 
 							<?php
-							$query = "SELECT user.*, personnel.*, position.*, doctor.*, 
+$query = "SELECT user.*, personnel.*, position.*, doctor.*, 
                  CONCAT(first_name, ' ', middlename, ' ', lastname) AS name, 
                  doctor.schedules
           FROM `tbl_users` AS user
@@ -306,109 +312,132 @@ try {
           LEFT JOIN `tbl_doctor_schedule` AS doctor ON user.userID = doctor.userID
           WHERE user.UserTYpe = 'Doctor' AND doctor.day_of_week IS NOT NULL";
 
-							$stmtUsers = $con->prepare($query);
-							$stmtUsers->execute();
-							$results = $stmtUsers->fetchAll(PDO::FETCH_ASSOC);
-							?>
+$stmtUsers = $con->prepare($query);
+$stmtUsers->execute();
+$results = $stmtUsers->fetchAll(PDO::FETCH_ASSOC);
+?>
 
-							<div class="col-xxl-3 col-sm-6">
-								<div class="card mb-4">
-									<div class="card-header">
-										<h5 class="card-title">Doctor's Schedule</h5>
-									</div>
-									<div class="card-body">
-										<?php if (!empty($results)) { ?>
-											<div class="scroll300 os-host os-theme-dark os-host-overflow os-host-overflow-y os-host-resize-disabled os-host-scrollbar-horizontal-hidden os-host-transition">
-												<div class="os-resize-observer-host observed">
-													<div class="os-resize-observer" style="left: 0px; right: auto;"></div>
-												</div>
-												<div class="os-size-auto-observer observed" style="height: calc(100% + 1px); float: left;">
-													<div class="os-resize-observer"></div>
-												</div>
-												<div class="os-content-glue" style="margin: 0px; width: 301px; height: 299px;"></div>
-												<div class="os-padding">
-													<div class="os-viewport os-viewport-native-scrollbars-invisible" style="overflow-y: scroll;">
-														<div class="os-content" style="padding: 0px; height: 100%; width: 100%;">
-															<ul class="statistics m-0 p-0">
+<div class="col-xxl-4 col-sm-6">
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="card-title">Doctor's Schedule</h5>
+        </div>
+        <div class="card-body">
+            <?php if (!empty($results)) { ?>
+                <div class="scroll300 os-host os-theme-dark os-host-overflow os-host-overflow-y os-host-resize-disabled os-host-scrollbar-horizontal-hidden os-host-transition">
+                    <div class="os-resize-observer-host observed">
+                        <div class="os-resize-observer" style="left: 0px; right: auto;"></div>
+                    </div>
+                    <div class="os-size-auto-observer observed" style="height: calc(100% + 1px); float: left;">
+                        <div class="os-resize-observer"></div>
+                    </div>
+                    <div class="os-content-glue" style="margin: 0px; width: 301px; height: 299px;"></div>
+                    <div class="os-padding">
+                        <div class="os-viewport os-viewport-native-scrollbars-invisible" style="overflow-y: scroll;">
+                            <div class="os-content" style="padding: 0px; height: 100%; width: 100%;">
+                                <ul class="statistics m-0 p-0">
+                                    <?php
+                                    // Initialize an empty array to store merged schedules by doctor
+                                    $doctorsSchedules = [];
 
+                                    // Loop through each result row (doctor data)
+                                    foreach ($results as $row) {
+                                        $doctorID = $row['userID']; // Doctor's ID
+                                        $doctorName = htmlspecialchars($row['name']); // Doctor's full name
+                                        $schedules = json_decode($row['schedules'], true); // Decode JSON schedules
 
-																<?php foreach ($results as $row) {
+                                        // Merge schedules for the doctor
+                                        if (!isset($doctorsSchedules[$doctorID])) {
+                                            $doctorsSchedules[$doctorID] = [
+                                                'name' => $doctorName,
+                                                'schedules' => []
+                                            ];
+                                        }
 
+                                        // Merge schedules by day
+                                        foreach ($schedules as $day => $timeslots) {
+                                            if (!isset($doctorsSchedules[$doctorID]['schedules'][$day])) {
+                                                $doctorsSchedules[$doctorID]['schedules'][$day] = [];
+                                            }
 
-																	// Decode the JSON schedules
-																	$schedules = json_decode($row['schedules'], true);
+                                            // Merge timeslots for the day (avoiding duplicates)
+                                            foreach ($timeslots as $timeslot) {
+                                                $doctorsSchedules[$doctorID]['schedules'][$day][] = $timeslot;
+                                            }
+                                        }
+                                    }
 
-																	// Initialize an array to hold formatted schedules
-																	$formattedSchedules = [];
+                                    // Now, display the merged schedules
+                                    foreach ($doctorsSchedules as $doctorID => $doctorData) {
+                                        $formattedSchedules = [];
 
-																	// Group the schedules by day
-																	if (!empty($schedules)) {
-																		foreach ($schedules as $day => $timeslots) {
+                                        // Format the schedule for each day
+                                        foreach ($doctorData['schedules'] as $day => $timeslots) {
+                                            $timeSlotsForDay = [];
 
-																			$timeSlotsForDay = [];
+                                            foreach ($timeslots as $timeslot) {
+                                                // Format times and append to the day's array
+                                                $startTime = date('g:i A', strtotime(htmlspecialchars($timeslot['fromtime'])));
+                                                $endTime = date('g:i A', strtotime(htmlspecialchars($timeslot['totime'])));
 
-																			foreach ($timeslots as $timeslot) {
-																				// Format times and append to the day's array
+                                                $timeSlotsForDay[] = "$startTime - $endTime";
+                                            }
 
-																				$startTime = date('g:i A', strtotime(htmlspecialchars($timeslot['fromtime'])));
-																				$endTime = date('g:i A', strtotime(htmlspecialchars($timeslot['totime'])));
+                                            // Join the time slots for the day into a single string
+                                            $formattedSchedules[htmlspecialchars(strtoupper($day))] = implode(", ", $timeSlotsForDay);
+                                        }
+                                        ?>
 
-																				$timeSlotsForDay[] = "$startTime - $endTime";
-																			}
-																			// Join the time slots for the day into a single string
-																			$formattedSchedules[htmlspecialchars(strtoupper($day))] = implode(", ", $timeSlotsForDay);
-																		}
-																	}
+                                        <li style="padding: 1px; border-bottom: 1px solid #ccc;">
+                                            <span class="stat-icon">
+                                                <i class="icon-user"></i>
+                                            </span>
+                                            Doctor's Name: <strong><?php echo $doctorData['name']; ?></strong>
+                                        </li>
+                                        <li>
+                                            <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+                                            <strong>Schedule:</strong>
+                                            <?php
+                                            // Display the formatted schedules
+                                            foreach ($formattedSchedules as $day => $timeSlots) {
+                                                echo "$day: $timeSlots<br>";
+                                            }
+                                            ?>
+                                        </li>
+                                        <li>
+                                            <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+                                            <strong>Status: &nbsp;</strong>
+                                            <?php if ($row['is_available']) : ?>
+                                                <span class="badge badge-success">Available</span>
+                                            <?php else : ?>
+                                                <span class="badge badge-danger">Not Available</span>
+                                            <?php endif; ?>
+                                        </li>
 
-																?>
-																	<li style="padding: 1px; border-bottom: 1px solid #ccc;">
-																		<span class="stat-icon">
-																			<i class="icon-user"></i>
-																		</span>
-																		Doctor's Name:&nbsp; <strong><?php echo htmlspecialchars($row['name']); ?></strong>
-																	</li>
-																	<li>
-																		<span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
-																		<strong>Schedule:&nbsp; </strong>
-																		<?php
-																		// Display the formatted schedules
-																		foreach ($formattedSchedules as $day => $timeSlots) {
-																			echo "$day: $timeSlots<br>";
-																		}
-																		?>
-																	</li>
-																	<li>
-																		<span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
-																		<strong>Status: &nbsp;</strong>
-																		<?php if ($row['is_available']) : ?>
-																			<span class="badge badge-success">Available</span>
-																		<?php else : ?>
-																			<span class="badge badge-danger">Not Available</span>
-																		<?php endif; ?>
-																	</li>
-																<?php } ?>
-															</ul>
-														</div>
-													</div>
-												</div>
-												<div class="os-scrollbar os-scrollbar-horizontal os-scrollbar-unusable os-scrollbar-auto-hidden">
-													<div class="os-scrollbar-track os-scrollbar-track-off">
-														<div class="os-scrollbar-handle" style="width: 100%; transform: translate(0px, 0px);"></div>
-													</div>
-												</div>
-												<div class="os-scrollbar os-scrollbar-vertical os-scrollbar-auto-hidden">
-													<div class="os-scrollbar-track os-scrollbar-track-off">
-														<div class="os-scrollbar-handle" style="height: 49.3421%; transform: translate(0px, 0px);"></div>
-													</div>
-												</div>
-												<div class="os-scrollbar-corner"></div>
-											</div>
-										<?php } else { ?>
-											<p>No doctors' schedules available.</p>
-										<?php } ?>
-									</div>
-								</div>
-							</div>
+                                    <?php } ?>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="os-scrollbar os-scrollbar-horizontal os-scrollbar-unusable os-scrollbar-auto-hidden">
+                        <div class="os-scrollbar-track os-scrollbar-track-off">
+                            <div class="os-scrollbar-handle" style="width: 100%; transform: translate(0px, 0px);"></div>
+                        </div>
+                    </div>
+                    <div class="os-scrollbar os-scrollbar-vertical os-scrollbar-auto-hidden">
+                        <div class="os-scrollbar-track os-scrollbar-track-off">
+                            <div class="os-scrollbar-handle" style="height: 49.3421%; transform: translate(0px, 0px);"></div>
+                        </div>
+                    </div>
+                    <div class="os-scrollbar-corner"></div>
+                </div>
+            <?php } else { ?>
+                <p>No doctors' schedules available.</p>
+            <?php } ?>
+        </div>
+    </div>
+</div>
+
 
 
 
@@ -438,60 +467,66 @@ try {
 
 
 
-
-							<div class="col-xxl-6 col-sm-6">
+							<div class="col-6">
 								<div class="card mb-4">
 									<div class="card-header">
-										<h5 class="card-title">Events</h5>
+										<div class="d-flex align-items-center justify-content-between">
+											<h5 class="card-title m-0">Statistic Reports</h5>
+											<form class="form-inline">
+												<div class="form-group mb-0">
+													<label for="select_year">Select Year:</label>
+													<select class="form-control form-control-sm" id="select_year">
+														<?php for ($i = 2024; $i <= 2050; $i++) :
+															$selected = ($i == $year) ? 'selected' : '';
+															echo "<option value='$i' $selected>$i</option>";
+														endfor; ?>
+													</select>
+												</div>
+											</form>
+										</div>
 									</div>
 									<div class="card-body">
-
-										<!-- FullCalendar -->
-										<div class="container">
-											<!-- FullCalendar -->
-											<div id="calendar"></div>
-
-											<!-- Event Details Panel -->
-											<div class="event-details">
-												<h3 id="event-date">Select a date</h3>
-												<ul id="event-list">
-													<li>No events for this day</li>
-												</ul>
-											</div>
-										</div>
-
+										<div id="barGraph"></div>
 									</div>
 								</div>
 							</div>
+
+
+
+
 						</div>
 
 
 					</div>
 					<!-- Row start -->
 					<div class="row">
-						<div class="col-7">
+
+						<div class="col-xxl-8 col-sm-6">
 							<div class="card mb-4">
 								<div class="card-header">
-									<div class="d-flex align-items-center justify-content-between">
-										<h5 class="card-title m-0">Statistic Reports</h5>
-										<form class="form-inline">
-											<div class="form-group mb-0">
-												<label for="select_year">Select Year:</label>
-												<select class="form-control form-control-sm" id="select_year">
-													<?php for ($i = 2024; $i <= 2050; $i++) :
-														$selected = ($i == $year) ? 'selected' : '';
-														echo "<option value='$i' $selected>$i</option>";
-													endfor; ?>
-												</select>
-											</div>
-										</form>
-									</div>
+									<h5 class="card-title">Events</h5>
 								</div>
 								<div class="card-body">
-									<div id="barGraph"></div>
+
+									<!-- FullCalendar -->
+									<div class="container">
+										<!-- FullCalendar -->
+										<div id="calendar"></div>
+
+										<!-- Event Details Panel -->
+										<div class="event-details">
+											<h3 id="event-date">Select a date</h3>
+											<ul id="event-list">
+												<li>No events for this day</li>
+											</ul>
+										</div>
+									</div>
+
 								</div>
 							</div>
 						</div>
+
+
 
 
 						<?php
@@ -529,7 +564,7 @@ try {
 										<div class="activity-feed">
 											<?php foreach ($auditLogs as $log) : ?>
 												<div class="feed-item">
-													<span class="feed-date pb-1" data-bs-toggle="tooltip" data-bs-title="<?php echo htmlspecialchars($log['timestamp']); ?>">
+													<span class="feed-date pb-1"  data-bs-title="<?php echo htmlspecialchars($log['timestamp']); ?>">
 														<?php
 														$timestamp = new DateTime($log['action_timestamp']);
 														echo $timestamp->format('F j, Y g:i A');
@@ -716,7 +751,7 @@ try {
 						eventsForDay.forEach(function(event) {
 							var listItem = document.createElement('li');
 							var colorSpan = document.createElement('span');
-							colorSpan.style.backgroundColor = '#007bff'; 
+							colorSpan.style.backgroundColor = '#007bff';
 							listItem.appendChild(colorSpan);
 							listItem.appendChild(document.createTextNode(event.title + ' - ' + event.description));
 							eventListEl.appendChild(listItem);

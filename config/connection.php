@@ -8,7 +8,7 @@ $password = "";
 $db = "mh_office";
 
 try {
-    $con = new PDO("mysql:dbname=$db;port=3306;host=$host", $user, $password);
+    $con = new PDO("mysql:dbname=$db;host=$host", $user, $password);
   
     $con->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     
@@ -66,21 +66,21 @@ session_start();
 
 // session_start();
 
-// // Set session timeout duration (in seconds)
-// $sessionTimeout = 3600; 
+// Set session timeout duration (in seconds)
+$sessionTimeout = 3600; 
 
-// // Check if the session has timed out
-// if (isset($_SESSION['LAST_ACTIVITY']) && (time() - $_SESSION['LAST_ACTIVITY']) > $sessionTimeout) {
-//     // Session has timed out
-//     session_unset();    
-//     session_destroy();  
-//     echo "<script>alert('Your session has expired. Please log in again.');</script>";
+// Check if the session has timed out
+if (isset($_SESSION['LAST_ACTIVITY']) && (time() - $_SESSION['LAST_ACTIVITY']) > $sessionTimeout) {
+    // Session has timed out
+    session_unset();    
+    session_destroy();  
+    echo "<script>alert('Your session has expired. Please log in again.');</script>";
 
-//     // Redirect to the login page
-//     echo "<script>window.location = '../index.php';</script>";
-//     exit;
-// }
+    // Redirect to the login page
+    echo "<script>window.location = '../index.php';</script>";
+    exit;
+}
 
-// // Update last activity time
-// $_SESSION['LAST_ACTIVITY'] = time();
+// Update last activity time
+$_SESSION['LAST_ACTIVITY'] = time();
 ?>

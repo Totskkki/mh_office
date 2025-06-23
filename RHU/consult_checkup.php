@@ -14,7 +14,7 @@ if (isset($_GET['id'])) {
               FROM tbl_complaints AS com 
               JOIN tbl_patients AS pat ON com.patient_id = pat.patientID
               JOIN 
-              tbl_familyaddress AS fam ON pat.family_address = fam.famID
+              tbl_familyAddress AS fam ON pat.family_address = fam.famID
               WHERE com.complaintID = :complaintID";
 
     $stmt = $con->prepare($query);
@@ -118,6 +118,19 @@ if (isset($_POST['save_checkup'])) {
 
 
         $stmt->execute();
+        
+        
+        //          $immuneId = $con->lastInsertId();
+
+        //  $stmt = $con->prepare("insert into tbl_patient_visits(`visit_date`, `visit_counts`) VALUES (:visitdate,:visit_counts)");
+        // $stmt->execute([
+              
+        //         ':visitdate' => $date,
+        //         ':visit_counts' => $immuneId,
+                
+        //  ]);
+        
+        
         $con->commit();
 
         $_SESSION['status'] = "Patient check-up submitted succefully.";
@@ -444,22 +457,22 @@ if (isset($_POST['save_checkup'])) {
                                                 <label for="text" class="form-label">OB/GYN History</label>
                                                 <div class="d-flex align-items-center">
                                                     <label for="g" class="mr-1">G:</label>
-                                                    <input type="text" id="g" name="g" value="" size="2" mr-2" class="input-bottom-border" />
+                                                    <input type="text" id="g" name="g" value="" size="2" mr-2" class="input-bottom-border" readonly />
 
                                                     <label for="p" class="mr-1">P:</label>
-                                                    <input type="text" id="p" name="p" value="" size="2" mr-2" class="input-bottom-border" />
+                                                    <input type="text" id="p" name="p" value="" size="2" mr-2" class="input-bottom-border"readonly />
 
                                                     <label class="mr-1">(</label>
-                                                    <input type="text" size="2" mr-1" class="input-bottom-border" />
+                                                    <input type="text" size="2" mr-1" class="input-bottom-border" readonly/>
                                                     <label>-</label>
-                                                    <input type="text" size="2" mr-1" class="input-bottom-border" />
+                                                    <input type="text" size="2" mr-1" class="input-bottom-border" readonly/>
                                                     <label>-</label>
-                                                    <input type="text" size="2" mr-1" class="input-bottom-border" />
+                                                    <input type="text" size="2" mr-1" class="input-bottom-border" readonly/>
                                                     <label>-</label>
-                                                    <input type="text" size="2" mr-1" class="input-bottom-border" />
+                                                    <input type="text" size="2" mr-1" class="input-bottom-border" readonly/>
                                                     <label>)</label>
                                                     <label for="g" class="mr-1">LMP:</label>
-                                                    <input type="text" id="g" name="g" value="" size="2" mr-2" class="input-bottom-border" />
+                                                    <input type="text" id="g" name="g" value="" size="2" mr-2" class="input-bottom-border" readonly />
                                                 </div>
 
                                             </div>
@@ -1292,15 +1305,27 @@ if (isset($_POST['save_checkup'])) {
 
 
     <script type="text/javascript">
-        $(function() {
-            $('#visit_date').datetimepicker({
-                icons: {
-                    time: 'far fa-clock'
-                },
-                format: 'YYYY-MM-DD hh:mm A'
-            });
+        // $(function() {
+        //     $('#visit_date').datetimepicker({
+        //         icons: {
+        //             time: 'far fa-clock'
+        //         },
+        //         format: 'YYYY-MM-DD hh:mm A'
+        //     });
 
-        });
+        // });
+    $(function() {
+    $('#visit_date').datetimepicker({
+        icons: {
+            time: 'far fa-clock'
+        },
+        format: 'YYYY-MM-DD hh:mm A',
+        minDate: moment().startOf('day'), // Start of today
+        maxDate: moment().endOf('day')   // End of today
+    });
+});
+
+
         // Awake & Altered checkbox
         document.addEventListener('DOMContentLoaded', function() {
             var yesCheckbox = document.getElementById('Awake');

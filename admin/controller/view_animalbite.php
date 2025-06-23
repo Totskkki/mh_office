@@ -9,14 +9,15 @@ if (isset($_GET['id'])) {
     $complaintID = $_GET['id'];
 
     // Prepare a statement to select the patient, complaint, family, and checkup data
-    $query = "SELECT com.*, pat.*, fam.*,mem.*,bite.*,
+    $query = "SELECT com.*, pat.*, fam.*,mem.*,bite.*,b.*,bite.date,
               CONCAT(pat.`patient_name`, ' ', pat.`middle_name`, ' ', pat.`last_name`, ' ', pat.`suffix`) AS `name`,
               CONCAT(fam.`brgy`, ' ', fam.`purok`, ' ', fam.`province`) as` address`
               FROM tbl_animal_bite_care AS bite 
               JOIN tbl_patients AS pat ON bite.patient_id = pat.patientID
-              JOIN tbl_familyaddress AS fam ON pat.family_address = fam.famID
+              JOIN tbl_familyAddress AS fam ON pat.family_address = fam.famID
               LEFT JOIN tbl_membership_info AS mem ON pat.Membership_Info = mem.membershipID
-              JOIN tbl_complaints as com on com.complaintID 
+              LEFT JOIN tbl_complaints as com on com.patient_id = bite.patient_id
+              LEFT JOIN tbl_birth_info AS b ON b.patient_id = bite.patient_id
               WHERE bite.animal_biteID  = :complaintID";
 
 
@@ -54,6 +55,7 @@ if (isset($_GET['id'])) {
             margin: auto;
             border: 2px solid #000;
         }
+
 
         .review-section {
             page-break-before: always;
@@ -113,7 +115,7 @@ if (isset($_GET['id'])) {
 
         .checkbox-group input {
             margin-right: 10px;
-            transform: scale(.8);
+            transform: scale(1);
         }
 
 
@@ -189,6 +191,7 @@ if (isset($_GET['id'])) {
             font-size: 15px;
         }
     </style>
+
 </head>
 
 
@@ -204,7 +207,7 @@ if (isset($_GET['id'])) {
 
         <div style="display: flex; justify-content: center; margin: 10px;">
             <div style="display: inline-flex; justify-content: space-between; align-items: left;">
-                <div style="text-align: center; margin-right: 20px;">
+                <div style="text-align: left; margin-right: 20px;">
                     <img src="../logo/2.png" style="width: 90px; height: 70px;" alt="">
                 </div>
                 <div style="text-align: left;">
@@ -214,7 +217,7 @@ if (isset($_GET['id'])) {
                     <label>Telefax No.: (083) 228-1528</label><br>
 
                 </div>
-                <h5 class="form-label" style="margin-left:10rem">Registration no.: <?php echo $row['reg_no']; ?> </h5>
+                <h4 class="form-label" style="margin-left:15rem">Registration no.: <?php echo $row['reg_no']; ?> </h4>
 
             </div>
         </div>
@@ -297,14 +300,14 @@ if (isset($_GET['id'])) {
                             </label><br>
                         <?php endforeach; ?>
                         <label for="text">CPI: Month/year Completed: <?php echo htmlspecialchars($row['cpi_month']); ?> / <?php echo htmlspecialchars($row['cpi_year']); ?></label>
-                       
+
                     </div>
-                    
-                    
-                    
+
+
+
                 </div>
 
-                
+
 
 
             </div>
@@ -324,215 +327,210 @@ if (isset($_GET['id'])) {
 
         <div style="margin:10px; text-align: left; flex: 1;">
 
-       
 
 
-                <?php
-                // Decode Type_bite and ensure it's an array
-                $type = json_decode($row['Type_bite'], true);
 
-                // Check if type is not an array or is null, initialize to an empty array
-                if (!is_array($type)) {
-                    $type = []; // Safeguard to ensure we have an array to work with
-                }
+            <?php
 
-                $TypeBite = ["Bite", "Non-bite", "Spontaneous", "Induced"];
-                ?>
+            $type = json_decode($row['Type_bite'], true);
 
-                <div style="margin: 10px;">
-                    <label for="text">Type</label>
-                    <div class="checkbox-group mb-3" style="display: flex; flex-direction: row; flex-wrap: wrap; gap: 20px;">
-                        <?php foreach ($TypeBite as $TypeBites): ?>
-                            <label style="flex: 1 0 calc(25% - 20px);"> <!-- Each label will take up about 25% of the width, accounting for gaps -->
-                                <input type="checkbox" class="form-check-input" name="Type[]" value="<?php echo htmlspecialchars($TypeBites); ?>"
-                                    <?php if (in_array($TypeBites, $type)) echo 'checked'; ?>>
-                                <?php echo htmlspecialchars($TypeBites); ?>
-                            </label>
-                        <?php endforeach; ?>
-                    </div>
-                    <label for="text">Source:</label>
-                    
-            
+
+            if (!is_array($type)) {
+                $type = [];
+            }
+
+            $TypeBite = ["Bite", "Non-bite", "Spontaneous", "Induced"];
+            ?>
+
+            <div style="margin: 10px;">
+                <label for="text">Type</label>
+                <div class="checkbox-group mb-3" style="display: flex; flex-direction: row; flex-wrap: wrap; gap: 20px;">
+                    <?php foreach ($TypeBite as $TypeBites): ?>
+                        <label style="flex: 1 0 calc(25% - 20px);">
+                            <input type="checkbox" class="form-check-input" name="Type[]" value="<?php echo htmlspecialchars($TypeBites); ?>"
+                                <?php if (in_array($TypeBites, $type)) echo 'checked'; ?>>
+                            <?php echo htmlspecialchars($TypeBites); ?>
+                        </label>
+                    <?php endforeach; ?>
+                </div>
+
+
+
+
+
 
             </div>
 
 
+
+
         </div>
 
+        <div style="margin:10px; text-align: left; flex: 1;">
+
+            <?php
+
+            $type = json_decode($row['Type_bite'], true);
+
+
+            if (!is_array($type)) {
+                $type = [];
+            }
+
+            $TypeBite = ["Bite", "Non-bite", "Spontaneous", "Induced"];
+            ?>
+
+            <div style="margin: 10px;">
+                <label for="text">Source</label>
+                <div style="display: flex; flex-wrap: wrap;">
+                    <div style="width: 20%;">
+                        <input class="form-check-input Source" type="checkbox" <?php echo htmlspecialchars($row['animal_type'] === 'Dog') ? 'checked' : ''; ?> name="source" value="Dog" id="dog">
+                        <label class="form-check-label mb-1" for="dog">Dog</label>
+                        <div id="checkDog" style="display:none;">&#10004;</div>
+                    </div>
+                    <div style="width: 20%;">
+                        <input class="form-check-input Source" type="checkbox" name="source" <?php echo htmlspecialchars($row['animal_type'] === 'Pet') ? 'checked' : ''; ?> value="Pet" id="pet">
+                        <label class="form-check-label mb-1" for="pet">Pet</label>
+                        <div id="checkPet" style="display:none;">&#10004;</div>
+                    </div>
+                    <div style="width: 20%;">
+                        <input class="form-check-input Source" type="checkbox" <?php echo htmlspecialchars($row['animal_type'] === 'Cat') ? 'checked' : ''; ?> name="source" value="Cat" id="cat">
+                        <label class="form-check-label mb-1" for="cat">Cat</label>
+                        <div id="checkCat" style="display:none;">&#10004;</div>
+                    </div>
+                    <div style="width: 20%;">
+                        <input class="form-check-input Source" type="checkbox" <?php echo htmlspecialchars($row['animal_type'] === 'Stray') ? 'checked' : ''; ?> name="source" value="Stray" id="stray">
+                        <label class="form-check-label mb-1" for="stray">Stray</label>
+                        <div id="checkStray" style="display:none;">&#10004;</div>
+                    </div>
+                    <div style="width: 20%;">
+                        <label class="form-check-label mb-1">Others:</label>
+                        <input class="Source form-check-label input-bottom-border-only" type="input" name="source"
+                            value="<?php echo (!in_array($row['animal_type'], ['Dog', 'Pet', 'Cat', 'Stray']) ? htmlspecialchars($row['animal_type']) : ''); ?>"
+                            style="width:10rem" id="others">
+                        <div id="checkOthers" style="display:none;">&#10004;</div>
+                    </div>
+                </div>
 
 
 
+                <label class="form-check-label mb-1">Vaccinated Date:</label>
+                <input type="text" name="vac_date" class="form-input" id="vac_date" value="<?php echo htmlspecialchars($row['source']); ?>">
+                <input class="form-check-input Vaccinated" type="checkbox" <?php echo htmlspecialchars($row['pet_vaccinated'] === 'Vaccinated') ? 'checked' : ''; ?> name="Vaccinated" value="Vaccinated" id="vaccinated">
+                <label class="form-check-label mb-1" for="vaccinated">Vaccinated</label>
+                <input class="form-check-input Vaccinated" type="checkbox" <?php echo htmlspecialchars($row['pet_vaccinated'] === 'Unknown') ? 'checked' : ''; ?> name="Vaccinated" value="Unknown" id="unknown">
+                <label class="form-check-label mb-1" for="unknown">Unknown</label>
+            </div>
 
 
-        <div class="row">
-            <div class="col-xxl-12">
-                <div class="card mb-4">
-                    <div class="card-body">
-                        <div class="modal position-static d-block shade-light rounded-3">
-                            <div class="modal-dialog modal-lg">
-                                <div class="modal-content">
-                                    <div class=" p-5">
-                                        <div style="display: flex; align-items: center; justify-content: space-between;">
-                                            <h2 class="fw-bold mb-2 card-title" style="margin: 0;">ANIMAL BITE RECORD</h2>
+            <div style="margin:10px;">
+
+
+                <label class="form-label">Status</label>
+                <div style="display: flex; flex-wrap: wrap;">
+                    <div style="width: 20%;">
+                        <input class="form-check-input Source" type="checkbox" <?php echo htmlspecialchars($row['animal_status'] === 'Alive') ? 'checked' : ''; ?> name="source" value="Dog" id="dog">
+                        <label class="form-check-label mb-1" for="dog">Alive</label>
+                        <div id="checkDog" style="display:none;">&#10004;</div>
+                    </div>
+                    <div style="width: 20%;">
+                        <input class="form-check-input Source" type="checkbox" name="source" <?php echo htmlspecialchars($row['animal_status'] === 'Died') ? 'checked' : ''; ?> value="Pet" id="pet">
+                        <label class="form-check-label mb-1" for="pet">Died</label>
+                        <div id="checkPet" style="display:none;">&#10004;</div>
+                    </div>
+                    <div style="width: 20%;">
+                        <input class="form-check-input Source" type="checkbox" <?php echo htmlspecialchars($row['animal_status'] === 'Killed Intentionally') ? 'checked' : ''; ?> name="source" value="Cat" id="cat">
+                        <label class="form-check-label mb-1" for="cat">Killed Intentionally</label>
+                        <div id="checkCat" style="display:none;">&#10004;</div>
+                    </div>
+                    <div style="width: 20%;">
+                        <input class="form-check-input Source" type="checkbox" <?php echo htmlspecialchars($row['animal_status'] === 'Lost') ? 'checked' : ''; ?> name="source" value="Stray" id="stray">
+                        <label class="form-check-label mb-1" for="stray">Lost</label>
+                        <div id="checkStray" style="display:none;">&#10004;</div>
+                    </div>
+                    <div style="width: 20%;">
+                        <label class="form-check-label mb-1" for="stray">Bleeding: <input class="form-input Source" type="text" value="<?php echo htmlspecialchars($row['bleeding']) ?>"> (-/+) if(+)</label>
 
 
 
-                                        </div>
+                    </div>
+
+                </div>
 
 
-                                        <h5 class="form-label float-end">Date: <?php echo date('F j, Y', strtotime($row['date'])); ?> </h5>
+            </div>
+
+
+            <div style="margin:10px;">
+
+
+                <label class="form-label"> SITE OF EXPOSURE: (Please describe and sketch)</label>
+                <input type="text" name="vac_date" style="width: 50%;" class="form-input" id="vac_date" value="<?php echo htmlspecialchars($row['site_exposure']); ?>">
+
+
+
+            </div>
+
+            <div style="margin:10px;">
+                <label class="form-label"> Local wound treatment: <input class="form-check-input Source" type="checkbox" <?php echo htmlspecialchars($row['wound'] === 'yes') ? 'checked' : ''; ?>>Yes
+                    <label class="form-label"> <input class="form-check-input Source" type="checkbox" <?php echo htmlspecialchars($row['wound'] === 'no') ? 'checked' : ''; ?>>No
+                        <br>
+                        <label class="form-label">Washed w/water only: <input class="form-check-input Source" type="checkbox" <?php echo htmlspecialchars($row['washed'] === 'yes') ? 'checked' : ''; ?>>Yes
+                            <label class="form-label"> <input class="form-check-input Source" type="checkbox" <?php echo htmlspecialchars($row['washed'] === 'no') ? 'checked' : ''; ?>>No
+
+                                <br>
+                                <label class="form-label">Washed w/soap & water: <input class="form-check-input Source" type="checkbox" <?php echo htmlspecialchars($row['soap'] === 'yes') ? 'checked' : ''; ?>>Yes
+                                    <label class="form-label"> <input class="form-check-input Source" type="checkbox" <?php echo htmlspecialchars($row['soap'] === 'no') ? 'checked' : ''; ?>>No
+
                                         <br>
+                                        <label class="form-label">Tandok: <input class="form-check-input Source" type="checkbox" <?php echo htmlspecialchars($row['Tandok'] === 'yes') ? 'checked' : ''; ?>>Yes
+                                            <label class="form-label"> <input class="form-check-input Source" type="checkbox" <?php echo htmlspecialchars($row['Tandok'] === 'no') ? 'checked' : ''; ?>>No
+                                                <br>
+                                                <label class="form-label">Applied garlic, etc.: <input class="form-check-input Source" type="checkbox" <?php echo htmlspecialchars($row['Applied'] === 'yes') ? 'checked' : ''; ?>>Yes
+                                                    <label class="form-label"> <input class="form-check-input Source" type="checkbox" <?php echo htmlspecialchars($row['Applied'] === 'no') ? 'checked' : ''; ?>>No
+                                                        <br>
+                                                        <label class="form-label">Tetanus Immunization: <input class="form-check-input Source" type="checkbox" <?php echo htmlspecialchars($row['Tetanus'] === 'yes') ? 'checked' : ''; ?>>Yes
+                                                            <label class="form-label"> <input class="form-check-input Source" type="checkbox" <?php echo htmlspecialchars($row['Tetanus'] === 'no') ? 'checked' : ''; ?>>No
+                                                                <br>
+                                                                <label class="form-label"> Date: <?php echo htmlspecialchars(!empty($row['vac_date']) ? date('F j, Y', strtotime($row['vac_date'])) : ''); ?></label>
+                                                                <label style="margin-left: 2rem;" class="form-label"> <input class="form-check-input Source" type="checkbox" <?php echo htmlspecialchars($row['vaccine'] === 'HTIG') ? 'checked' : ''; ?>>HTIG
+                                                                    <label class="form-label"> <input class="form-check-input Source" type="checkbox" <?php echo htmlspecialchars($row['vaccine'] === 'TT') ? 'checked' : ''; ?>>TT
+
+                                                                        <br>
+                                                                        <label class="form-label"> <b>CATEGORY EXPOSURE:</b></label>
+                                                                        <label style="margin-left: 2rem;" class="form-label"> <input class="form-check-input Source" type="checkbox" <?php echo htmlspecialchars($row['category_exposure'] === 'I') ? 'checked' : ''; ?>>I
+                                                                            <label class="form-label"> <input class="form-check-input Source" type="checkbox" <?php echo htmlspecialchars($row['category_exposure'] === 'II') ? 'checked' : ''; ?>>II
+                                                                                <label class="form-label"> <input class="form-check-input Source" type="checkbox" <?php echo htmlspecialchars($row['category_exposure'] === 'III') ? 'checked' : ''; ?>>III
 
 
+            </div>
 
 
-                                        <hr />
-                                        <div class="row">
-                                            <h3 class="from-label"><?php echo $row['patient_name'] . ' ' . $row['middle_name'] . ' ' . $row['last_name'] ?>
+            <div style="margin:10px;">
+            <label class="form-label"><b>O:</b></label>
+            <label class="form-label"><b>T:</b></label>
+            <input type="text" style="width: 10%;" class="form-input" value="<?php echo htmlspecialchars($row['temp']); ?>">
+            <label class="form-label"><b>BP:</b></label>
+            <input type="text" style="width: 10%;" class="form-input" value="<?php echo htmlspecialchars($row['bp']); ?>">
+            <label class="form-label"><b>CR:</b></label>
+            <input type="text" style="width: 10%;" class="form-input" value="<?php echo htmlspecialchars($row['hr']); ?>">
+            <label class="form-label"><b>RR:</b></label>
+            <input type="text" style="width: 10%;" class="form-input" value="<?php echo htmlspecialchars($row['rr']); ?>">
+            <label class="form-label"><b>LMP:</b></label>
+            <input type="text" style="width: 10%;" class="form-input" value="<?php echo htmlspecialchars($row['LMP']); ?>">
+            <label class="form-label"><b>AOG:</b></label>
+            <input type="text" style="width: 10%;" class="form-input" value="<?php echo htmlspecialchars($row['AOG']); ?>">
+            </div>
 
-                                            </h3>
+            <div style="margin:10px;">
+            <label class="form-label"><b>A:</b></label>
+            <input type="text" style="width: 50%;" class="form-input" value="<?php echo htmlspecialchars($row['a']); ?>">
+            <br>
+           <br>
+            <label class="form-label"><b>P:</b></label>
+            <input type="text" style="width: 50%;" class="form-input" value="<?php echo htmlspecialchars($row['p']); ?>">
 
-
-                                            <div class="col-lg-2 col-sm-4 col-12">
-                                                <div class="mb-3">
-                                                    <label class="form-label" for="abc1">Age</label>
-                                                    <br>
-                                                    <?php echo $row['age']; ?>
-                                                </div>
-                                            </div>
-                                            <div class="col-lg-2 col-sm-4 col-12">
-                                                <div class="mb-3">
-                                                    <label class="form-label" for="abc2">Sex</label>
-                                                    <br>
-                                                    <?php echo $row['gender']; ?>
-                                                </div>
-                                            </div>
-                                            <div class="col-lg-2 col-sm-4 col-12">
-                                                <div class="mb-3">
-                                                    <label class="form-label" for="abc3">Civil Status</label>
-                                                    <br>
-                                                    <?php echo $row['civil_status']; ?>
-                                                </div>
-                                            </div>
-                                            <div class="col-lg-2 col-sm-4 col-12">
-                                                <div class="mb-3">
-                                                    <label class="form-label" for="abc4">Date of Birth</label>
-                                                    <br>
-                                                    <?php echo $row['date_of_birth']; ?>
-                                                </div>
-                                            </div>
-                                            <div class="col-lg-2 col-sm-4 col-12">
-                                                <div class="mb-3">
-                                                    <label class="form-label" for="abc4">Philhealth no.</label>
-                                                    <br>
-                                                    <?php echo $row['philhealth_no']; ?>
-                                                </div>
-                                            </div>
-
-
-
-                                        </div>
-                                        <hr />
-                                        <div class="form-container">
-                                            <div class="ultrasound-info">
-                                                <h3>Pertinent Past Medical History</h3>
-
-                                                <p><strong></strong> <span>
-                                                        <?php
-                                                        if (!empty($row['med_history'])) {
-                                                            $med_history = json_decode($row['med_history'], true);
-
-                                                            if (json_last_error() === JSON_ERROR_NONE) {
-                                                                if (is_array($med_history)) {
-                                                                    foreach ($med_history as $item) {
-                                                                        if (!empty($item)) {
-                                                                            echo '=> ' . ucwords(htmlspecialchars($item)) . ' <br />';
-                                                                        }
-                                                                    }
-                                                                } else {
-                                                                    echo 'Decoded JSON is not an array.';
-                                                                }
-                                                            } else {
-                                                                echo 'Error decoding JSON: ' . json_last_error_msg();
-                                                            }
-                                                        } else {
-                                                        }
-                                                        ?>
-
-                                                    </span></p>
-                                                <p><strong>Bleeding:</strong> <?php echo $row['bleeding']; ?></p>
-                                                <p><strong>CPI: Month/year Completed:</strong> <span id="chief_complaint"><?php echo $row['cpi_month'] . ' ' . $row['cpi_year']; ?></span></p>
-
-
-                                                <h5>Date of exposure: <?php echo $row['date_bite'] ?></h5>
-                                                <h5>Place of exposure: <?php echo $row['Place'] ?></h5>
-                                                <h5>Type
-                                                </h5>
-                                                <p><?php
-
-                                                    if (!empty($row['Type_bite'])) {
-                                                        $med_history = json_decode($row['Type_bite'], true);
-
-                                                        if (json_last_error() === JSON_ERROR_NONE) {
-                                                            if (is_array($med_history)) {
-                                                                foreach ($med_history as $item) {
-                                                                    if (!empty($item)) {
-                                                                        echo '=> ' . ucwords(htmlspecialchars($item)) . ' <br />';
-                                                                    }
-                                                                }
-                                                            } else {
-                                                                echo 'Decoded JSON is not an array.';
-                                                            }
-                                                        } else {
-                                                            echo 'Error decoding JSON: ' . json_last_error_msg();
-                                                        }
-                                                    } else {
-                                                    }
-                                                    ?></p>
-                                                <h5>Source: <?php echo $row['animal_type'] ?> <span style="margin-left:10rem;">Vaccinated date: <?php echo date('F j, Y', strtotime($row['source'])); ?></span> <span> / <?php echo $row['pet_vaccinated']; ?></span></h5>
-                                                <h5>Status: <?php echo $row['animal_status'] ?></h5>
-                                                <h5>Site of exposure: <?php echo $row['site_exposure'] ?></h5>
-                                                <div class="ultrasound-details">
-                                                    <p><strong>Local wound treatment:</strong> <span id="lmp"><?php echo $row['wound'] ?></span></p>
-                                                    <p><strong>Washed w. water only:</strong><span id="ga_by_lmp"> <?php echo $row['washed'] ?></span></p>
-                                                    <p><strong>Washed w/soup & water:</strong><span id="edc_by_lmp"><?php echo $row['soap'] ?></span> </p>
-                                                    <p><strong>Tandok:</strong> <span id="fhr"><?php echo $row['Tandok'] ?></span></p>
-                                                    <p><strong>Applied garlic, etc.:</strong> <span><?php echo $row['Applied'] ?></span></p>
-                                                    <p><strong>Tetanus Immunization:</strong><span> <?php echo $row['Tetanus'] ?></span>
-                                                        <span style="margin-left:10rem;">Date:
-                                                            <?php
-                                                            if (!empty($row['vac_date'])) {
-                                                                echo date('F j, Y', strtotime($row['vac_date']));
-                                                            } else {
-                                                                echo '';
-                                                            }
-                                                            ?>
-                                                        </span>
-                                                    </p>
-
-                                                </div>
-                                                <h5>Category exposure: <?php echo $row['category_exposure'] ?></h5>
-                                                <h5>Remarks: <?php echo $row['Remarks'] ?></h5>
-                                            </div>
-
-
-
-
-
-                                        </div>
-
-
-
-                                        <!-- Row start -->
-
-
-
-                                        <br style="clear:both;" />
-                                        <br />
-
-
-
-                                        <!-- Row end -->
+            </div>
 
 
 
@@ -549,26 +547,27 @@ if (isset($_GET['id'])) {
 
 
 
-                                        <script>
-                                            function openPrintDialog() {
-                                                alert("Please ensure you disable 'Headers and Footers' in the print settings dialog for best results.");
-                                                window.print();
-                                            }
 
-                                            function printContent(el) {
-                                                var inputElements = document.getElementById(el).querySelectorAll('input');
-                                                inputElements.forEach(function(input) {
-                                                    input.setAttribute('value', input.value);
-                                                });
+            <script>
+                function openPrintDialog() {
+                    alert("Please ensure you disable 'Headers and Footers' in the print settings dialog for best results.");
+                    window.print();
+                }
 
-                                                var originalContents = document.body.innerHTML;
-                                                var printContents = document.getElementById(el).innerHTML;
+                function printContent(el) {
+                    var inputElements = document.getElementById(el).querySelectorAll('input');
+                    inputElements.forEach(function(input) {
+                        input.setAttribute('value', input.value);
+                    });
 
-                                                document.body.innerHTML = printContents;
-                                                window.print();
-                                                document.body.innerHTML = originalContents;
-                                            }
-                                        </script>
+                    var originalContents = document.body.innerHTML;
+                    var printContents = document.getElementById(el).innerHTML;
+
+                    document.body.innerHTML = printContents;
+                    window.print();
+                    document.body.innerHTML = originalContents;
+                }
+            </script>
 
 
 

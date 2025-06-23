@@ -1,23 +1,26 @@
 <?php
 include '../config/connection.php';
 
-include '../common_service/common_functions.php';
 date_default_timezone_set('Asia/Manila');
 $message = '';
 if (isset($_GET['id'])) {
     $complaintID = $_GET['id'];
 
-    $query = "SELECT com.*, pat.*, fam.*, i.vaccine, COUNT(i.vaccine) AS vaccine_count,
-              CONCAT(pat.`patient_name`, ' ', pat.`middle_name`, ' ', pat.`last_name`, ' ', pat.`suffix`) AS `name`,
-              CONCAT(fam.`brgy`, ' ', fam.`purok`, ' ', fam.`province`) as `address`,
-              i.immunization_date, i.remarks
-              FROM tbl_complaints AS com 
-              JOIN tbl_patients AS pat ON com.patient_id = pat.patientID
-              JOIN tbl_familyaddress AS fam ON pat.family_address = fam.famID
-              LEFT JOIN tbl_immunization_records AS i ON pat.patientID = i.patient_id
-              WHERE com.complaintID = :complaintID
+     $query = "SELECT pat.*, fam.*, c.*, i.vaccine, COUNT(i.vaccine) AS vaccine_count,
+              CONCAT(pat.`patient_name`, ' ', pat.`middle_name`, ' ', pat.`last_name`, ' ', pat.`suffix`) AS `nname`,
+              CONCAT(fam.`brgy`, ' ', fam.`purok`, ' ', fam.`province`) AS `address`,
+              i.immunization_date, i.remarks, 
+              m1.name AS mother_name, m1.relationship AS mother_relationship,
+              m2.name AS father_name, m2.relationship AS father_relationship
+              FROM tbl_immunization_records AS i 
+              JOIN tbl_patients AS pat ON i.patient_id = pat.patientID
+              JOIN tbl_familyAddress AS fam ON pat.family_address = fam.famID  
+              LEFT JOIN tbl_family_members AS m1 ON m1.patient_id = pat.patientID AND m1.relationship = 'mother'
+              LEFT JOIN tbl_family_members AS m2 ON m2.patient_id = pat.patientID AND m2.relationship = 'father'
+              LEFT JOIN tbl_complaints AS c ON pat.patientID = c.patient_id AND c.created_at = i.created_at       
+              WHERE i.immunID  = :complaintID 
               GROUP BY pat.patientID, i.vaccine, i.immunization_date, i.remarks
-              ORDER BY i.immunization_date DESC";
+              ORDER BY i.immunization_date ASC";
 
     $stmt = $con->prepare($query);
     $stmt->bindParam(':complaintID', $complaintID, PDO::PARAM_INT);
@@ -25,33 +28,11 @@ if (isset($_GET['id'])) {
 
     $f = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    // if (isset($_GET['id'])) {
-    //     $complaintID = $_GET['id'];
 
-    //     $query = "SELECT com.*, pat.*, fam.*,i.*,
-    //               CONCAT(pat.`patient_name`, ' ', pat.`middle_name`, ' ', pat.`last_name`, ' ', pat.`suffix`) AS `name`,
-    //               CONCAT(fam.`brgy`, ' ', fam.`purok`, ' ', fam.`province`) as `address`,
-    //               i.vaccine, COUNT(i.vaccine) AS vaccine_count
-    //               FROM tbl_complaints AS com 
-    //               JOIN tbl_patients AS pat ON com.patient_id = pat.patientID
-    //               JOIN tbl_family AS fam ON pat.family_address = fam.famID
-    //               LEFT JOIN 
-    //               tbl_immunization_records AS i ON pat.patientID = i.patient_id
-    //               WHERE com.complaintID = :complaintID
-    //               GROUP BY 
-    //               pat.patientID, i.vaccine";
-
-    //     $stmt = $con->prepare($query);
-    //     $stmt->bindParam(':complaintID', $complaintID, PDO::PARAM_INT);
-    //     $stmt->execute();
-
-
-    //     $f = $stmt->fetch(PDO::FETCH_ASSOC);
-
-    $immunizationQuery = "SELECT i.vaccine, COUNT(i.vaccine) AS vaccine_count, i.immunization_date, i.remarks
-                          FROM tbl_immunization_records AS i
-                          WHERE i.patient_id = :patientID
-                          GROUP BY i.vaccine";
+         $immunizationQuery = "SELECT i.vaccine, i.immunization_date, i.remarks
+                       FROM tbl_immunization_records AS i
+                       WHERE i.patient_id = :patientID
+                       ORDER BY i.vaccine, i.immunization_date";
 
     $immunizationStmt = $con->prepare($immunizationQuery);
     $immunizationStmt->bindParam(':patientID', $f['patientID'], PDO::PARAM_INT);
@@ -226,7 +207,7 @@ if (isset($_GET['id'])) {
                     <div>
                     <input type="hidden" name="child_name" value="<?php echo $f['patient_id']; ?>" readonly>
                         <label>Child's name:</label>
-                        <input type="text" name="child_name" value="<?php echo $f['name']; ?>">
+                        <input type="text" name="child_name" value="<?php echo $f['nname']; ?>">
                     </div>
                     <div>
                         <label>Date of birth:</label>
@@ -237,14 +218,14 @@ if (isset($_GET['id'])) {
                         <label>Address:</label>
                         <input type="text" name="address" value=" <?php echo $f['address']; ?>">
                     </div>
-                    <div>
-                        <label>Mother's name:</label>
-                        <input type="text" name="mother_name" value=" <?php echo $f['mother_name']; ?>">
-                    </div>
-                    <div>
-                        <label>Father's name:</label>
-                        <input type="text" name="father_name" value=" <?php echo $f['father_guardian_name']; ?>">
-                    </div>
+                      <div>
+                    <label>Mother's name:</label>
+                    <input type="text" name="mother_name" value="<?php echo htmlspecialchars($f['mother_name']); ?>">
+                </div>
+                <div>
+                    <label>Father's name:</label>
+                    <input type="text" name="father_name" value="<?php echo htmlspecialchars($f['father_name']); ?>">
+                </div>
                     <div>
                         <label>Birth height:</label>
                         <input type="text" name="birth_height" value="<?php echo $f['Height']; ?>">
@@ -280,200 +261,74 @@ if (isset($_GET['id'])) {
                         </tr>
 
                     </thead>
-                    <!-- <tbody>
-                        <tr>
+                   
+                     <tbody>
+        <?php 
+        $vaccineDetails = []; // Array to store vaccine details grouped by vaccine
+        foreach ($immunizationRecords as $f) {
+            $vaccine = $f['vaccine'];
+            if (!isset($vaccineDetails[$vaccine])) {
+                $vaccineDetails[$vaccine] = [
+                    'dates' => [],
+                    'remarks' => []
+                ];
+            }
+            $vaccineDetails[$vaccine]['dates'][] = htmlspecialchars($f['immunization_date']);
+            $vaccineDetails[$vaccine]['remarks'][] = htmlspecialchars($f['remarks']);
+        }
 
+        // Display the rows
+        foreach ($vaccineDetails as $vaccine => $details) :
+            // Concatenate dates and remarks into comma-separated strings
+            $datesString = implode(', ', $details['dates']);
+            $remarksString = implode(', ', $details['remarks']);
+            ?>
+            <tr>
+                <td><?php echo htmlspecialchars($vaccine); ?></td>
+                <td>
+                    <?php
+                    $badge = "";
+                    $dosesCount = count($details['dates']); // Count of doses (dates)
 
-                        <tr>
-                            <td>
-                                <input type="text" value="
-                                <?php
+                    if ($vaccine == 'Hepatitis B Vaccine') {
+                        $badge = '<span class="badge bg-warning">' . $dosesCount . '</span>';
+                        $text = 'At birth';
+                    } elseif ($vaccine == 'Bcg Vaccine') {
+                        $badge = '<span class="badge bg-warning">' . $dosesCount . '</span>';
+                        $text = 'At birth';
+                    } elseif ($vaccine == 'Inactivated Polio Vaccine (ipv)') {
+                        $badge = '<span class="badge bg-warning">' . $dosesCount . '</span>';
+                        $text = '1 ½, 2 ½, 3 ½ months';
+                    } elseif ($vaccine == 'Oral Polio Vaccine (opv)') {
+                        $badge = '<span class="badge bg-warning">' . $dosesCount . '</span>';
+                        $text = '1 ½, 2 ½, 3 ½ months';
+                    } elseif ($vaccine == 'Pneumococcal Conjugate Vaccine (pcv)') {
+                        $badge = '<span class="badge bg-warning">' . $dosesCount . '</span>';
+                        $text = '1 ½, 2 ½, 3 ½ months';
+                    } elseif ($vaccine == 'Measles, Mumps, Rubella Vaccine (MMR)') {
+                        $badge = '<span class="badge bg-warning">' . $dosesCount . '</span>';
+                        $text = '9 months & 1 year';
+                    } elseif ($vaccine == 'Pentavalent Vaccine (dpt-hep B-hib)') {
+                        $badge = '<span class="badge bg-warning">' . $dosesCount . '</span>';
+                        $text = '1 ½, 2 ½, 3 ½ months';
+                    } else {
+                        $badge = '<span class="badge bg-warning">' . $dosesCount . '</span>';
+                        $text = ''; // If no specific text is needed
+                    }
 
-                                if ($f['vaccine'] == 'Bcg Vaccine') {
-                                    echo 'Bcg Vaccine';
-                                } else {
-                                }
-
-
-                                ?>">
-                            </td>
-                            <td>
-                                <?php
-                                if ($f['vaccine'] == 'Bcg Vaccine') {
-                                    echo htmlspecialchars($f['vaccine_count'] . " At birth");
-                                } else {
-                                    echo "";
-                                }
-                                ?>
-                            </td>
-                            <td>
-                                <input type="text" value="<?php
-                                                            if ($f['vaccine'] == 'Bcg Vaccine') {
-                                                                echo htmlspecialchars($f['immunization_date']);
-                                                            } else {
-                                                            } ?>">
-                            </td>
-                            <td>
-                                <input type="text" value=" <?php
-                                                            if ($f['vaccine'] == 'Bcg Vaccine') {
-                                                                echo htmlspecialchars($f['remarks']);
-                                                            } else {
-                                                                echo "";
-                                                            }
-                                                            ?>">
-                            </td>
-                        </tr>
-
-                        <tr>
-                        <td>
-                                <input type="text" value="
-                                <?php
-
-                                if ($f['vaccine'] == 'Hepatitis B Vaccine') {
-                                    echo 'Hepatitis B Vaccine';
-                                } else {
-                                }
-
-
-                                ?>">
-                            </td>
-                            <td>
-                                <?php
-                                if ($f['vaccine'] == 'Hepatitis B Vaccine') {
-                                    echo htmlspecialchars($f['vaccine_count'] . " At birth");
-                                } else {
-                                    echo "";
-                                }
-                                ?>
-                            </td>
-                            <td>
-                                <input type="text" value="<?php
-                                                            if ($f['vaccine'] == 'Hepatitis B Vaccine') {
-                                                                echo htmlspecialchars($f['immunization_date']);
-                                                            } else {
-                                                            } ?>">
-                            </td>
-                            <td>
-                                <input type="text" value=" <?php
-                                                            if ($f['vaccine'] == 'Hepatitis B Vaccine') {
-                                                                echo htmlspecialchars($f['remarks']);
-                                                            } else {
-                                                                echo "";
-                                                            }
-                                                            ?>">
-                            </td>
-
-                        </tr>
-                       
-                        <tr>
-                            <td>
-
-                            </td>
-                            <td>3</td>
-                            <td>
-                                <input type="text" name="pentavalent_date1">
-
-                            </td>
-                            <td><input type="text" name="pentavalent_remarks"></td>
-                        </tr>
-                        <tr>
-                            <td>
-
-                            </td>
-                            <td>3</td>
-                            <td>
-                                <input type="text" name="opv_date1">
-
-                            </td>
-                            <td><input type="text" name="opv_remarks"></td>
-                        </tr>
-                        <tr>
-                            <td>
-
-                            </td>
-                            <td>2</td>
-                            <td>
-                                <input type="text" name="ipv_date1">
-
-                            </td>
-                            <td><input type="text" name="ipv_remarks"></td>
-                        </tr>
-                        <tr>
-                            <td>
-
-                            </td>
-                            <td>3</td>
-                            <td>
-                                <input type="text" name="pcv_date1">
-
-                            </td>
-                            <td><input type="text" name="pcv_remarks"></td>
-                        </tr>
-                        <tr>
-                            <td>
-
-                            </td>
-                            <td>2</td>
-                            <td>
-                                <input type="text" name="mmr_date1">
-
-                            </td>
-                            <td><input type="text" name="mmr_remarks"></td>
-                        </tr>
-                    </tbody> -->
-                    <tbody>
-                        <?php foreach ($immunizationRecords as $f) : ?>
-                            <tr>
-                                <td>
-                                    <?php echo htmlspecialchars($f['vaccine']); ?>
-                                </td>
-                                <td>
-                                    <?php
-                                    $badge = "";
-
-                                    if ($f['vaccine'] == 'Hepatitis B Vaccine') {
-                                        $badge = '<span class="badge bg-warning">' . htmlspecialchars($f['vaccine_count']) . '</span>';
-                                        $text = 'At birth';
-                                    } elseif ($f['vaccine'] == 'Bcg Vaccine') {
-                                        $badge = '<span class="badge bg-warning">' . htmlspecialchars($f['vaccine_count']) . '</span>';
-                                        $text = 'At birth';
-                                    } elseif ($f['vaccine'] == 'Inactivated Polio Vaccine (ipv)') {
-                                        $badge = '<span class="badge bg-warning">' . htmlspecialchars($f['vaccine_count']) . '</span>';
-                                        $text = '1 ½, 2 ½, 3 ½ months';
-                                    } elseif ($f['vaccine'] == 'Oral Polio Vaccine (opv)') {
-                                        $badge = '<span class="badge bg-warning">' . htmlspecialchars($f['vaccine_count']) . '</span>';
-                                        $text = '1 ½, 2 ½, 3 ½ months';
-                                    } elseif ($f['vaccine'] == 'Pneumococcal Conjugate Vaccine (pcv)') {
-                                        $badge = '<span class="badge bg-warning">' . htmlspecialchars($f['vaccine_count']) . '</span>';
-                                        $text = '1 ½, 2 ½, 3 ½ months';
-                                    } elseif ($f['vaccine'] == 'Measles, Mumps, Rubella Vaccine (MMR)') {
-                                        $badge = '<span class="badge bg-warning">' . htmlspecialchars($f['vaccine_count']) . '</span>';
-                                        $text = '9 months & 1 year';
-                                    } elseif ($f['vaccine'] == 'Pentavalent Vaccine (dpt-hep B-hib)') {
-                                        $badge = '<span class="badge bg-warning">' . htmlspecialchars($f['vaccine_count']) . '</span>';
-                                        $text = '1 ½, 2 ½, 3 ½ months';
-                                    } else {
-                                        $badge = '<span class="badge bg-warning">' . htmlspecialchars($f['vaccine_count']) . '</span>';
-                                        $text = ''; // If no specific text is needed
-                                    }
-
-                                    echo $badge . " " . $text;
-                                    ?>
-                                </td>
-
-
-
-                                <td>
-                                    <?php echo htmlspecialchars($f['immunization_date']); ?>
-                                </td>
-                                <td>
-                                    <?php echo htmlspecialchars($f['remarks']); ?>
-                                </td>
-                            </tr>
-                        <?php endforeach; ?>
-                    </tbody>
+                    echo $badge . " " . $text;
+                    ?>
+                </td>
+                <td><?php echo $datesString; ?></td>
+                <td><?php echo $remarksString; ?></td>
+            </tr>
+        <?php endforeach; ?>
+    </tbody>
 
                 </table>
+                 <div class="footer-note">
+                    <p>Sa column ng <strong>Petsa ng Bakuna</strong>, isulat ang petsa ng pagbibigay ng bakuna ayon sa kung pang-ilang dose ito. Sa column ng <strong>Remarks</strong>, isulat ang petsa ng pagbakik para sa susunod na dose, o anumang mahalagang impormasyon na makakaapekto sa pagbabakuna ng bata.</p>
+                </div>
 
             </div>
 

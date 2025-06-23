@@ -15,7 +15,7 @@ if (isset($_GET['id'])) {
     CONCAT(per.first_name, ' ', per.middlename, ' ', per.lastname) AS midwifenurse
     FROM tbl_vitalsigns_monitoring b
     LEFT JOIN tbl_patients p ON p.patientID = b.patient_id
-    LEFT JOIN tbl_familyaddress a ON a.famID = p.family_address
+    LEFT JOIN tbl_familyAddress a ON a.famID = p.family_address
      LEFT JOIN tbl_users u ON u.userID = b.nurse_midwife
       LEFT JOIN tbl_personnel per ON u.personnel_id = per.personnel_id
     WHERE b.vitalSignsID = :recordId";
@@ -31,7 +31,7 @@ if (isset($_GET['id'])) {
         // Prepare and execute the SQL query to fetch all vital signs for the patient
         $vitalSignsQuery = "SELECT vitals.*,u.*,p.*,b.* ,vitals.date_shift,
          CONCAT(p.first_name, ' ', p.middlename, ' ', p.lastname) AS midwifenurse
-        FROM tbl_vitalSigns_Monitoring vitals
+        FROM tbl_vitalsigns_monitoring vitals
         LEFT JOIN tbl_users u on u.userID = vitals.nurse_midwife
         LEFT JOIN tbl_personnel p on p.personnel_id = u.personnel_id 
          LEFT JOIN tbl_birth_info b ON b.birth_info_id = vitals.birth_info_id

@@ -2,12 +2,14 @@
 include './config/connection.php';
 
 include './common_service/common_functions.php';
-
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 
 if (isset($_POST['med_detailsID'])) {
     $id = $_POST['med_detailsID'];
 
-    $query = "SELECT md.med_detailsID, m.medicineID AS medicine_id, md.packing, md.qt 
+    $query = "SELECT md.med_detailsID, m.medicineID   AS medicine_id, md.packing, md.qt 
               FROM tbl_medicine_details md 
               LEFT JOIN tbl_medicines m ON md.medicine_id = m.medicineID 
               WHERE md.med_detailsID = :id";
@@ -82,7 +84,6 @@ if (isset($_POST['submit'])) {
 
 
 
-
 if (isset($_POST['updateStock'])) {
 
     $user_id = $_SESSION['admin_id'];
@@ -99,14 +100,7 @@ if (isset($_POST['updateStock'])) {
         $selectStmt->execute([':id' => $med_detailsID]);
         $oldValues = $selectStmt->fetch(PDO::FETCH_ASSOC);
 
-        // Prepare old and new values for audit log
-        $old_value = json_encode($oldValues);
-        $new_value = json_encode(['medicine_id' => $medicine_id, 'packing' => $packing, 'qt' => $quantity]);
-
-        // Insert into audit log
-        $auditQuery = "INSERT INTO tbl_audit_log (user_id, action, table_name, record_id, old_value, new_value) VALUES (?, 'UPDATE', 'tbl_medicine_details', ?, ?, ?)";
-        $auditStmt = $con->prepare($auditQuery);
-        $auditStmt->execute([$user_id, $med_detailsID, $old_value, $new_value]);
+   
 
         // Update record
         $query = "UPDATE tbl_medicine_details 
@@ -137,9 +131,6 @@ if (isset($_POST['updateStock'])) {
         exit();
     }
 }
-
-
-
 
 
 
@@ -452,6 +443,49 @@ $medicines = getMedicines($con);
 
 
 
+                <?php
+                // Fetch expired medicines
+                $sql = "SELECT * FROM tbl_medicines WHERE ex_date <= :today";
+                $stmt = $con->prepare($sql);
+                $stmt->execute([':today' => date('Y-m-d')]);
+
+                // Display results in the list
+                if ($stmt->rowCount() > 0) {
+                   
+
+                    // Get the count of expired medicines for the toast
+                    $expiredCount = $stmt->rowCount();
+                } else {
+                    echo "<p>No expired medicines found.</p>";
+                    $expiredCount = 0;
+                }
+
+                // Add toast notification script
+                echo "<script>
+                    document.addEventListener('DOMContentLoaded', function() {
+                        let expiredCount = {$expiredCount};
+                        if (expiredCount > 0) {
+                            document.getElementById('toast-body').innerHTML = 'There are ' + expiredCount + ' expired medicines!';
+                            let toastEl = document.getElementById('medicine-toast');
+                            let toast = new bootstrap.Toast(toastEl);
+                            toast.show();
+                        }
+                    });
+                </script>";
+                ?>
+                
+                 <!-- Toast Notification -->
+                        <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1055;">
+                            <div id="medicine-toast" class="toast bg-danger text-white" role="alert" aria-live="assertive" aria-atomic="true">
+                                <div class="toast-header bg-danger text-white">
+                                    <strong class="me-auto">Expired Medicines Alert</strong>
+                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
+                                </div>
+                                <div class="toast-body" id="toast-body">
+                                    <!-- Content dynamically added -->
+                                </div>
+                            </div>
+                        </div>
 
 
 
@@ -530,7 +564,7 @@ $medicines = getMedicines($con);
             $('.edit').click(function(e) {
                 e.preventDefault();
                 $('#editStock').modal('show');
-                var id = $(this).data('id'); // Ensure this data-id corresponds to med_detailsID
+                var id = $(this).data('id'); 
                 getRow(id);
             });
 
@@ -550,7 +584,7 @@ $medicines = getMedicines($con);
                     },
                     dataType: 'json',
                     success: function(response) {
-                        console.log("Response from server:", response);
+                       
                         if (response.error) {
                             alert(response.error);
                         } else {

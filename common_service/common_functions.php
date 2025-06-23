@@ -253,23 +253,41 @@ function getnationality($stat = '')
 }
 function geteducation($stat = '')
 {
-	$data = '<option value="">Select Educational Attainment</option>';
+    $data = '<option value="">Select Educational Attainment</option>';
 
-	$arr = array("No Formal Education","Elementary", "High School", "Undergrad","College Graduate");
+    // Updated array with detailed educational attainments
+    $arr = array(
+        "No Formal Education",
+        "Elementary",
+        "High School",
+        "Undergrad",
+        "College Graduate",
+        "Master's Degree",
+        "Doctoral Degree",
+        "Postdoctoral Fellow",
+        "Ph.D.",
+        "MBA",
+        "MFA",
+        "MSc",
+        "MA",
+        "JD",
+        "MD",
+        "DVM"
+    );
 
-	$i = 0;
-	$size = sizeof($arr);
+    $size = sizeof($arr);
 
-	for ($i = 0; $i < $size; $i++) {
-		if ($stat == $arr[$i]) {
-			$data = $data . '<option selected="selected" value="' . $arr[$i] . '">' . $arr[$i] . '</option>';
-		} else {
-			$data = $data . '<option value="' . $arr[$i] . '">' . $arr[$i] . '</option>';
-		}
-	}
+    for ($i = 0; $i < $size; $i++) {
+        if ($stat == $arr[$i]) {
+            $data = $data . '<option selected="selected" value="' . $arr[$i] . '">' . $arr[$i] . '</option>';
+        } else {
+            $data = $data . '<option value="' . $arr[$i] . '">' . $arr[$i] . '</option>';
+        }
+    }
 
-	return $data;
+    return $data;
 }
+
 function getblood($blood = '')
 {
 	$data = '<option value="">Select Blood Group</option>';
@@ -371,19 +389,23 @@ function getbrgy($brgy = '')
 {
 	$data = '<option value="">Select Barangay</option>';
 
-	$arr = array("Bayasong",
-				"Blingkong",
-				"lut Proper",
-				"Maindang",
-				 "Mamali",
-				 "Mangudadatu",
-				 "Manili",
-				 "Punol",
-				 "Palavilla",
-				 "Sampao",
-				 "Sisiman",
-				 "Tamnag",
-				 "Tananzang",);
+	$arr = array
+	            ("Antong",
+        		"Bayasong",
+        		"Blingkong",
+        		"lut Proper",
+        		"Maindang",
+        		"Mamali",
+        		"Mangudadatu",
+        		"Manili",
+        		"Punol",
+        		"Palavilla",
+        		"Sampao",
+        		"Sisiman",
+        		"Tamnag (Pob.)",
+        		"Tananzang",
+	);
+				 
 
 	$i = 0;
 	$size = sizeof($arr);

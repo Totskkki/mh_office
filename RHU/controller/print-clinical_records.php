@@ -10,10 +10,15 @@ ob_start();
 if (isset($_GET['id'])) {
     $patientId = $_GET['id'];
 
-    $query = "SELECT   c.*,pat.*, fam.*, mem.*, com.*, b.*, d.date_discharged, u.*,per.*,famMem.*, famMem.contact, 
+    $query = "SELECT   c.*,pat.*, fam.*, mem.*, com.*, b.*, d.date_discharged, u.*,per.*,m1.*,m2.*,
             	CONCAT(pat.`patient_name`, ' ', pat.`middle_name`, ' ', pat.`last_name`, ' ', pat.`suffix`) AS `name`,
                 CONCAT(fam.`brgy`, ' ', fam.`purok`, ' ', fam.`province`) AS address1,
-                DATE_FORMAT(pat.`date_of_birth`, '%m/%d/%Y') AS `date_of_birth`
+                CONCAT(m1.address) AS mother_address,
+               CONCAT(m2.address) AS father_address,
+                DATE_FORMAT(pat.`date_of_birth`, '%m/%d/%Y') AS `date_of_birth`,
+               m1.name AS mother_name, m1.relationship AS mother_relationship, m1.contact AS mother_contact,
+               m2.name AS father_name, m2.relationship AS father_relationship, m2.contact AS father_contact
+               
               FROM `tbl_clinicalrecords` AS c
               LEFT JOIN `tbl_patients` AS pat ON c.`patient_id` = pat.`patientID`
               LEFT JOIN `tbl_familyAddress` AS fam ON pat.`family_address` = fam.`famID`
@@ -24,7 +29,8 @@ if (isset($_GET['id'])) {
               LEFT JOIN `tbl_birth_info` AS bi ON bi.`patient_id` = pat.`patientID`
               LEFT JOIN tbl_users AS u on u.userID  = bi.midwife_nurse
               LEFT JOIN tbl_personnel AS per ON u.personnel_id = per.personnel_id 
-              LEFT JOIN tbl_family_members AS famMem ON famMem.patient_id = pat.patientID     
+              LEFT JOIN tbl_family_members AS m1 ON m1.patient_id = pat.patientID AND m1.relationship = 'mother'
+              LEFT JOIN tbl_family_members AS m2 ON m2.patient_id = pat.patientID AND (m2.relationship = 'father' OR m2.relationship = 'guardian')
               WHERE     c.`patient_id` = :id
               ORDER BY c.created_at DESC";
 
@@ -106,14 +112,14 @@ $pdf->writeHTML($html, true, false, true, false, '');
                 <td colspan="2"><strong>Telephone/ CellNo.:</strong><br> <u>' . $patientData['tel_cell-no'] . '</u></td>
             </tr>
             <tr>
-                <td colspan="2"><strong>Name of Father/Guardian:</strong> <u>' . $patientData['father_guardian_name'] . '</u></td>
-                <td colspan="2"><strong>Address:</strong> <u>' . $patientData['address'] . '</u></td>
-                 <td colspan="2"><strong>Telephone/ CellNo.:</strong><br> <u>' . $patientData['contact'] . '</u></td>
+             <td colspan="2"><strong>Name of Father/Guardian:</strong> <u>' . $patientData['father_name'] . '</u></td>
+                <td colspan="2"><strong>Address:</strong> <u>' . $patientData['father_address'] . '</u></td>
+                <td colspan="2"><strong>Telephone/ CellNo.:</strong><br> <u>' . $patientData['father_contact'] . '</u></td>
             </tr>
             <tr>
-                <td colspan="2"><strong>Name of Mother (Maiden Name):</strong> <u>' . $patientData['mother_name'] . '</u></td>
-                <td colspan="2"><strong>Address:</strong> <u>' . $patientData['address'] . '</u></td>
-                 <td colspan="2"><strong>Telephone/ CellNo.:</strong><br> <u>' . $patientData['contact'] . '</u></td>
+               <td colspan="2"><strong>Name of Mother (Maiden Name):</strong> <u>' . $patientData['mother_name'] . '</u></td>
+                <td colspan="2"><strong>Address:</strong> <u>' . $patientData['mother_address'] . '</u></td>
+                <td colspan="2"><strong>Telephone/ CellNo.:</strong><br> <u>' . $patientData['mother_contact'] . '</u></td>
             </tr>
             <tr>
                 <td colspan="2"><strong>Admission:</strong><br>
@@ -165,7 +171,7 @@ $pdf->writeHTML($html, true, false, true, false, '');
         // Close and output PDF document
         $pdf->Output('Doctor_notes.pdf', 'I');
     } else {
-        echo "No doctor's notes found for this patient!";
+        echo "No clinical record for this patient!";
     }
 } else {
     echo "Invalid request!";

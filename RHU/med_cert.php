@@ -23,63 +23,28 @@ $doctors = getDoctor($con);
 
   <?php include './config/data_tables_css.php'; ?>
   <title>Patients - Kalilintad Lutayan-Municipal Health Office</title>
-  <!-- <style>
-    body .header {
-      text-align: center;
-      margin-bottom: 20px;
-    }
 
-    .header img {
-      width: 100px;
-    }
-
-    .content {
-      width: 60%;
-      margin: auto;
-    }
-
-    .content p {
-      line-height: 1.6;
-    }
-
-    .signature {
-      margin-top: 40px;
-      text-align: right;
-    }
-
-    .center {
-      justify-content: center;
-    }
-
-    .d-flex {
-      display: flex;
-    }
-
-    .justify-content-center {
-      justify-content: center;
-    }
-
-    .text-center {
-      text-align: center;
-    }
-  </style> -->
+  
   <style>
     .form-container {
       display: flex;
+      flex-wrap: wrap;
       justify-content: space-between;
       gap: 10px;
       margin-bottom: 10px;
     }
 
-    .justify-content-end {
-      justify-content: flex-end;
-
-    }
-
     .search-container {
       position: relative;
       display: inline-block;
-
+      width: 100%;
+    }
+    #search_patient{
+         max-width: 50%;
+    }
+    
+    #search_patient1{
+         max-width: 50%;
     }
 
     .search-icon {
@@ -89,12 +54,10 @@ $doctors = getDoctor($con);
       transform: translateY(-50%);
       color: #999;
       display: none;
-      /* Initially hide the icon */
     }
 
     .search-item {
       font-size: 20px;
-
     }
 
     .search-results-container {
@@ -110,14 +73,13 @@ $doctors = getDoctor($con);
       display: none;
       overflow-y: auto;
       max-height: 300px;
-      /* Adjust as needed */
     }
 
     .search-results-container ul {
       list-style: none;
       margin: 0;
       padding: 0;
-      font-size: 200px;
+      font-size: 14px; /* Adjusted for better mobile display */
     }
 
     .search-results-container li {
@@ -133,93 +95,92 @@ $doctors = getDoctor($con);
     #patient_details,
     .text-muted {
       display: none;
-
     }
-
-    #patient_details1,
+     #patient_details1,
     .text-muted {
       display: none;
-
     }
 
     .highlight {
       background-color: #f0f0f0;
     }
+
+    /* Responsive styles */
+    @media (max-width: 768px) {
+      .input-group {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .input-group .form-control {
+        width: 100%;
+      }
+
+      .tab-content {
+        padding: 0 10px;
+      }
+
+      .list-group {
+        width: 100%;
+      }
+
+      .card-header {
+        padding: 10px;
+      }
+
+      .card-body {
+        padding: 15px;
+      }
+
+      .print-button,
+      .print-button1 {
+        width: 100%;
+      }
+    }
+
+    @media (max-width: 576px) {
+      .search-results-container {
+        max-height: 200px; /* Reduced max-height for smaller screens */
+      }
+
+      .list-group-item {
+        font-size: 12px; /* Smaller font for better readability */
+      }
+    }
   </style>
 </head>
-
 <body>
   <!-- Page wrapper start -->
   <div class="page-wrapper">
-
     <!-- Main container start -->
     <div class="main-container">
-
       <!-- Sidebar wrapper start -->
       <nav id="sidebar" class="sidebar-wrapper">
-
-        <!-- App brand starts -->
-        <div class="app-brand px-3 py-2 d-flex align-items-center">
-         
-        </div>
-        <!-- App brand ends -->
-
-        <!-- Sidebar menu starts -->
+        <div class="app-brand px-3 py-2 d-flex align-items-center"></div>
         <?php include './config/sidebar.php'; ?>
-        <!-- Sidebar menu ends -->
-
       </nav>
       <!-- Sidebar wrapper end -->
 
       <!-- App container starts -->
       <div class="app-container">
-
-        <!-- App header starts -->
         <?php include './config/header.php'; ?>
-        <!-- App header ends -->
-
-
-
         <!-- App body starts -->
         <div class="app-body">
-
-          <?php
-          if (isset($_SESSION['status']) && $_SESSION['status'] != '') {
-          ?>
-            <?php ?>
-
-          <?php
-
-
-          }
-
-          ?>
-          <!-- Container starts -->
           <div class="container-fluid">
-
             <!-- Row start -->
             <div class="row">
               <div class="col-12 col-xl-12">
-                <!-- Breadcrumb start -->
                 <ol class="breadcrumb mb-1">
-                  <li class="breadcrumb-item">
-                    <a href="dashboard.php">Home</a>
-
-                  </li>
-                  <li class=" breadcrumb-active">
-
-                  </li>
+                  <li class="breadcrumb-item"><a href="dashboard.php">Home</a></li>
+                  <li class="breadcrumb-active"></li>
                 </ol>
-                <!-- Breadcrumb end -->
                 <h2 class="mb-2"></h2>
-                <h6 class="mb-4 fw-light">
-                  Medical Certificates
-                </h6>
+                <h6 class="mb-4 fw-light">Medical Certificates</h6>
               </div>
             </div>
             <!-- Row end -->
 
-            <!-- Row start -->
+            <!-- Card for Medical Certificates -->
             <div class="row">
               <div class="col-12">
                 <div class="card mb-4">
@@ -228,114 +189,77 @@ $doctors = getDoctor($con);
                   </div>
                   <div class="card-body">
                     <div class="row">
-                      <div class="col-xxl-12">
+                      <div class="col-12">
                         <div class="card mb-4">
                           <div class="card-body">
                             <div class="custom-tabs-container">
                               <ul class="nav nav-tabs" id="customTab2" role="tablist">
                                 <li class="nav-item" role="presentation">
-                                  <a class="nav-link active" id="tab-oneA" data-bs-toggle="tab" href="#oneA" role="tab"
-                                    aria-controls="oneA" aria-selected="true">Medical Certificates</a>
+                                  <a class="nav-link active" id="tab-oneA" data-bs-toggle="tab" href="#oneA" role="tab" aria-controls="oneA" aria-selected="true">Medical Certificates</a>
                                 </li>
                                 <li class="nav-item" role="presentation">
-                                  <a class="nav-link" id="tab-twoA" data-bs-toggle="tab" href="#twoA" role="tab"
-                                    aria-controls="twoA" aria-selected="false">Referrals</a>
+                                  <a class="nav-link" id="tab-twoA" data-bs-toggle="tab" href="#twoA" role="tab" aria-controls="twoA" aria-selected="false">Referrals</a>
                                 </li>
-
                               </ul>
                               <div class="tab-content h-350">
                                 <div class="tab-pane fade show active" id="oneA" role="tabpanel">
-                                  <!-- Row start -->
                                   <div class="border rounded-3 p-5">
                                     <div class="mb-5">
-                                      <div class="input-group w-50">
+                                      <div class="input-group">
                                         <input type="text" class="form-control" id="search_patient" name="search_patient" placeholder="Search Patients" autofocus />
                                         <i class="fa fa-search search-icon" aria-hidden="true"></i>
                                         <div id="searchResultsContainer" class="search-results-container"></div>
                                       </div>
                                     </div>
-
-
                                     <form method="POST" id="certificateForm">
                                       <input type="hidden" name="patientid" id="hidden_id">
-
-                                      <ul class="list-group list-group-unbordered mb-3" id="patient_details" style="width: 40%;"></ul>
-
+                                      <ul class="list-group list-group-unbordered mb-3" id="patient_details" style="width: 100%;"></ul>
                                       <div class="d-flex gap-2 justify-content-end mb-2">
                                         <button type="submit" name="submit" id="submit" class="btn btn-dark print-button" disabled>
                                           <i class="icon-printer"></i> Generate
                                         </button>
                                       </div>
                                     </form>
-
                                   </div>
-
                                 </div>
                                 <div class="tab-pane fade" id="twoA" role="tabpanel">
                                   <div class="card-body">
-
-
                                     <div class="border rounded-3 p-5">
-
-
-
                                       <div class="mb-5">
-                                        <div class="input-group w-50">
+                                        <div class="input-group">
                                           <input type="text" class="form-control" id="search_patient1" name="search_patient" placeholder="Search Patients" autofocus />
                                           <i class="fa fa-search search-icon" aria-hidden="true"></i>
                                           <div id="searchResultsContainer1" class="search-results-container"></div>
                                         </div>
-
                                       </div>
-
-
                                       <div id="certificateLinkContainer"></div>
-
                                       <form method="Post" id="referralForm">
                                         <input type="hidden" name="patient_id" id="hidden_id1">
-
-                                        <ul class="list-group list-group-unbordered mb-3" id="patient_details1" style="width: 40%;">
-
+                                        <ul class="list-group list-group-unbordered mb-3" id="patient_details1" style="width: 100%;">
                                           <li class="list-group-item bg-primary text-white"><b>Patient Record:</b></li>
-                                          <li class="list-group-item">
-                                            <b>Name:</b> <span class="float-center text-decoration-none text-dark" id="patient_name"></span>
-                                          </li>
-                                          <li class="list-group-item">
-                                            <b>Gender:</b> <span class="float-center text-decoration-none text-dark" id="patient_gender"></span>
-                                          </li>
-                                          <li class="list-group-item">
-                                            <b>Contact no.:</b> <span class="float-center text-decoration-none text-dark" id="patient_contact"></span>
-                                          </li>
-                                          <li class="list-group-item">
-                                            <b>Status:</b> <span class="float-center text-decoration-none text-dark" id="patient_status"></span>
-                                          </li>
-                                          <li class="list-group-item">
-                                            <b>Age:</b> <span class="float-center text-decoration-none text-dark" id="patient_age"></span>
-                                          </li>
-                                          <li class="list-group-item">
-                                            <b>Address:</b> <span class="float-center text-decoration-none text-dark" id="patient_address"></span>
-                                          </li>
+                                          <li class="list-group-item"><b>Name:</b> <span class="float-center text-decoration-none text-dark" id="patient_name"></span></li>
+                                          <li class="list-group-item"><b>Gender:</b> <span class="float-center text-decoration-none text-dark" id="patient_gender"></span></li>
+                                          <li class="list-group-item"><b>Contact no.:</b> <span class="float-center text-decoration-none text-dark" id="patient_contact"></span></li>
+                                          <li class="list-group-item"><b>Status:</b> <span class="float-center text-decoration-none text-dark" id="patient_status"></span></li>
+                                          <li class="list-group-item"><b>Age:</b> <span class="float-center text-decoration-none text-dark" id="patient_age"></span></li>
+                                          <li class="list-group-item"><b>Address:</b> <span class="float-center text-decoration-none text-dark" id="patient_address"></span></li>
                                         </ul>
-
                                         <div class="d-flex gap-2 justify-content-end mb-2">
-
-
                                           <button type="submit" name="submit" id="submit1" class="btn btn-dark print-button1" disabled>
-                                            <i class="icon-printer"></i> Print
+                                            <i class="icon-printer"></i> Generate
                                           </button>
-
+                                        </div>
                                       </form>
                                     </div>
-
                                   </div>
                                 </div>
                               </div>
-
                             </div>
                           </div>
                         </div>
                       </div>
                     </div>
+                  </div>
 
                   </div>
                 </div>
@@ -452,10 +376,10 @@ $doctors = getDoctor($con);
     $("#searchResultsContainer").empty().hide(); 
 
     var patientId = $(this).data('patient-id'); 
-    console.log('Patient ID:', patientId);  
+   
 
     $("#hidden_id").val(patientId); 
-    console.log('Hidden ID value (after setting):', $("#hidden_id").val());  
+ 
 
     $("#submit").prop('disabled', !patientName);  
     fetchPatientDetailsForCert(patientId);  

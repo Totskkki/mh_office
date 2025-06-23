@@ -26,7 +26,7 @@ include 'config/connection.php';
 
 		<!-- Main CSS -->
 		<link rel="stylesheet" href="assets/css/main.min.css" />
-		<link rel="stylesheet" href="plugins/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css">
+		<link rel="stylesheet" href="assets/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css">
 		<!-- *************
 			************ Vendor Css Files *************
 		************ -->

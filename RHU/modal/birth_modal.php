@@ -10,578 +10,618 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
+                <form action="controller/update_delivery.php" method="POST">
+                    <input type="hidden" name="patientid" id="patients">
+                    <input type="hidden" name="deliveryid" id="deliveryid">
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label for="patientName" class="form-label">Patient's Name:</label>
+                            <input type="text" class="form-input1" id="patientName" name="patientName" readonly>
+                        </div>
+                        <div class="col-md-2">
+                            <label for="age" class="form-label">Age:</label>
+                            <input type="text" class="form-input1" id="patientage" readonly>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="date" class="form-label">Date admitted:</label>
+                            <input type="text" class="form-input1" id="Admitted" name="dateAdmitted">
+                        </div>
 
-                <input type="hidden" name="patientid" id="patients">
-                <div class="row mb-3">
-                    <div class="col-md-4">
-                        <label for="patientName" class="form-label">Patient's Name:</label>
-                        <input type="text" class="form-input1" id="patientName" name="patientName" readonly>
                     </div>
-                    <div class="col-md-2">
-                        <label for="age" class="form-label">Age:</label>
-                        <input type="text" class="form-input1" id="patientage" readonly>
+                    <div class="row mb-3">
+                        <div class="col-md-2">
+                            <label for="lmp" class="form-label">LMP:</label>
+                            <input type="text" class="form-input1" id="lmp1" readonly>
+                        </div>
+                        <div class="col-md-2">
+                            <label for="edc" class="form-label">EDC:</label>
+                            <input type="text" class="form-input1" id="edc1" readonly>
+                        </div>
+                        <div class="col-md-2">
+                            <label for="aog" class="form-label">AOG:</label>
+                            <input type="text" class="form-input1" id="aog1" readonly>
+                        </div>
+                        <div class="col-md-2">
+                            <label for="gravida" class="form-label">Gravida:</label>
+                            <input type="text" class="form-input1" id="gravida" name="gravida">
+                        </div>
+                        <div class="col-md-2">
+                            <label for="para" class="form-label">Para:</label>
+                            <input type="text" class="form-input1" id="para" name="para">
+                        </div>
+                        <div class="col-md-2">
+                            <label for="fullTerm" class="form-label">Full Term:</label>
+                            <input type="text" class="form-input1" id="fullTerm" name="fullTerm">
+                        </div>
                     </div>
-                    <div class="col-md-3">
-                        <label for="date" class="form-label">Date admitted:</label>
-                        <input type="text" class="form-input1" id="Admitted" readonly>
-                    </div>
-
-                </div>
-                <div class="row mb-3">
-                    <div class="col-md-2">
-                        <label for="lmp" class="form-label">LMP:</label>
-                        <input type="text" class="form-input1" id="lmp1" readonly>
-                    </div>
-                    <div class="col-md-2">
-                        <label for="edc" class="form-label">EDC:</label>
-                        <input type="text" class="form-input1" id="edc1" readonly>
-                    </div>
-                    <div class="col-md-2">
-                        <label for="aog" class="form-label">AOG:</label>
-                        <input type="text" class="form-input1" id="aog1" readonly>
-                    </div>
-                    <div class="col-md-2">
-                        <label for="gravida" class="form-label">Gravida:</label>
-                        <input type="text" class="form-input1" id="gravida" readonly>
-                    </div>
-                    <div class="col-md-2">
-                        <label for="para" class="form-label">Para:</label>
-                        <input type="text" class="form-input1" id="para" readonly>
-                    </div>
-                    <div class="col-md-2">
-                        <label for="fullTerm" class="form-label">Full Term:</label>
-                        <input type="text" class="form-input1" id="fullTerm" name="fullTerm" readonly>
-                    </div>
-                </div>
-                <div class="row mb-3">
-
-
-
-                    <div class="col-md-2">
-                        <label for="premature" class="form-label">Premature:</label>
-                        <input type="text" class="form-input1" id="premature" name="premature" readonly>
-                    </div>
-                    <div class="col-md-2">
-                        <label for="abortion" class="form-label">Abortion:</label>
-                        <input type="text" class="form-input1" id="abortion" name="abortion" readonly>
-                    </div>
-                    <div class="col-md-3">
-                        <label for="noOfLiving" class="form-label">No. of Living:</label>
-                        <input type="text" class="form-input1" id="noOfLiving" name="noOfLiving" readonly>
-                    </div>
-                </div>
+                    <div class="row mb-3">
 
 
-                <div class="row mb-3">
-                    <div class="col-md-12">
-                        <label class="form-label"><b>LABOR</b></label>
-                        <div class="table-responsive">
+
+                        <div class="col-md-2">
+                            <label for="premature" class="form-label">Premature:</label>
+                            <input type="text" class="form-input1" id="premature" name="premature">
+                        </div>
+                        <div class="col-md-2">
+                            <label for="abortion" class="form-label">Abortion:</label>
+                            <input type="text" class="form-input1" id="abortion" name="abortion">
+                        </div>
+                        <div class="col-md-3">
+                            <label for="noOfLiving" class="form-label">No. of Living:</label>
+                            <input type="text" class="form-input1" id="noOfLiving" name="noOfLiving">
+                        </div>
+                    </div>
+
+
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            <label class="form-label"><b>LABOR</b></label>
+                            <div class="table-responsive">
+                                <table class="table table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th></th>
+                                            <th>TIME</th>
+                                            <th>DATE</th>
+                                            <th>STAGE OF LABOR</th>
+                                            <th class="text-center">DURATION OF LABOR</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td id="checkbox-container">
+                                                <input type="checkbox" name="labor[]" value="Onset" class="form-check-input" onclick="toggleCheckbox(this)">
+                                                <label> Onset</label><br>
+                                                <input type="checkbox" name="labor[]" value="Spontaneous" class="form-check-input" onclick="toggleCheckbox(this)">
+                                                <label> Spontaneous</label><br>
+                                                <input type="checkbox" name="labor[]" value="Induced" class="form-check-input" onclick="toggleCheckbox(this)">
+                                                <label> Induced</label>
+                                                <div class="invalid-feedback">
+                                                    is required.
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <input type="time" name="laborTime" class="form-control">
+                                                <!-- 
+                                            <div class="invalid-feedback">
+                                                is required.
+                                            </div> -->
+                                            </td>
+
+                                            <td>
+
+
+
+                                                <div class="input-group">
+                                                    <input type="text" class="form-control datepicker " name="laborDate">
+                                                    <span class="input-group-text">
+                                                        <i class="icon-calendar"></i>
+                                                    </span>
+                                                </div>
+
+
+                                            </td>
+                                            <td class="text-center">
+                                                <!-- <input type="checkbox" name="Livebirth" value="Livebirth" class="form-check-input" onclick="toggleCheckbox(this)"> -->
+                                                <label> I</label>
+
+                                            </td>
+                                            <td>
+                                                <input type="text" class="form-control" name="laborHrs" placeholder="Hrs.">
+                                            </td>
+                                            <td>
+
+                                                <input type="text" class="form-control" name="laborMins" placeholder="Mins.">
+                                            </td>
+
+                                        </tr>
+                                        <tr>
+                                            <td><label for="text">Cervix Fully Dilated</label> </td>
+                                            <td><input type="time" name="CervixTime" class="form-control"></td>
+                                            <td>
+
+                                                <div class="input-group">
+                                                    <input type="text" class="form-control datepicker " name="CervixDate">
+                                                    <span class="input-group-text">
+                                                        <i class="icon-calendar"></i>
+                                                    </span>
+                                                </div>
+
+                                            </td>
+                                            <td class="text-center">
+
+                                                <label> II</label>
+                                            </td>
+                                            <td>
+                                                <input type="text" class="form-control" name="CervixHrs" placeholder="Hrs.">
+                                            </td>
+                                            <td>
+
+                                                <input type="text" class="form-control" name="CervixMins" placeholder="Mins.">
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td><label for="text">Baby Delivered</label></td>
+                                            <td><input type="time" name="BabylaborTime" class="form-control"></td>
+                                            <td>
+                                                <div class="input-group">
+                                                    <input type="text" class="form-control datepicker " name="BabylaborDate">
+                                                    <span class="input-group-text">
+                                                        <i class="icon-calendar"></i>
+                                                    </span>
+                                                </div>
+
+                                            </td>
+                                            <td class="text-center">
+
+                                                <label> III</label>
+                                            </td>
+                                            <td>
+                                                <input type="text" class="form-control" name="babyHrs" placeholder="Hrs.">
+                                            </td>
+                                            <td>
+
+                                                <input type="text" class="form-control" name="babyMins" placeholder="Mins.">
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td><label for="text">Placenta Delivered</label></td>
+                                            <td><input type="time" name="PlacentaTime" class="form-control"></td>
+                                            <td>
+                                                <div class="input-group">
+                                                    <input type="text" class="form-control datepicker " name="PlacentaDate">
+                                                    <span class="input-group-text">
+                                                        <i class="icon-calendar"></i>
+                                                    </span>
+                                                </div>
+
+
+                                            </td>
+                                            <td>
+                                                <label for="text">Total Duration</label>
+                                            </td>
+                                            <td>
+                                                <input type="text" class="form-control" name="PlacentaHrs" placeholder="Hrs.">
+                                            </td>
+                                            <td>
+
+                                                <input type="text" class="form-control" name="PlacentaMins" placeholder="Mins.">
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            <label class="form-label"><b>PLACENTA</b></label>
                             <table class="table table-bordered">
                                 <thead>
                                     <tr>
-                                        <th></th>
-                                        <th>TIME</th>
-                                        <th>DATE</th>
-                                        <th>STAGE OF LABOR</th>
-                                        <th class="text-center">DURATION OF LABOR</th>
+                                        <th>PLACENTA</th>
+                                        <th>UMBILICAL CORD</th>
+                                        <th>ESTIMATED BLOOD LOSS</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <tr>
-                                        <td id="checkbox-container">
-                                            <input type="checkbox" name="labor[]" value="Onset" class="form-check-input" onclick="toggleCheckbox(this)" disabled>
-                                            <label> Onset</label><br>
-                                            <input type="checkbox" name="labor[]" value="Spontaneous" class="form-check-input" onclick="toggleCheckbox(this)" disabled>
-                                            <label> Spontaneous</label><br>
-                                            <input type="checkbox" name="labor[]" value="Induced" class="form-check-input" onclick="toggleCheckbox(this)" disabled>
-                                            <label> Induced</label>
+                                        <td>
+                                            <input type="checkbox" name="placentaExpelled[]" class="form-check-input" value="Expelled Completely">
+                                            <label for="placentaExpelled">Expelled Completely</label><br>
+                                            <input type="checkbox" name="placentaExpelled[]" class="form-check-input" value="Retained for Method of Expulsion">
+                                            <label for="placentaRetained">Retained for Method of Expulsion</label><br>
+                                            <input type="checkbox" name="placentaExpelled[]" class="form-check-input" value="Spontaneous">
+                                            <label for="placentaSpontaneous">Spontaneous</label><br>
+                                            <input type="checkbox" name="placentaExpelled[]" class="form-check-input" value="Manual Extraction">
+                                            <label for="placentaManualExtraction">Manual Extraction</label><br>
+
+                                        </td>
+                                        <td>
+                                            <input type="text" class="form-control" name="cm" placeholder="Cm.">
+
+                                            <div class="d-flex align-items-center">
+                                                <input type="text" class="form-control me-2" name="no_nexk" placeholder="No. of Loops at Neck">
+                                                <input type="checkbox" name="umbilicalCordNone" value="None" class="form-check-input me-1">
+                                                <label>None</label>
+                                            </div>
+
+                                            <div class="d-flex align-items-center">
+                                                <input type="text" class="form-control me-2" name="umbilicalCordLoops" placeholder="Other Abnormalities">
+                                                <input type="checkbox" name="umbilicalCordLoopsNone" value="None" class="form-check-input me-1">
+                                                <label>None</label>
+                                            </div>
+
+                                            <input type="text" class="form-control" name="placentaOther" placeholder="Other (Specify)">
+                                        </td>
+
+
+
+                                        <td>
+                                            <input type="text" class="form-control" name="bloodLossAntepartum" placeholder="Antepartum">
+                                            <input type="text" class="form-control" name="bloodLossIntrapartum" placeholder="Intrapartum">
+                                            <input type="text" class="form-control" name="bloodLossPostpartum" placeholder="Postpartum">
+                                            <input type="text" class="form-control" name="totalBloodLoss" placeholder="Total Est. Blood Loss">
+                                        </td>
+                                        <td>
+                                            <label for="text" class="form-control">CC</label>
+                                            <label for="text" class="form-control">CC</label>
+                                            <label for="text" class="form-control">CC</label>
+                                            <label for="text" class="form-control">CC</label>
+
+                                        </td>
+
+
+                                    </tr>
+
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            <label class="form-label"><b>METHOD OF DELIVERY</b></label>
+
+                            <div class="mb-3">
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="checkbox" name="method[]" value="NSVD" onclick="toggleCheckbox(this)">
+                                    <label class="form-check-label" for="inlineRadio2">NSVD</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="checkbox" name="method[]" value="Cesarean" onclick="toggleCheckbox(this)">
+                                    <label class="form-check-label" for="inlineRadio2">Cesarean</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="checkbox" name="method[]" value="OF" onclick="toggleCheckbox(this)">
+                                    <label class="form-check-label" for="inlineRadio2">OF</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="checkbox" name="method[]" value="LF" onclick="toggleCheckbox(this)">
+                                    <label class="form-check-label" for="inlineRadio2">LF</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="checkbox" name="method[]" value="TBE" onclick="toggleCheckbox(this)">
+                                    <label class="form-check-label" for="inlineRadio2">TBE</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="checkbox" name="method[]" value="PBE" onclick="toggleCheckbox(this)">
+                                    <label class="form-check-label" for="inlineRadio2">PBE</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="checkbox" name="method[]" value="CCS" onclick="toggleCheckbox(this)">
+                                    <label class="form-check-label" for="inlineRadio2">CCS</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="checkbox" name="method[]" value="ME" onclick="toggleCheckbox(this)">
+                                    <label class="form-check-label" for="inlineRadio2">ME</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="checkbox" name="method[]" value="Other" id="checkboxOther">
+                                    <label class="form-check-label" for="checkboxOther">Other (Specify)</label>
+                                    <input class="form-input1" type="text" name="method_details" id="inputOther" value="">
+                                </div>
+                                <div class="invalid-feedback method-invalid-feedback">
+                                    At least one method of delivery option is required.
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+
+                                <div class="col-md-12">
+                                    <label class="form-label"><b>INDICATION FOR OPERATIVE DELIVERY:</b></label>
+                                    <div class="mb-3">
+                                        <label class="form-check-label" for="inlineRadio2">Episiotomy: </label>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="checkbox" name="Episiotomy[]" value="Median">
+                                            <label class="form-check-label" for="inlineRadio2">Median</label>
+                                        </div>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="checkbox" name="Episiotomy[]" value="Right Med. Lateral">
+                                            <label class="form-check-label" for="inlineRadio2">Right Med. Lateral</label>
+                                        </div>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="checkbox" name="Episiotomy[]" value="Left Med. Lateral">
+                                            <label class="form-check-label" for="inlineRadio2">Left Med. Lateral</label>
+                                        </div>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="checkbox" name="Episiotomy[]" value="None">
+                                            <label class="form-check-label" for="inlineRadio2">None</label>
+                                        </div>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="checkbox" name="Episiotomy[]" value="Extension">
+                                            <label class="form-check-label" for="inlineRadio2">Extension</label>
+                                        </div>
+                                        <div class="invalid-feedback Episiotomy-invalid-feedback">
+                                            At least one option is required.
+                                        </div>
+
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-check-label" for="inlineRadio2">Laceration: </label>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="checkbox" name="Laceration[]" value="Perinial 1 2 3" onclick="toggleCheckbox(this)">
+                                            <label class="form-check-label" for="inlineRadio2">Perinial 1" 2" 3"</label>
+                                        </div>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="checkbox" name="Laceration[]" value="Vaginal" onclick="toggleCheckbox(this)">
+                                            <label class="form-check-label" for="inlineRadio2">Vaginal </label>
+                                        </div>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="checkbox" name="Laceration[]" value="Cervical" onclick="toggleCheckbox(this)">
+                                            <label class="form-check-label" for="inlineRadio2">Cervical</label>
+                                        </div>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="checkbox" name="Laceration[]" value="Repaired" onclick="toggleCheckbox(this)">
+                                            <label class="form-check-label" for="inlineRadio2">Repaired</label>
+                                        </div>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="checkbox" name="Laceration[]" value="Not Repaired" onclick="toggleCheckbox(this)">
+                                            <label class="form-check-label" for="inlineRadio2">Not Repaired</label>
+                                        </div>
+                                        <div class="invalid-feedback Laceration-invalid-feedback">
+                                            At least one option is required.
+                                        </div>
+
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-check-label" for="inlineRadio2">Anethesia: </label>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="checkbox" name="Anethesia[]" value="Local Infiltration" onclick="toggleCheckbox(this)">
+                                            <label class="form-check-label" for="inlineRadio2">Local Infiltration</label>
+                                        </div>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="checkbox" name="Anethesia[]" value="General Inhalation" onclick="toggleCheckbox(this)">
+                                            <label class="form-check-label" for="inlineRadio2">General Inhalation</label>
+                                        </div>
+
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="checkbox" name="Anethesia[]" value="None" onclick="toggleCheckbox(this)">
+                                            <label class="form-check-label" for="inlineRadio2">None</label>
+                                        </div>
+                                        <div class="invalid-feedback Anethesia-invalid-feedback">
+                                            At least one option is required.
+                                        </div>
+
+
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-check-label" for="inlineRadio2">Analgesia: </label>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="checkbox" name="Analgesia[]" value="Yes" onclick="toggleCheckbox(this)">
+                                            <label class="form-check-label" for="inlineRadio2">Yes</label>
+                                        </div>
+
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="checkbox" name="Analgesia[]" value="None" onclick="toggleCheckbox(this)">
+                                            <label class="form-check-label" for="inlineRadio2">None</label>
+                                        </div>
+                                        <div class="invalid-feedback Analgesia-invalid-feedback">
+                                            At least one option is required.
+                                        </div>
+
+
+                                    </div>
+                                </div>
+
+
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            <label class="form-label"><b>CONDITION UPON LEAVING THE DELIVERY ROOM</b></label>
+                            <div class="mb-3">
+
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="checkbox" name="condition[]" value="Awake" onclick="toggleCheckbox(this)">
+                                    <label class="form-check-label" for="inlineRadio2">Awake</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="checkbox" name="condition[]" value="Reactive" onclick="toggleCheckbox(this)">
+                                    <label class="form-check-label" for="inlineRadio2">Reactive</label>
+                                </div>
+
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="checkbox" name="condition[]" value="Depressed" onclick="toggleCheckbox(this)">
+                                    <label class="form-check-label" for="inlineRadio2">Depressed</label>
+                                </div>
+                                <div class="invalid-feedback condition-invalid-feedback">
+                                    At least one option is required.
+                                </div>
+
+
+                            </div>
+
+
+
+
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <label class="form-label"><b>URINARY BLADDER:</b></label>
+                            <div class="mb-3">
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="checkbox" name="urinary_bladder[]" value="W/Catheter" id="urinaryBladderWC">
+                                    <label class="form-check-label" for="urinaryBladderWC">W/Catheter</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="checkbox" name="urinary_bladder[]" value="Voided" id="urinaryBladderVoided">
+                                    <label class="form-check-label" for="urinaryBladderVoided">Voided</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <label class="form-check-label" for="urinaryBladderTotalOutput">Total Urine Output:</label>
+                                    <input class="form-input1" type="text" name="urinary_bladder_output" id="urinaryBladderTotalOutput" value="">
+                                    <label class="form-check-label" for="urinaryBladderTotalOutput">CC</label>
+                                </div>
+                                <div class="invalid-feedback urinary_bladder-invalid-feedback">
+                                    At least one option is required.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row ">
+                        <div class="col-md-12">
+                            <label class="form-label"><b>VITAL SIGNS:</b></label>
+                            <div class="mb-3">
+
+
+
+                                <div class="form-check form-check-inline">
+
+                                    <label class="form-check-label" for="inlineRadio2">BP: </label>
+                                    <input class="form-input1" type="text" id="bp1" value="" readonly>
+
+                                </div>
+
+                                <div class="form-check form-check-inline">
+
+                                    <label class="form-check-label" for="inlineRadio2">PR: </label>
+                                    <input class="form-input1" type="text" id="pr1" value="" readonly>
+
+                                </div>
+
+                                <div class="form-check form-check-inline">
+
+                                    <label class="form-check-label" for="inlineRadio2">RR: </label>
+                                    <input class="form-input1" type="text" id="rr1" value="" readonly>
+
+                                </div>
+
+                                <div class="form-check form-check-inline">
+
+                                    <label class="form-check-label" for="inlineRadio2">T: </label>
+                                    <input class="form-input1" type="text" id="t1" value="" readonly>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row ">
+                        <div class="col-md-12">
+                            <label class="form-label"><b>UTERUS:</b></label>
+                            <div class="mb-3">
+
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="checkbox" name="uterus[]" value="Well Contracted" onclick="toggleCheckbox(this)">
+                                    <label class="form-check-label" for="inlineRadio2">Well Contracted </label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="checkbox" name="uterus[]" value="Relaxing" onclick="toggleCheckbox(this)">
+                                    <label class="form-check-label" for="inlineRadio2">Relaxing </label>
+                                </div>
+                                <div class="invalid-feedback uterus-invalid-feedback">
+                                    At least one option is required.
+                                </div>
+
+
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="mb-3">
+                                <div class="d-flex align-items-center mb-2">
+                                    <label class="form-check-label me-2" for="complicationsRelated">COMPLICATIONS RELATED TO PREGNANCY: </label>
+                                    <input class="form-input1 me-2" type="text" name="pregnancy" id="pregnancyInput1" value="">
+                                    <input class="form-check-input me-1" type="checkbox" name="pregnancy" id="pregnancyCheckbox1" value="None">
+                                    <label class="form-check-label" for="pregnancyCheckbox">None</label>
+                                </div>
+                                <div class="d-flex align-items-center mb-2">
+                                    <label class="form-check-label me-2" for="complicationsNotRelated">COMPLICATIONS NOT RELATED TO PREGNANCY: </label>
+                                    <input class="form-input1 me-2" type="text" name="not_related" id="notRelatedInput1" value="">
+                                    <input class="form-check-input me-1" type="checkbox" name="not_related" id="notRelatedCheckbox1" value="None">
+                                    <label class="form-check-label" for="notRelatedCheckbox">None</label>
+                                </div>
+                                <div class="d-flex align-items-center mb-2">
+                                    <label class="form-check-label me-2" for="complicationsLabor">COMPLICATION OF LABOR: </label>
+                                    <input class="form-input1 me-2" type="text" name="complications" id="laborInput1" value="">
+                                    <input class="form-check-input me-1" type="checkbox" name="complications" id="laborCheckbox1" value="None">
+                                    <label class="form-check-label" for="laborCheckbox">None</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+
+                            <table class="table table-bordered">
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <label for="handledBy">Handled by:</label>
+                                            <input type="text" class="form-control" id="handledBy" name="handledBy" required>
                                             <div class="invalid-feedback">
-                                                is required.
+                                                Handled by is required.
                                             </div>
                                         </td>
                                         <td>
-                                            <input type="time" name="laborTime" class="form-control" readonly>
-                                            <!-- 
+                                            <label for="assistedBy">Assisted by:</label>
+                                            <input type="text" class="form-control" id="assistedBy" name="assistedBy" required>
                                             <div class="invalid-feedback">
-                                                is required.
-                                            </div> -->
-                                        </td>
-
-                                        <td>
-
-                                            <input type="text" name="laborDate" class="form-control" readonly>
-
-
-
-
-                                        </td>
-                                        <td class="text-center">
-                                            <!-- <input type="checkbox" name="Livebirth" value="Livebirth" class="form-check-input" onclick="toggleCheckbox(this)"> -->
-                                            <label> I</label>
-
+                                                Assisted by is required.
+                                            </div>
                                         </td>
                                         <td>
-                                            <input type="text" class="form-control" name="laborHrs" placeholder="Hrs." readonly>
-                                        </td>
-                                        <td>
+                                            <label for="physicianOnDuty">Physician on duty:</label>
+                                            <select name="physician" id="physician" name="physician" class="form-select" required>
 
-                                            <input type="text" class="form-control" name="laborMins" placeholder="Mins." readonly>
-                                        </td>
-
-                                    </tr>
-                                    <tr>
-                                        <td><label for="text">Cervix Fully Dilated</label> </td>
-                                        <td><input type="time" name="CervixTime" class="form-control" readonly></td>
-                                        <td> <input type="text" name="CervixDate" class="form-control" readonly>
-
-                                        </td>
-                                        <td class="text-center">
-
-                                            <label> II</label>
-                                        </td>
-                                        <td>
-                                            <input type="text" class="form-control" name="CervixHrs" placeholder="Hrs." readonly>
-                                        </td>
-                                        <td>
-
-                                            <input type="text" class="form-control" name="CervixMins" placeholder="Mins." readonly>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td><label for="text">Baby Delivered</label></td>
-                                        <td><input type="time" name="BabylaborTime" class="form-control" readonly></td>
-                                        <td> <input type="text" name="BabylaborDate" class="form-control" readonly>
-
-                                        </td>
-                                        <td class="text-center">
-
-                                            <label> III</label>
-                                        </td>
-                                        <td>
-                                            <input type="text" class="form-control" name="babyHrs" placeholder="Hrs." readonly>
-                                        </td>
-                                        <td>
-
-                                            <input type="text" class="form-control" name="babyMins" placeholder="Mins." readonly>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td><label for="text">Placenta Delivered</label></td>
-                                        <td><input type="time" name="PlacentaTime" class="form-control" readonly></td>
-                                        <td> <input type="text" name="PlacentaDate" class="form-control" readonly>
-
-
-                                        </td>
-                                        <td>
-                                            <label for="text">Total Duration</label>
-                                        </td>
-                                        <td>
-                                            <input type="text" class="form-control" name="PlacentaHrs" placeholder="Hrs." readonly>
-                                        </td>
-                                        <td>
-
-                                            <input type="text" class="form-control" name="PlacentaMins" placeholder="Mins." readonly>
+                                                <?php echo $getphysician; ?>
+                                            </select>
+                                            <div class="invalid-feedback">
+                                                Physician on duty is required.
+                                            </div>
                                         </td>
                                     </tr>
                                 </tbody>
                             </table>
                         </div>
                     </div>
-                </div>
 
-                <div class="row mb-3">
-                    <div class="col-md-12">
-                        <label class="form-label"><b>PLACENTA</b></label>
-                        <table class="table table-bordered">
-                            <thead>
-                                <tr>
-                                    <th>PLACENTA</th>
-                                    <th>UMBILICAL CORD</th>
-                                    <th>ESTIMATED BLOOD LOSS</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>
-                                        <input type="checkbox" name="placentaExpelled[]" class="form-check-input" value="Expelled Completely" disabled>
-                                        <label for="placentaExpelled">Expelled Completely</label><br>
-                                        <input type="checkbox" name="placentaExpelled[]" class="form-check-input" value="Retained for Method of Expulsion" disabled>
-                                        <label for="placentaRetained">Retained for Method of Expulsion</label><br>
-                                        <input type="checkbox" name="placentaExpelled[]" class="form-check-input" value="Spontaneous" disabled>
-                                        <label for="placentaSpontaneous">Spontaneous</label><br>
-                                        <input type="checkbox" name="placentaExpelled[]" class="form-check-input" value="Manual Extraction" disabled>
-                                        <label for="placentaManualExtraction">Manual Extraction</label><br>
-
-                                    </td>
-                                    <td>
-                                        <input type="text" class="form-control" name="cm" placeholder="Cm." readonly>
-                                        <div class="d-flex align-items-center">
-                                            <input type="text" class="form-control me-2" name="no_nexk" placeholder="No. of Loops at Neck" readonly>
-                                            <input type="checkbox" name="no_nexk" value="None" class="form-check-input me-1" disabled>
-                                            <label> None</label>
-                                        </div>
-                                        <div class="d-flex align-items-center">
-
-                                            <input type="text" class="form-control me-2" name="umbilicalCordLoops" placeholder="Other Abnormalities" readonly>
-                                            <input type="checkbox" name="umbilicalCordLoops" value="None" class="form-check-input  me-1" disabled>
-                                            <label> None</label>
-
-                                        </div>
-                                        <input type="text" class="form-control" name="placentaOther" placeholder="Other (Specify)" readonly>
-                                    </td>
-                                    <td>
-                                        <input type="text" class="form-control" name="bloodLossAntepartum" placeholder="Antepartum" readonly>
-                                        <input type="text" class="form-control" name="bloodLossIntrapartum" placeholder="Intrapartum" readonly>
-                                        <input type="text" class="form-control" name="bloodLossPostpartum" placeholder="Postpartum" readonly>
-                                        <input type="text" class="form-control" name="totalBloodLoss" placeholder="Total Est. Blood Loss" readonly>
-                                    </td>
-                                    <td>
-                                        <label for="text" class="form-control">CC</label>
-                                        <label for="text" class="form-control">CC</label>
-                                        <label for="text" class="form-control">CC</label>
-                                        <label for="text" class="form-control">CC</label>
-
-                                    </td>
-
-
-                                </tr>
-
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-                <div class="row mb-3">
-                    <div class="col-md-12">
-                        <label class="form-label"><b>METHOD OF DELIVERY</b></label>
-
-                        <div class="mb-3">
-                            <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="checkbox" name="method[]" value="NSVD" onclick="toggleCheckbox(this)">
-                                <label class="form-check-label" for="inlineRadio2">NSVD</label>
-                            </div>
-                            <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="checkbox" name="method[]" value="Cesarean" onclick="toggleCheckbox(this)">
-                                <label class="form-check-label" for="inlineRadio2">Cesarean</label>
-                            </div>
-                            <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="checkbox" name="method[]" value="OF" onclick="toggleCheckbox(this)">
-                                <label class="form-check-label" for="inlineRadio2">OF</label>
-                            </div>
-                            <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="checkbox" name="method[]" value="LF" onclick="toggleCheckbox(this)">
-                                <label class="form-check-label" for="inlineRadio2">LF</label>
-                            </div>
-                            <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="checkbox" name="method[]" value="TBE" onclick="toggleCheckbox(this)">
-                                <label class="form-check-label" for="inlineRadio2">TBE</label>
-                            </div>
-                            <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="checkbox" name="method[]" value="PBE" onclick="toggleCheckbox(this)">
-                                <label class="form-check-label" for="inlineRadio2">PBE</label>
-                            </div>
-                            <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="checkbox" name="method[]" value="CCS" onclick="toggleCheckbox(this)">
-                                <label class="form-check-label" for="inlineRadio2">CCS</label>
-                            </div>
-                            <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="checkbox" name="method[]" value="ME" onclick="toggleCheckbox(this)">
-                                <label class="form-check-label" for="inlineRadio2">ME</label>
-                            </div>
-                            <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="checkbox" name="method[]" value="Other" id="checkboxOther">
-                                <label class="form-check-label" for="checkboxOther">Other (Specify)</label>
-                                <input class="form-input1" type="text" name="method_details" id="inputOther" value="">
-                            </div>
-                            <div class="invalid-feedback method-invalid-feedback">
-                                At least one method of delivery option is required.
-                            </div>
-                        </div>
-                        <div class="row mb-3">
-
-                            <div class="col-md-12">
-                                <label class="form-label"><b>INDICATION FOR OPERATIVE DELIVERY:</b></label>
-                                <div class="mb-3">
-                                    <label class="form-check-label" for="inlineRadio2">Episiotomy: </label>
-                                    <div class="form-check form-check-inline">
-                                        <input class="form-check-input" type="checkbox" name="Episiotomy[]" value="Median">
-                                        <label class="form-check-label" for="inlineRadio2">Median</label>
-                                    </div>
-                                    <div class="form-check form-check-inline">
-                                        <input class="form-check-input" type="checkbox" name="Episiotomy[]" value="Right Med. Lateral">
-                                        <label class="form-check-label" for="inlineRadio2">Right Med. Lateral</label>
-                                    </div>
-                                    <div class="form-check form-check-inline">
-                                        <input class="form-check-input" type="checkbox" name="Episiotomy[]" value="Left Med. Lateral">
-                                        <label class="form-check-label" for="inlineRadio2">Left Med. Lateral</label>
-                                    </div>
-                                    <div class="form-check form-check-inline">
-                                        <input class="form-check-input" type="checkbox" name="Episiotomy[]" value="None">
-                                        <label class="form-check-label" for="inlineRadio2">None</label>
-                                    </div>
-                                    <div class="form-check form-check-inline">
-                                        <input class="form-check-input" type="checkbox" name="Episiotomy[]" value="Extension">
-                                        <label class="form-check-label" for="inlineRadio2">Extension</label>
-                                    </div>
-                                    <div class="invalid-feedback Episiotomy-invalid-feedback">
-                                        At least one option is required.
-                                    </div>
-
-                                </div>
-                                <div class="mb-3">
-                                    <label class="form-check-label" for="inlineRadio2">Laceration: </label>
-                                    <div class="form-check form-check-inline">
-                                        <input class="form-check-input" type="checkbox" name="Laceration[]" value="Perinial 1 2 3" onclick="toggleCheckbox(this)">
-                                        <label class="form-check-label" for="inlineRadio2">Perinial 1" 2" 3"</label>
-                                    </div>
-                                    <div class="form-check form-check-inline">
-                                        <input class="form-check-input" type="checkbox" name="Laceration[]" value="Vaginal" onclick="toggleCheckbox(this)">
-                                        <label class="form-check-label" for="inlineRadio2">Vaginal </label>
-                                    </div>
-                                    <div class="form-check form-check-inline">
-                                        <input class="form-check-input" type="checkbox" name="Laceration[]" value="Cervical" onclick="toggleCheckbox(this)">
-                                        <label class="form-check-label" for="inlineRadio2">Cervical</label>
-                                    </div>
-                                    <div class="form-check form-check-inline">
-                                        <input class="form-check-input" type="checkbox" name="Laceration[]" value="Repaired" onclick="toggleCheckbox(this)">
-                                        <label class="form-check-label" for="inlineRadio2">Repaired</label>
-                                    </div>
-                                    <div class="form-check form-check-inline">
-                                        <input class="form-check-input" type="checkbox" name="Laceration[]" value="Not Repaired" onclick="toggleCheckbox(this)">
-                                        <label class="form-check-label" for="inlineRadio2">Not Repaired</label>
-                                    </div>
-                                    <div class="invalid-feedback Laceration-invalid-feedback">
-                                        At least one option is required.
-                                    </div>
-
-                                </div>
-                                <div class="mb-3">
-                                    <label class="form-check-label" for="inlineRadio2">Anethesia: </label>
-                                    <div class="form-check form-check-inline">
-                                        <input class="form-check-input" type="checkbox" name="Anethesia[]" value="Local Infiltration" onclick="toggleCheckbox(this)">
-                                        <label class="form-check-label" for="inlineRadio2">Local Infiltration</label>
-                                    </div>
-                                    <div class="form-check form-check-inline">
-                                        <input class="form-check-input" type="checkbox" name="Anethesia[]" value="General Inhalation" onclick="toggleCheckbox(this)">
-                                        <label class="form-check-label" for="inlineRadio2">General Inhalation</label>
-                                    </div>
-
-                                    <div class="form-check form-check-inline">
-                                        <input class="form-check-input" type="checkbox" name="Anethesia[]" value="None" onclick="toggleCheckbox(this)">
-                                        <label class="form-check-label" for="inlineRadio2">None</label>
-                                    </div>
-                                    <div class="invalid-feedback Anethesia-invalid-feedback">
-                                        At least one option is required.
-                                    </div>
-
-
-                                </div>
-                                <div class="mb-3">
-                                    <label class="form-check-label" for="inlineRadio2">Analgesia: </label>
-                                    <div class="form-check form-check-inline">
-                                        <input class="form-check-input" type="checkbox" name="Analgesia[]" value="Yes" onclick="toggleCheckbox(this)">
-                                        <label class="form-check-label" for="inlineRadio2">Yes</label>
-                                    </div>
-
-                                    <div class="form-check form-check-inline">
-                                        <input class="form-check-input" type="checkbox" name="Analgesia[]" value="None" onclick="toggleCheckbox(this)">
-                                        <label class="form-check-label" for="inlineRadio2">None</label>
-                                    </div>
-                                    <div class="invalid-feedback Analgesia-invalid-feedback">
-                                        At least one option is required.
-                                    </div>
-
-
-                                </div>
-                            </div>
+                    <div class="row">
+                        <div class="col-md-12 text-end">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="submit" name="updatedelivery" class="btn btn-info"><i class="icon-update"></i> Update</button>
 
 
                         </div>
                     </div>
-
-                </div>
-                <div class="row mb-3">
-                    <div class="col-md-12">
-                        <label class="form-label"><b>CONDITION UPON LEAVING THE DELIVERY ROOM</b></label>
-                        <div class="mb-3">
-
-                            <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="checkbox" name="condition[]" value="Awake" onclick="toggleCheckbox(this)">
-                                <label class="form-check-label" for="inlineRadio2">Awake</label>
-                            </div>
-                            <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="checkbox" name="condition[]" value="Reactive" onclick="toggleCheckbox(this)">
-                                <label class="form-check-label" for="inlineRadio2">Reactive</label>
-                            </div>
-
-                            <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="checkbox" name="condition[]" value="Depressed" onclick="toggleCheckbox(this)">
-                                <label class="form-check-label" for="inlineRadio2">Depressed</label>
-                            </div>
-                            <div class="invalid-feedback condition-invalid-feedback">
-                                At least one option is required.
-                            </div>
-
-
-                        </div>
-
-
-
-
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-md-12">
-                        <label class="form-label"><b>URINARY BLADDER:</b></label>
-                        <div class="mb-3">
-                            <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="checkbox" name="urinary_bladder[]" value="W/Catheter" id="urinaryBladderWC">
-                                <label class="form-check-label" for="urinaryBladderWC">W/Catheter</label>
-                            </div>
-                            <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="checkbox" name="urinary_bladder[]" value="Voided" id="urinaryBladderVoided">
-                                <label class="form-check-label" for="urinaryBladderVoided">Voided</label>
-                            </div>
-                            <div class="form-check form-check-inline">
-                                <label class="form-check-label" for="urinaryBladderTotalOutput">Total Urine Output:</label>
-                                <input class="form-input1" type="text" name="urinary_bladder_output" id="urinaryBladderTotalOutput" value="">
-                                <label class="form-check-label" for="urinaryBladderTotalOutput">CC</label>
-                            </div>
-                            <div class="invalid-feedback urinary_bladder-invalid-feedback">
-                                At least one option is required.
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="row ">
-                    <div class="col-md-12">
-                        <label class="form-label"><b>VITAL SIGNS:</b></label>
-                        <div class="mb-3">
-
-
-
-                            <div class="form-check form-check-inline">
-
-                                <label class="form-check-label" for="inlineRadio2">BP: </label>
-                                <input class="form-input1" type="text" id="bp1" value="" readonly>
-
-                            </div>
-
-                            <div class="form-check form-check-inline">
-
-                                <label class="form-check-label" for="inlineRadio2">PR: </label>
-                                <input class="form-input1" type="text" id="pr1" value="" readonly>
-
-                            </div>
-
-                            <div class="form-check form-check-inline">
-
-                                <label class="form-check-label" for="inlineRadio2">RR: </label>
-                                <input class="form-input1" type="text" id="rr1" value="" readonly>
-
-                            </div>
-
-                            <div class="form-check form-check-inline">
-
-                                <label class="form-check-label" for="inlineRadio2">T: </label>
-                                <input class="form-input1" type="text" id="t1" value="" readonly>
-
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="row ">
-                    <div class="col-md-12">
-                        <label class="form-label"><b>UTERUS:</b></label>
-                        <div class="mb-3">
-
-                            <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="checkbox" name="uterus[]" value="Well Contracted" onclick="toggleCheckbox(this)">
-                                <label class="form-check-label" for="inlineRadio2">Well Contracted </label>
-                            </div>
-                            <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="checkbox" name="uterus[]" value="Relaxing" onclick="toggleCheckbox(this)">
-                                <label class="form-check-label" for="inlineRadio2">Relaxing </label>
-                            </div>
-                            <div class="invalid-feedback uterus-invalid-feedback">
-                                At least one option is required.
-                            </div>
-
-
-                        </div>
-                    </div>
-                </div>
-
-
-                <div class="row">
-                    <div class="col-md-12">
-                        <div class="mb-3">
-                            <div class="d-flex align-items-center mb-2">
-                                <label class="form-check-label me-2" for="complicationsRelated">COMPLICATIONS RELATED TO PREGNANCY: </label>
-                                <input class="form-input1 me-2" type="text" name="pregnancy" id="pregnancyInput1" value="">
-                                <input class="form-check-input me-1" type="checkbox" name="pregnancy" id="pregnancyCheckbox1" value="None">
-                                <label class="form-check-label" for="pregnancyCheckbox">None</label>
-                            </div>
-                            <div class="d-flex align-items-center mb-2">
-                                <label class="form-check-label me-2" for="complicationsNotRelated">COMPLICATIONS NOT RELATED TO PREGNANCY: </label>
-                                <input class="form-input1 me-2" type="text" name="not_related" id="notRelatedInput1" value="">
-                                <input class="form-check-input me-1" type="checkbox" name="not_related" id="notRelatedCheckbox1" value="None">
-                                <label class="form-check-label" for="notRelatedCheckbox">None</label>
-                            </div>
-                            <div class="d-flex align-items-center mb-2">
-                                <label class="form-check-label me-2" for="complicationsLabor">COMPLICATION OF LABOR: </label>
-                                <input class="form-input1 me-2" type="text" name="complications" id="laborInput1" value="">
-                                <input class="form-check-input me-1" type="checkbox" name="complications" id="laborCheckbox1" value="None">
-                                <label class="form-check-label" for="laborCheckbox">None</label>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-
-
-                <div class="row mb-3">
-                    <div class="col-md-12">
-
-                        <table class="table table-bordered">
-                            <tbody>
-                                <tr>
-                                    <td>
-                                        <label for="handledBy">Handled by:</label>
-                                        <input type="text" class="form-control" id="handledBy" required>
-                                        <div class="invalid-feedback">
-                                            Handled by is required.
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <label for="assistedBy">Assisted by:</label>
-                                        <input type="text" class="form-control" id="assistedBy" required>
-                                        <div class="invalid-feedback">
-                                            Assisted by is required.
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <label for="physicianOnDuty">Physician on duty:</label>
-                                        <select name="physician" id="physician" class="form-select" required>
-
-                                            <?php echo $physician; ?>
-                                        </select>
-                                        <div class="invalid-feedback">
-                                            Physician on duty is required.
-                                        </div>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
+                </form>
 
 
             </div>
         </div>
     </div>
 </div>
+
+
 <!-- start Save Records -->
 <div class="modal fade" id="labourRecord" tabindex="-1" aria-labelledby="labourRecord" aria-hidden="true">
     <div class="modal-dialog modal-xl">
@@ -2077,7 +2117,7 @@
                                                 <label for="physicianOnDuty">Physician on duty:</label>
                                                 <select name="physician" id="" class="form-select" required>
 
-                                                    <?php echo $physician; ?>
+                                                    <?php echo $getphysician; ?>
                                                 </select>
                                                 <div class="invalid-feedback">
                                                     Physician on duty is required.
