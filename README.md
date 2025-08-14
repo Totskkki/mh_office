@@ -52,7 +52,6 @@ A comprehensive, modular, and secure health center information system built for 
 ### 👥 User & Role Management
 - Add users: admin, doctor, nurse, staff
 - Role-based permissions
-- 2FA via Google Authenticator
 - Secure authentication & session management
 - Upload profile picture
 - Activity logging & audit trails
@@ -64,25 +63,17 @@ A comprehensive, modular, and secure health center information system built for 
 ### 📊 Dashboard & Reporting
 - Visual summaries of:
   - Deceased members
-  - Released financial support
   - Vaccination progress
   - Prenatal and postnatal monitoring
 - Date filters, search, and sortable tables
 - CSV and Excel export supported
 
-### 💸 Money Releasing / Financial Aid
-- Manage patient financial support and contributions
-- View coordinator-based released amounts
-- Tabbed view for pending and approved releases
 
----
 
 ## 🛠️ System Architecture
 
-- ✅ PHP (OOP / MVC Pattern)
 - ✅ MySQL (PDO/MySQLi)
 - ✅ FilamentPHP for modern UI components
-- ✅ TailwindCSS custom theme
 - ✅ JavaScript enhancements for dynamic forms
 - ✅ Secure image/file upload handling
 - ✅ Multiselect (Select2 or Bootstrap-Multiselect)
@@ -91,13 +82,6 @@ A comprehensive, modular, and secure health center information system built for 
 
 ---
 
-## 📦 Installation
 
-```bash
-git clone https://github.com/yourusername/health-center-system.git
-cd health-center-system
-composer install
-cp .env.example .env
-php artisan key:generate
 
 
