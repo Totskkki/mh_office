@@ -62,8 +62,11 @@ A comprehensive, modular, and secure health center information system built for 
 
 ### 📊 Dashboard & Reporting
 - Visual summaries of:
-  - Deceased members
+  - Statistic Reports
   - Vaccination progress
+  - Today's Patient
+  - Medicine tracking
+  - Events
   - Prenatal and postnatal monitoring
 - Date filters, search, and sortable tables
 - CSV and Excel export supported
@@ -81,6 +84,7 @@ A comprehensive, modular, and secure health center information system built for 
 - ✅ Fully responsive design
 
 ---
+
 
 
 
