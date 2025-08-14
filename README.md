@@ -76,7 +76,7 @@ A comprehensive, modular, and secure health center information system built for 
 ## 🛠️ System Architecture
 
 - ✅ MySQL (PDO/MySQLi)
-- ✅ FilamentPHP for modern UI components
+- ✅ Bootstrap 5
 - ✅ JavaScript enhancements for dynamic forms
 - ✅ Secure image/file upload handling
 - ✅ Multiselect (Select2 or Bootstrap-Multiselect)
@@ -84,6 +84,7 @@ A comprehensive, modular, and secure health center information system built for 
 - ✅ Fully responsive design
 
 ---
+
 
 
 
