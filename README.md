@@ -3,7 +3,7 @@
 # GREEN VALLEY COLLEGE FOUNDATION INC.
 # BEST CAPSTONE OF THE YEAR
 
-# 🏥 Health Center Information System - Lutayan, Sultan Kudarat
+# 🏥 Web Based Health Management System with Doctor's Scheduling app - Lutayan, Sultan Kudarat
 
 A comprehensive, modular, and secure health center information system built for managing medical records, patient profiles, checkups, vaccinations, birthing monitoring, and financial support within the Municipality of Lutayan, Sultan Kudarat.
 
@@ -81,6 +81,7 @@ A comprehensive, modular, and secure health center information system built for 
 - ✅ Fully responsive design
 
 ---
+
 
 
 
